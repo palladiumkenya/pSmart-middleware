@@ -8,7 +8,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
@@ -76,17 +75,6 @@ public class Main extends Application {
         writeButton.setText("New Card");
         writeButton.setPrefSize(200, 50);
 
-        /*Hyperlink options[] = new Hyperlink[] {
-                new Hyperlink("Sales"),
-                new Hyperlink("Marketing"),
-                new Hyperlink("Distribution"),
-                new Hyperlink("Costs")};
-
-        for (int i=0; i<4; i++) {
-            VBox.setMargin(options[i], new Insets(0, 0, 0, 8));
-            vbox.getChildren().add(options[i]);
-        }*/
-
         vbox.getChildren().addAll(readButton, updateButton, writeButton);
 
         return vbox;
@@ -97,8 +85,6 @@ public class Main extends Application {
         hbox.setSpacing(10);
         hbox.setStyle("-fx-background-color: #336699;");
 
-        /*Button buttonCurrent = new Button("Read Card");
-        buttonCurrent.setPrefSize(100, 20);*/
         Label programTitle = new Label();
         programTitle.setText("P-SMART Middleware | Mbagathi Hospital");
         programTitle.setStyle("-fx-font-family: sans-serif;-fx-font-size: 32px;");
