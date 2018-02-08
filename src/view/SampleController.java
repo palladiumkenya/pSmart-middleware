@@ -1,4 +1,4 @@
-package sample;
+package view;
 
 import javafx.event.ActionEvent;
 import javafx.scene.control.Label;
@@ -8,5 +8,9 @@ public class SampleController {
 
     public void sayHelloWorld(ActionEvent actionEvent) {
         helloWorld.setText("You just clicked me!");
+    }
+
+    public void connectReader(ActionEvent actionEvent) {
+
     }
 }
