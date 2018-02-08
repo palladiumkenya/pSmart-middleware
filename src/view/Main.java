@@ -1,5 +1,7 @@
 package view;
 
+import controller.LoginController;
+import controller.SampleController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -36,6 +38,7 @@ public class Main extends Application {
 
         border.setLeft(addActionPane());
         addStackPane(hbox);    */     // Add stack to HBox in top region
+
         Parent root = FXMLLoader.load(getClass().getResource("login.fxml"));
         primaryStage.setTitle("P-SMART");
         Scene loginScene = new Scene(root);

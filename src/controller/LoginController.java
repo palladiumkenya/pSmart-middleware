@@ -4,7 +4,17 @@ import com.jfoenix.controls.JFXPasswordField;
 import com.jfoenix.controls.JFXTextField;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.stage.Stage;
+import view.Main;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.ResourceBundle;
 
 public class LoginController {
     @FXML
@@ -16,6 +26,8 @@ public class LoginController {
     @FXML
     private JFXTextField username;
 
+
+
     public void validateLogin(ActionEvent actionEvent) {
 
         if (username.getText().isEmpty() == true || password.getText().isEmpty() == true ) {
@@ -23,8 +35,27 @@ public class LoginController {
             lblMsg.setStyle("-fx-background-color: rgba(6,6,33,0.8); -fx-border-width: 3px;");
 
         } else {
-            lblMsg.setText("Login successful!");
-            lblMsg.setStyle("-fx-background-color: #9C2827; -fx-border-width: 3px;");
+            /*lblMsg.setText("Login successful!");
+            lblMsg.setStyle("-fx-background-color: #9C2827; -fx-border-width: 3px;");*/
+            goToLandingPage(null);
+        }
+    }
+
+    private void goToLandingPage (ActionEvent event) {
+        try {
+            Parent root = FXMLLoader.load(Main.class.getResource("home.fxml"));
+            Stage landingPageStage = new Stage();
+            landingPageStage.setTitle("P-SMART MIDDLEWARE");
+            Scene landingPageScene = new Scene(root);
+            landingPageStage.setScene(landingPageScene);
+            landingPageStage.setResizable(false);
+
+            Stage stage2 = (Stage) username.getScene().getWindow();
+            stage2.close();
+
+            landingPageStage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
