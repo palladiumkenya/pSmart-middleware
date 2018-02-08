@@ -35,24 +35,21 @@ public class LoginController {
             lblMsg.setStyle("-fx-background-color: rgba(6,6,33,0.8); -fx-border-width: 3px;");
 
         } else {
-            /*lblMsg.setText("Login successful!");
-            lblMsg.setStyle("-fx-background-color: #9C2827; -fx-border-width: 3px;");*/
             goToLandingPage(null);
         }
     }
 
     private void goToLandingPage (ActionEvent event) {
         try {
-            Parent root = FXMLLoader.load(Main.class.getResource("home.fxml"));
+            Parent root = FXMLLoader.load(Main.class.getResource("portal.fxml"));
             Stage landingPageStage = new Stage();
             landingPageStage.setTitle("P-SMART MIDDLEWARE");
             Scene landingPageScene = new Scene(root);
             landingPageStage.setScene(landingPageScene);
+            landingPageStage.setMaximized(true);
             landingPageStage.setResizable(false);
-
-            Stage stage2 = (Stage) username.getScene().getWindow();
-            stage2.close();
-
+            Stage dashboardStage = (Stage) username.getScene().getWindow();
+            dashboardStage.close();
             landingPageStage.show();
         } catch (IOException e) {
             e.printStackTrace();
