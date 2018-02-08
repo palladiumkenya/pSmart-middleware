@@ -1,9 +1,10 @@
-package sample;
+package view;
 
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Group;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -26,7 +27,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        BorderPane border = new BorderPane();
+        /*BorderPane border = new BorderPane();
         HBox hbox = addApplicationHeader();
         HBox applicationStatus = addApplicationStatusHeader();
 
@@ -41,6 +42,25 @@ public class Main extends Application {
         primaryStage.setScene(scene);
         primaryStage.setTitle("P-SMART");
         primaryStage.setMaximized(true);
+        primaryStage.show();
+        */
+
+        Parent root = FXMLLoader.load(getClass().getResource("portal.fxml"));
+        primaryStage.setTitle("P-SMART Middleware");
+        primaryStage.setMaximized(true);
+        Scene loginScene = new Scene(root);
+        primaryStage.setScene(loginScene);
+        primaryStage.setResizable(false);
+
+
+
+
+
+
+       /*Scene scene = new Scene(border);
+       primaryStage.setScene(scene);
+       primaryStage.setTitle("P-SMART");
+       primaryStage.setMaximized(true);*/
         primaryStage.show();
 
     }
