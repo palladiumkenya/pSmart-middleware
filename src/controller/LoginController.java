@@ -41,7 +41,7 @@ public class LoginController {
 
     private void goToLandingPage (ActionEvent event) {
         try {
-            Parent root = FXMLLoader.load(Main.class.getResource("portal.fxml"));
+            Parent root = FXMLLoader.load(Main.class.getResource("home.fxml"));
             Stage landingPageStage = new Stage();
             landingPageStage.setTitle("P-SMART MIDDLEWARE");
             Scene landingPageScene = new Scene(root);
