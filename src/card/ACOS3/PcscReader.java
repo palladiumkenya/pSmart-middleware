@@ -46,7 +46,7 @@ public class PcscReader
 	protected boolean _connectionActive;
 	private int returnCode;
 
-	protected ReaderEvents _eventHandler;
+	protected Acos3CardReaderEvents _eventHandler;
 
 	// Default constructor
 	public PcscReader()
@@ -95,8 +95,8 @@ public class PcscReader
 	public void setPreferredProtocol(String preferredProtocol) { this._preferredProtocol = preferredProtocol; }
 	public String getPreferredProtocol() { return this._preferredProtocol; }
 
-	public ReaderEvents getEventHandler() { return this._eventHandler; }
-	public void setEventHandler(ReaderEvents eventHandler) { this._eventHandler = eventHandler; }
+	public Acos3CardReaderEvents getEventHandler() { return this._eventHandler; }
+	public void setEventHandler(Acos3CardReaderEvents eventHandler) { this._eventHandler = eventHandler; }
 
 	public boolean isConnectionActive() { return this._connectionActive; }
 	public void setConnectionActive(boolean connectionActive) { this._connectionActive = connectionActive; }

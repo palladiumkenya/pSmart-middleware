@@ -24,7 +24,7 @@ public class PcscHelper
 	protected boolean _connectionActive;
 //	private int returnCode;
 
-	protected ReaderEvents _eventHandler;
+	protected DeviceReaderEvents _eventHandler;
 
 	// Default constructor
 	public PcscHelper()

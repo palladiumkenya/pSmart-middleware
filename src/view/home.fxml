@@ -179,17 +179,17 @@
                                 <Insets left="5.0" right="5.0" />
                             </padding>
                         </Label>
-                  <JFXComboBox fx:id="cboDeviceReaderList" prefHeight="25.0" prefWidth="373.0" promptText="---- Device List -------" unFocusColor="#9c2827" />
+                  <JFXComboBox fx:id="cboDeviceReaderList" prefHeight="25.0" prefWidth="373.0" promptText="---- Device List -------" unFocusColor="#9c2827"/>
                     </items>
                 </ToolBar>
-                <Button fx:id="btnInitialiseReader" contentDisplay="TOP" layoutX="296.0" layoutY="156.0" mnemonicParsing="false" onAction="#InitialiseCardReader" prefHeight="56.0" prefWidth="158.0" text="Initialise Reader" wrapText="true" AnchorPane.topAnchor="156.0">
+                <Button fx:id="btnInitialiseReader" contentDisplay="TOP" layoutX="296.0" layoutY="156.0" mnemonicParsing="false" onAction="#initialiseCardReader" prefHeight="56.0" prefWidth="158.0" text="Initialise Reader" wrapText="true" AnchorPane.topAnchor="156.0">
                     <graphic>
                         <FontAwesomeIconView glyphName="ARROW_CIRCLE_ALT_RIGHT" size="20.0" />
                     </graphic>
                     <font>
                         <Font name="System Bold" size="15.0" />
                     </font></Button>
-                <Button fx:id="btnConnectReader" contentDisplay="TOP" disable="true" layoutX="463.0" layoutY="156.0" mnemonicParsing="false" onAction="#ConnectReader" prefHeight="56.0" prefWidth="158.0" text="Connect Reader" AnchorPane.leftAnchor="463.0">
+                <Button fx:id="btnConnectReader" contentDisplay="TOP" disable="true" layoutX="463.0" layoutY="156.0" mnemonicParsing="false" onAction="#connectReader" prefHeight="56.0" prefWidth="158.0" text="Connect Reader" AnchorPane.leftAnchor="463.0">
                     <graphic>
                         <FontAwesomeIconView fontSmoothingType="LCD" glyphName="SITEMAP" size="20.0" wrappingWidth="27.000005155801773" />
                     </graphic>
@@ -204,17 +204,17 @@
                         <Font name="System Bold" size="15.0" />
                     </font>
                 </Button>
-                <Button contentDisplay="TOP" disable="true" layoutX="23.0" layoutY="288.0" mnemonicParsing="false" prefHeight="62.0" prefWidth="168.0" text="New Card">
+                <Button contentDisplay="TOP" fx:id="btnNewCard" disable="true" layoutX="23.0" layoutY="288.0" mnemonicParsing="false" prefHeight="62.0" prefWidth="168.0" text="New Card">
                     <graphic>
-                        <FontAwesomeIconView fx:id="btnNewCard" glyphName="FILE_TEXT_ALT" size="20.0" />
+                        <FontAwesomeIconView  glyphName="FILE_TEXT_ALT" size="20.0" />
                     </graphic>
                     <font>
                         <Font name="System Bold" size="16.0" />
                     </font>
                 </Button>
-                <Button contentDisplay="TOP" disable="true" layoutX="23.0" layoutY="156.0" mnemonicParsing="false" prefHeight="62.0" prefWidth="168.0" text="Read Card">
+                <Button contentDisplay="TOP" fx:id="btnReadCard" disable="true" layoutX="23.0" layoutY="156.0" mnemonicParsing="false" prefHeight="62.0" prefWidth="168.0" text="Read Card" onAction="#readCardContent">
                     <graphic>
-                        <FontAwesomeIconView fx:id="btnReadCard" glyphName="SERVER" size="20.0" />
+                        <FontAwesomeIconView  glyphName="SERVER" size="20.0" />
                     </graphic>
                     <font>
                         <Font name="System Bold" size="15.0" />
@@ -290,7 +290,7 @@
                     <children>
                         <AnchorPane prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="2">
                             <children>
-                                <Button contentDisplay="TOP" disable="true" layoutX="156.0" layoutY="24.0" mnemonicParsing="false" prefHeight="56.0" prefWidth="158.0" text="Write To Card" AnchorPane.leftAnchor="156.0" AnchorPane.topAnchor="30.0">
+                                <Button fx:id="btnWriteToCard" contentDisplay="TOP" disable="true" layoutX="156.0" layoutY="24.0" mnemonicParsing="false" onAction="#writeToCard" prefHeight="56.0" prefWidth="158.0" text="Write To Card" AnchorPane.leftAnchor="156.0" AnchorPane.topAnchor="30.0">
                                     <graphic>
                                         <FontAwesomeIconView glyphName="DATABASE" size="20.0" />
                                     </graphic>

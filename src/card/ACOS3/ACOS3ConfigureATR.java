@@ -45,7 +45,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
-public class ACOS3ConfigureATR extends JFrame implements ReaderEvents.TransmitApduHandler, ActionListener, ItemListener, KeyListener{
+public class ACOS3ConfigureATR extends JFrame implements Acos3CardReaderEvents.TransmitApduHandler, ActionListener, ItemListener, KeyListener{
 
 	int retCode;
 	boolean connActive; 
@@ -85,7 +85,7 @@ public class ACOS3ConfigureATR extends JFrame implements ReaderEvents.TransmitAp
         readerInterface = new ReaderInterface();
         
 		// Instantiate an event handler object 
-        readerInterface.setEventHandler(new ReaderEvents());
+        readerInterface.setEventHandler(new Acos3CardReaderEvents());
 		
 		// Register the event handler implementation of this class
         readerInterface.getEventHandler().addEventListener(this);
@@ -1123,12 +1123,12 @@ public class ACOS3ConfigureATR extends JFrame implements ReaderEvents.TransmitAp
         });
     }
     
-	public void onSendCommand(ReaderEvents.TransmitApduEventArg event) 
+	public void onSendCommand(Acos3CardReaderEvents.TransmitApduEventArg event)
 	{
 		displayOut(2, 0, event.getAsString(true));
 	}
 
-	public void onReceiveCommand(ReaderEvents.TransmitApduEventArg event) 
+	public void onReceiveCommand(Acos3CardReaderEvents.TransmitApduEventArg event)
 	{
 		displayOut(3, 0, event.getAsString(true) + "\r\n");
 	}

@@ -15,9 +15,9 @@ package device;/*===============================================================
  * 
  * ====================================================================================================*/
 
+import device.Pcsc.DeviceReaderEvents;
 import device.Pcsc.Helper;
 import device.Pcsc.PcscProvider;
-import device.Pcsc.ReaderEvents;
 
 import javax.smartcardio.CardException;
 import javax.swing.JFrame;
@@ -55,7 +55,7 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
 @SuppressWarnings("serial")
-public class ACR122UBasicDeviceProgramming extends JFrame implements ReaderEvents.TransmitApduHandler
+public class ACR122UBasicDeviceProgramming extends JFrame implements DeviceReaderEvents.TransmitApduHandler
 {
 	// **************************** Controls ***********************************************************//
 	/*********** PANEL ***********/
@@ -728,7 +728,7 @@ public class ACR122UBasicDeviceProgramming extends JFrame implements ReaderEvent
 		_acr122u = new Acr122u();
         
 		// Instantiate an event handler object 
-		_acr122u.setEventHandler(new ReaderEvents());
+		_acr122u.setEventHandler(new DeviceReaderEvents());
 		
 		// Register the event handler implementation of this class
 		_acr122u.getEventHandler().addEventListener(this);	
@@ -1341,12 +1341,12 @@ public class ACR122UBasicDeviceProgramming extends JFrame implements ReaderEvent
 	}
 
 	@Override
-	public void onSendCommand(ReaderEvents.TransmitApduEventArg event) {
+	public void onSendCommand(DeviceReaderEvents.TransmitApduEventArg event) {
 		addMessageToLog("<< " + event.getAsString(true));
 	}
 
 	@Override
-	public void onReceiveCommand(ReaderEvents.TransmitApduEventArg event) {
+	public void onReceiveCommand(DeviceReaderEvents.TransmitApduEventArg event) {
 		addMessageToLog(">> " + event.getAsString(true));
 	}
 }

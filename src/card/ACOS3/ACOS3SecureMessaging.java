@@ -37,7 +37,7 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.text.BadLocationException;
 
 
-public class ACOS3SecureMessaging extends JFrame implements ReaderEvents.TransmitApduHandler, ActionListener, KeyListener{
+public class ACOS3SecureMessaging extends JFrame implements Acos3CardReaderEvents.TransmitApduHandler, ActionListener, KeyListener{
 
 	//JPCSC Variables
 	int retCode;
@@ -85,7 +85,7 @@ public class ACOS3SecureMessaging extends JFrame implements ReaderEvents.Transmi
         readerInterface = new ReaderInterface();
         
 		// Instantiate an event handler object 
-        readerInterface.setEventHandler(new ReaderEvents());
+        readerInterface.setEventHandler(new Acos3CardReaderEvents());
 		
 		// Register the event handler implementation of this class
         readerInterface.getEventHandler().addEventListener(this);
@@ -1818,12 +1818,12 @@ public class ACOS3SecureMessaging extends JFrame implements ReaderEvents.Transmi
   		}		
 	}
     
-	public void onSendCommand(ReaderEvents.TransmitApduEventArg event) 
+	public void onSendCommand(Acos3CardReaderEvents.TransmitApduEventArg event)
 	{
 		displayOut(2, 0, event.getAsString(true));
 	}
 
-	public void onReceiveCommand(ReaderEvents.TransmitApduEventArg event) 
+	public void onReceiveCommand(Acos3CardReaderEvents.TransmitApduEventArg event)
 	{
 		displayOut(3, 0, event.getAsString(true) + "\r\n");
 	}

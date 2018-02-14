@@ -1,13 +1,20 @@
 package controller;
+
+import card.ACOS3.ACOS3ReadWriteFx;
 import com.jfoenix.controls.JFXComboBox;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
-import javafx.fxml.FXML;
-import javafx.scene.control.*;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import psmart.ReaderBasicServices;
-
+import psmart.SmartCardUtils;
 
 import java.text.ParseException;
+import java.util.List;
 
 public class HomeController  {
 
@@ -15,6 +22,9 @@ public class HomeController  {
 
     @FXML
     private Label lblpsmartTitle;
+
+    @FXML
+    private Button btnWriteToCard;
 
     @FXML
     private Label lblFacilityName;
@@ -56,10 +66,10 @@ public class HomeController  {
     private Button btnUpdateCard;
 
     @FXML
-    private FontAwesomeIconView btnNewCard;
+    private Button btnNewCard;
 
     @FXML
-    private FontAwesomeIconView btnReadCard;
+    private Button btnReadCard;
 
     @FXML
     private Label lblUserId;
@@ -90,53 +100,52 @@ public class HomeController  {
         assert txtProcessLogger != null : "fx:id=\"txtProcessLogger\" was not injected: check your FXML file 'home.fxml'.";
         assert lblUserId != null : "fx:id=\"lblUserId\" was not injected: check your FXML file 'home.fxml'.";
         assert btnPushToEMR != null : "fx:id=\"btnPushToEMR\" was not injected: check your FXML file 'home.fxml'.";
+        btnWriteToCard.setDisable(false);
+        btnReadCard.setDisable(false);
 
     }
 
     @FXML
-    public void InitialiseCardReader(ActionEvent event) {
+    public void initialiseCardReader(ActionEvent event) {
 
         int index;
 
         try {
             ReaderBasicServices reader=new ReaderBasicServices();
-            String[] readerList=reader.InitialiseReader();
+            List<String> readerList=reader.InitialiseReader();
             cboDeviceReaderList.getItems().clear(); // clear the combobox control
 
-            if (readerList.length>0)
-            {
-                for(index = 0; index <readerList.length; index++)
-                {
-                    if(!readerList.equals("0"))
-                        cboDeviceReaderList.getItems().addAll(readerList[index]);
-                    else
-                        break;
+            if (readerList.size()>0) {
+                for(String readerName: readerList) {
+                    cboDeviceReaderList.getItems().add(readerName);
                 }
                 cboDeviceReaderList.getSelectionModel().select(0);
                 btnConnectReader.setDisable(false);
             }else {
                 cboDeviceReaderList.getItems().add("No Reader Selected");
+                cboDeviceReaderList.getSelectionModel().select(0);
             }
         }catch(Exception e){
-           // txtProcessLogger.appendText(message);
             cboDeviceReaderList.getItems().add("No Reader Selected");
             cboDeviceReaderList.getSelectionModel().select(0);//.setValue("No Reader Selected");
             btnConnectReader.setDisable(true);
-           // lblCardStatus.setText("reader Initialization Error");
+           SmartCardUtils.displayOut(txtProcessLogger, "Reader initialization error");
         }
     }
 
     @FXML
-    public void ConnectReader(ActionEvent event){
+    public void connectReader(ActionEvent event){
 
         try{
             ReaderBasicServices reader = new ReaderBasicServices();
 
-            reader.ConnectReader(cboDeviceReaderList,btnConnectReader);
+            reader.ConnectReader(cboDeviceReaderList,btnConnectReader, txtProcessLogger);
 
         }catch(ParseException e){
+            SmartCardUtils.displayOut(txtProcessLogger, "Reader parse error. Cannot connect");
 
         } catch (Exception e) {
+            SmartCardUtils.displayOut(txtProcessLogger, "An error occured during card initialization");
             e.printStackTrace();
         }
     }
@@ -147,6 +156,25 @@ public class HomeController  {
     }
 
 
+    public void writeToCard(ActionEvent event) {
+        SmartCardUtils.displayOut(txtProcessLogger, "\nWrite to card initiated. ");
+
+        ACOS3ReadWriteFx readWrite = new ACOS3ReadWriteFx(
+                btnInitialiseReader, btnConnectReader, btnConnectReader, btnWriteToCard, null, cboDeviceReaderList
+        );
+        readWrite.setTextToWrite("This is Felix");
+        readWrite.writeCard();
+    }
+    /**
+     * should ensure card reader is initialized and connected
+     *
+     */
+    public void readCardContent(ActionEvent event) {
+
+        initialiseCardReader(null);
+        connectReader(null);
+
+    }
 
 
 }
