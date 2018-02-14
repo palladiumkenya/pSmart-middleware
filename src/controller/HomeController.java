@@ -1,8 +1,6 @@
 package controller;
 
-import card.ACOS3.ACOS3ReadWriteFx;
 import com.jfoenix.controls.JFXComboBox;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -156,23 +154,20 @@ public class HomeController  {
     }
 
 
-    public void writeToCard(ActionEvent event) {
+    public void writeToCard(ActionEvent event) throws ParseException {
         SmartCardUtils.displayOut(txtProcessLogger, "\nWrite to card initiated. ");
 
-        ACOS3ReadWriteFx readWrite = new ACOS3ReadWriteFx(
-                btnInitialiseReader, btnConnectReader, btnConnectReader, btnWriteToCard, null, cboDeviceReaderList
-        );
-        readWrite.setTextToWrite("This is Felix");
-        readWrite.writeCard();
+        ReaderBasicServices writer = new ReaderBasicServices();
+        writer.writeCard("This is test", txtProcessLogger);
     }
     /**
      * should ensure card reader is initialized and connected
      *
      */
-    public void readCardContent(ActionEvent event) {
+    public void readCardContent(ActionEvent event) throws ParseException {
 
-        initialiseCardReader(null);
-        connectReader(null);
+        ReaderBasicServices reader = new ReaderBasicServices();
+        reader.readCard(txtProcessLogger);
 
     }
 

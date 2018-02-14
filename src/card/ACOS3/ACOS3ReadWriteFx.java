@@ -1,36 +1,22 @@
 package card.ACOS3;
 
-import com.jfoenix.controls.JFXComboBox;
-import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import psmart.SmartCardUtils;
 
 import javax.smartcardio.CardException;
 
 public class ACOS3ReadWriteFx implements Acos3CardReaderEvents.TransmitApduHandler {
+   TextArea logWidget;
+   Acos3 acos3;
 
-    PcscReader pcscReader;
-    Acos3 acos3;
-    Button buttonInitialize, buttonConnect, buttonRead, buttonWrite, buttonReset;
-    JFXComboBox comboBoxReaderName;
-    String textToWrite;
-    TextArea logWidget;
+
     private ReaderInterface readerInterface;
     ReaderInterface.CHIP_TYPE currentChipType = ReaderInterface.CHIP_TYPE.UNKNOWN;
 
-    public ACOS3ReadWriteFx(
-          Button btnInitialize, Button btnConnect, Button btnRead,
-          Button btnWrite, Button btnReset, JFXComboBox cboReaderList
-    ) {
-        this.pcscReader = pcscReader;
-        //this.acos3 = acos3;
-        this.buttonInitialize = btnInitialize;
-        this.buttonConnect = btnConnect;
-        this.buttonRead = btnRead;
-        this.buttonReset = btnReset;
-        this.buttonWrite = btnWrite;
-        this.comboBoxReaderName = cboReaderList;
-        pcscReader = new PcscReader();
+    public ACOS3ReadWriteFx(TextArea logWidget, Acos3 acos3) {
+
+        this.logWidget = logWidget;
+        this.acos3 = acos3;
         readerInterface = new ReaderInterface();
 
         // Instantiate an event handler object
@@ -41,13 +27,7 @@ public class ACOS3ReadWriteFx implements Acos3CardReaderEvents.TransmitApduHandl
 
     }
 
-    public String getTextToWrite() {
-        return textToWrite;
-    }
 
-    public void setTextToWrite(String textToWrite) {
-        this.textToWrite = textToWrite;
-    }
 
     @Override
     public void onSendCommand(Acos3CardReaderEvents.TransmitApduEventArg event) {
@@ -59,156 +39,14 @@ public class ACOS3ReadWriteFx implements Acos3CardReaderEvents.TransmitApduHandl
         SmartCardUtils.displayOut(logWidget, event.getAsString(true));
     }
 
-    /*@Override
-    public void actionPerformed(ActionEvent e) {
-        if(buttonInitialize == e.getSource())
-        {
-            String[] readerList = null;
 
-            try
-            {
-                comboBoxReaderName.getItems().clear();
-
-                readerList = readerInterface.listTerminals();
-                if (readerList.length == 0)
-                {
-                    // write to log window "No PC/SC reader detected";
-                    return;
-                }
-
-
-
-                for (int i = 0; i < readerList.length; i++)
-                {
-                    if (!readerList.equals(""))
-                        comboBoxReaderName.getItems().addAll(readerList[i]);
-                    else
-                        break;
-                }
-
-                SmartCardUtils.displayOut(logWidget, "Initialize Success");
-
-                comboBoxReaderName.getSelectionModel().selectFirst();
-                // enable connect button: buttonConnect.setEnabled(true);
-            }
-            catch (Exception ex)
-            {
-                SmartCardUtils.displayOut(logWidget, "\nCannot find a smart card reader. ");
-                // disable buttonConnect.setEnabled(false);
-            }
-        } // Init
-
-        if(buttonConnect == e.getSource())
-        {
-            try
-            {
-                if(readerInterface.isConnectionActive())
-                    readerInterface.disconnect();
-
-                String rdrcon = (String)comboBoxReaderName.getValue();
-
-                readerInterface.connect(rdrcon, "*");
-                acos3 = new Acos3(readerInterface);
-
-                SmartCardUtils.displayOut(logWidget, "\nSuccessful connection to "+ rdrcon);
-
-                //Check if card inserted is an ACOS Card
-                if(!isAcos3())
-                    return;
-
-                if(currentChipType == ReaderInterface.CHIP_TYPE.ACOS3COMBI) {
-                    SmartCardUtils.displayOut(logWidget, "Chip Type: ACOS3 Combi");
-
-                } else {
-                    SmartCardUtils.displayOut(logWidget, "Chip Type: ACOS3");
-                }
-                // TODO: buttonFormat.setEnabled(true);
-
-            }
-            catch (CardException exception)
-            {
-                SmartCardUtils.displayOut(logWidget, PcscProvider.GetScardErrMsg(exception));
-            }
-            catch(Exception exception)
-            {
-                SmartCardUtils.displayOut(logWidget, exception.getMessage().toString());
-            }
-        } // Connect
-
-        // TODO: check if you we really need this
-        *//*if(buttonFormat == e.getSource())
-        {
-            formatCard();
-        } *//*// Format
-
-        if (buttonRead == e.getSource())
-        {
-            readCard();
-        } // Read
-
-
-        if(buttonWrite == e.getSource())
-        {
-            if(textToWrite.equals("") || textToWrite.isEmpty())
-            {
-                SmartCardUtils.displayOut(logWidget, "No data provided for writing");
-                return;
-            }
-
-            writeCard();
-        } // Write
-
-
-        if(buttonReset == e.getSource())
-        {
-            try
-            {
-                //disconnect
-                if (readerInterface.isConnectionActive())
-                    readerInterface.disconnect();
-
-                //TODO: initMenu();
-                comboBoxReaderName.getItems().clear();
-                comboBoxReaderName.getItems().add("Please select reader");
-            }
-            catch (CardException exception)
-            {
-                SmartCardUtils.displayOut(logWidget, PcscProvider.GetScardErrMsg(exception));
-            }
-            catch(Exception exception)
-            {
-                SmartCardUtils.displayOut(logWidget, exception.getMessage().toString() + "\r\n");
-            }
-        }  // Reset
-        *//*
-
-        if(radioButtonaa11 == e.getSource())
-        {
-            textToWrite.setText("");
-        }  // rbaa11
-
-
-        if(radioButtonbb22 == e.getSource())
-        {
-            textToWrite.setText("");
-        }  // rbbb2
-
-
-        if(radioButtoncc33 == e.getSource())
-        {
-            textToWrite.setText("");
-        }  // rbcc33*//*
-
-    }*/
-
-    private void readCard()
+    public void readCard()
     {
         byte[] fileId = new byte[2];
         byte dataLen = 0x00;
         byte[] data;
 
-        try
-        {
+        try {
 
             fileId = new byte[] { (byte)0xAA, (byte)0x11 };
             dataLen = (byte) 0x0A;
@@ -255,7 +93,7 @@ public class ACOS3ReadWriteFx implements Acos3CardReaderEvents.TransmitApduHandl
         }
     }
 
-    public void writeCard()
+    public void writeCard(String textToWrite)
     {
         byte[] fileId = new byte[2];
         int expLength = 0;
