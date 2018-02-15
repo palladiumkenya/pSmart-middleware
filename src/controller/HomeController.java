@@ -9,6 +9,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import psmart.ReaderBasicServices;
+import psmart.SmartCardReadWrite;
 import psmart.SmartCardUtils;
 
 import java.text.ParseException;
@@ -80,24 +81,6 @@ public class HomeController  {
 
     @FXML
     void initialize() {
-        assert lblpsmartTitle != null : "fx:id=\"lblpsmartTitle\" was not injected: check your FXML file 'home.fxml'.";
-        assert lblFacilityName != null : "fx:id=\"lblFacilityName\" was not injected: check your FXML file 'home.fxml'.";
-        assert gridCardSummary != null : "fx:id=\"gridCardSummary\" was not injected: check your FXML file 'home.fxml'.";
-        assert gridCardSummary1 != null : "fx:id=\"gridCardSummary1\" was not injected: check your FXML file 'home.fxml'.";
-        assert gridCardSummary2 != null : "fx:id=\"gridCardSummary2\" was not injected: check your FXML file 'home.fxml'.";
-        assert gridCardSummary21 != null : "fx:id=\"gridCardSummary21\" was not injected: check your FXML file 'home.fxml'.";
-        assert GridClientIdentifiers != null : "fx:id=\"GridClientIdentifiers\" was not injected: check your FXML file 'home.fxml'.";
-        assert GridClientLastENcounter != null : "fx:id=\"GridClientLastENcounter\" was not injected: check your FXML file 'home.fxml'.";
-        assert GridClientLastENcounter1 != null : "fx:id=\"GridClientLastENcounter1\" was not injected: check your FXML file 'home.fxml'.";
-        assert cboDeviceReaderList != null : "fx:id=\"cboDeviceReaderList\" was not injected: check your FXML file 'home.fxml'.";
-        assert btnInitialiseReader != null : "fx:id=\"btnInitialiseReader\" was not injected: check your FXML file 'home.fxml'.";
-        assert btnConnectReader != null : "fx:id=\"btnConnectReader\" was not injected: check your FXML file 'home.fxml'.";
-        assert btnUpdateCard != null : "fx:id=\"btnUpdateCard\" was not injected: check your FXML file 'home.fxml'.";
-        assert btnNewCard != null : "fx:id=\"btnNewCard\" was not injected: check your FXML file 'home.fxml'.";
-        assert btnReadCard != null : "fx:id=\"btnReadCard\" was not injected: check your FXML file 'home.fxml'.";
-        assert txtProcessLogger != null : "fx:id=\"txtProcessLogger\" was not injected: check your FXML file 'home.fxml'.";
-        assert lblUserId != null : "fx:id=\"lblUserId\" was not injected: check your FXML file 'home.fxml'.";
-        assert btnPushToEMR != null : "fx:id=\"btnPushToEMR\" was not injected: check your FXML file 'home.fxml'.";
         btnWriteToCard.setDisable(false);
         btnReadCard.setDisable(false);
 
@@ -119,6 +102,7 @@ public class HomeController  {
                 }
                 cboDeviceReaderList.getSelectionModel().select(0);
                 btnConnectReader.setDisable(false);
+                btnInitialiseReader.setDisable(true);
             }else {
                 cboDeviceReaderList.getItems().add("No Reader Selected");
                 cboDeviceReaderList.getSelectionModel().select(0);
@@ -135,16 +119,13 @@ public class HomeController  {
     public void connectReader(ActionEvent event){
 
         try{
-            ReaderBasicServices reader = new ReaderBasicServices();
+            SmartCardReadWrite reader = new SmartCardReadWrite(txtProcessLogger, cboDeviceReaderList);
 
-            reader.ConnectReader(cboDeviceReaderList,btnConnectReader, txtProcessLogger);
+            reader.connectReader(btnConnectReader);
 
-        }catch(ParseException e){
+        }catch(Exception e){
             SmartCardUtils.displayOut(txtProcessLogger, "Reader parse error. Cannot connect");
 
-        } catch (Exception e) {
-            SmartCardUtils.displayOut(txtProcessLogger, "An error occured during card initialization");
-            e.printStackTrace();
         }
     }
 
@@ -157,8 +138,8 @@ public class HomeController  {
     public void writeToCard(ActionEvent event) throws ParseException {
         SmartCardUtils.displayOut(txtProcessLogger, "\nWrite to card initiated. ");
 
-        ReaderBasicServices writer = new ReaderBasicServices();
-        writer.writeCard("This is test", txtProcessLogger);
+        SmartCardReadWrite writer = new SmartCardReadWrite(txtProcessLogger, cboDeviceReaderList);
+        writer.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_CARD_DETAILS_USER_FILE_NAME), "This is test");
     }
     /**
      * should ensure card reader is initialized and connected
@@ -166,8 +147,16 @@ public class HomeController  {
      */
     public void readCardContent(ActionEvent event) throws ParseException {
 
-        ReaderBasicServices reader = new ReaderBasicServices();
-        reader.readCard(txtProcessLogger);
+        try{
+            SmartCardReadWrite reader = new SmartCardReadWrite(txtProcessLogger, cboDeviceReaderList);
+
+            reader.readCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_CARD_DETAILS_USER_FILE_NAME));
+
+        }catch(Exception e){
+            SmartCardUtils.displayOut(txtProcessLogger, "Reader parse error. Cannot connect");
+            e.printStackTrace();
+
+        }
 
     }
 

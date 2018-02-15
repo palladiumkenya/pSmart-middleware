@@ -46,7 +46,7 @@ public class SmartCardReadWrite {
                 _acr122u.disconnect();
             }
             // Connect directly to the smart card reader
-            _acr122u.connectDirect(readerList.getSelectionModel().getSelectedIndex(), true);
+          //  _acr122u.connectDirect(readerList.getSelectionModel().getSelectedIndex(), true);
 
             SmartCardUtils.displayOut(loggerWidget, "\r\n Successfully connected to " + readerList.getSelectionModel().getSelectedItem());
             _isConnected = true;
