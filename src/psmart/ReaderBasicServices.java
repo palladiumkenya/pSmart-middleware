@@ -92,9 +92,8 @@ public class ReaderBasicServices implements ActionListener, KeyListener, DeviceR
             if (_isConnected) {
                 _acr122u.disconnect();
                 _isConnected = false;
-            }/* else {
-                _acr122u = new Acr122u();
-            }*/
+            }
+
            //readerList = Arrays.asList(_acr122u.listTerminals());
 
             readerList.addAll(Arrays.asList("ACOS3","Mifare"));
