@@ -2,16 +2,25 @@ package controller;
 import com.jfoenix.controls.JFXComboBox;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.event.ActionEvent;
+import javafx.stage.Popup;
 import psmart.ReaderBasicServices;
+import  psmart.GenericPopupController;
+
 
 
 import java.text.ParseException;
+import java.util.Optional;
 
 public class HomeController  {
 
     private String message=null;
+
+    @FXML
+    private Menu mnuEndpointConfig;
 
     @FXML
     private Label lblpsmartTitle;
@@ -56,10 +65,13 @@ public class HomeController  {
     private Button btnUpdateCard;
 
     @FXML
-    private FontAwesomeIconView btnNewCard;
+    private Button btnNewCard;
 
     @FXML
-    private FontAwesomeIconView btnReadCard;
+    private Button btnReadCard;
+
+    @FXML
+    private Button btnWriteToCard;
 
     @FXML
     private Label lblUserId;
@@ -140,6 +152,33 @@ public class HomeController  {
             e.printStackTrace();
         }
     }
+
+    @FXML
+    void LoadEndpointConfig(ActionEvent event) {
+
+        try {
+            Popup popup = new Popup();
+
+            GenericPopupController controller = new GenericPopupController();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("endpointconfig.fxml"));
+            loader.setController(controller);
+            popup.getContent().add((Parent)loader.load());
+        }catch (Exception e){
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Confirmation Dialog");
+            alert.setHeaderText("P-Smart Middleware");
+            alert.setContentText(e.getMessage());
+
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == ButtonType.OK){
+                // ... user chose OK e.
+
+            } else {
+                // ... user chose CANCEL or closed the dialog
+            }
+        }
+    }
+
 
     @FXML
     void sendDataToEmr(ActionEvent event) {
