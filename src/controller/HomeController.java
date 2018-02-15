@@ -1,21 +1,27 @@
 package controller;
+
 import com.jfoenix.controls.JFXComboBox;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.event.ActionEvent;
+import javafx.stage.Modality;
 import javafx.stage.Popup;
+import javafx.stage.Stage;
+import psmart.GenericPopupController;
 import psmart.ReaderBasicServices;
-import  psmart.GenericPopupController;
+import view.Main;
 
-
-
+import java.net.URL;
 import java.text.ParseException;
 import java.util.Optional;
+import java.util.ResourceBundle;
 
-public class HomeController  {
+public class HomeController implements Initializable {
 
     private String message=null;
 
@@ -157,12 +163,18 @@ public class HomeController  {
     void LoadEndpointConfig(ActionEvent event) {
 
         try {
-            Popup popup = new Popup();
+            Stage stage = new Stage();
+            Parent root = FXMLLoader.load(
+                    Main.class.getResource("ApiEndpoints.fxml"));
+            stage.setScene(new Scene(root));
+            stage.setTitle("EndPoint Configuration");
+            stage.setMaximized(false);
+            stage.setResizable(false);
+            stage.initModality(Modality.APPLICATION_MODAL);
+           // stage.initOwner(
+             //       ((Node)event.getSource()).getScene().getWindow() );
+            stage.show();
 
-            GenericPopupController controller = new GenericPopupController();
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("endpointconfig.fxml"));
-            loader.setController(controller);
-            popup.getContent().add((Parent)loader.load());
         }catch (Exception e){
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Confirmation Dialog");
@@ -186,6 +198,8 @@ public class HomeController  {
     }
 
 
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
 
-
+    }
 }

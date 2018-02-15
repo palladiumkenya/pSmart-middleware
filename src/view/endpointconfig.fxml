@@ -19,7 +19,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
 
-<fx:root maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="517.0" prefWidth="854.0" type="View" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="EndpointConfigurationController">
+<fx:root prefHeight="517.0" prefWidth="854.0" type="View" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.EndpointConfigurationController">
    <center>
       <AnchorPane prefHeight="502.0" prefWidth="520.0" BorderPane.alignment="CENTER">
          <children>
@@ -46,6 +46,7 @@
                                     <TableColumn prefWidth="75.0" text="Endpoint Type" />
                                     <TableColumn prefWidth="75.0" text="Endpoint Name" />
                                     <TableColumn prefWidth="75.0" text="Endpoint Url" />
+                                    <TableColumn prefWidth="75.0" text="Endpoint Status" />
                                     <TableColumn prefWidth="75.0" text="Endpoint Status" />
                                  </columns>
                                  <columnResizePolicy>
