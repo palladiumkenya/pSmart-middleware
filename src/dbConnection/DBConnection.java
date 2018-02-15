@@ -17,10 +17,10 @@ public class DBConnection {
     private int port;
     private String database;
     private String dburl;
-    private Connection connectionString=null;
-    private ResultSet rs=null;
+    public Connection connectionString=null;
+    public ResultSet rs=null;
 
-    public DBConnection(String database){
+    public DBConnection(){
         this.database = database;
         this.username="root";
         this.password="root";
@@ -30,28 +30,15 @@ public class DBConnection {
         this.dburl="jdbc:mysql://"+this.host+"/"+ this.database;//LOGIN is the database.
     }
 
-    //@Override
-    public Connection GetConnection() {
-
-        try {
-            Class.forName("com.mysql.jdbc.Driver");
-            connectionString = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, username, password);
-
-            if (!connectionString.isClosed()) {
-                println("Connection Successful");
-
-            } else {
-
-            }
-        }
-        catch(Exception  ex )
-        {
-            ex.printStackTrace();
-        }
-        return connectionString;
+    public Connection getConnection() throws ClassNotFoundException, SQLException{
+        Class.forName("com.mysql.jdbc.Driver");
+        return DriverManager.getConnection("jdbc:mysql://"+host+":"+port+"/"+database+","+username+","+password);
     }
 
-    //@Override
+    public void OpenConnection(){
+
+    }
+
     public void CloseConnection() {
 
         try{
@@ -61,11 +48,11 @@ public class DBConnection {
         }
     }
 
-   // @Override
-    public ResultSet ExecuteQuery(String query) {
+    public  ResultSet ExecuteQuery(String query) {
 
         try{
-           rs=(this.connectionString.prepareStatement(query)).executeQuery();
+
+           rs=(connectionString.prepareStatement(query)).executeQuery();
         }
         catch(SQLException ex){
             println(ex.getMessage());

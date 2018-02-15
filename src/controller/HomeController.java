@@ -1,17 +1,32 @@
 package controller;
+
 import com.jfoenix.controls.JFXComboBox;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
-import javafx.fxml.FXML;
-import javafx.scene.control.*;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.stage.Modality;
+import javafx.stage.Popup;
+import javafx.stage.Stage;
+import psmart.GenericPopupController;
 import psmart.ReaderBasicServices;
+import view.Main;
 
-
+import java.net.URL;
 import java.text.ParseException;
+import java.util.Optional;
+import java.util.ResourceBundle;
 
-public class HomeController  {
+public class HomeController implements Initializable {
 
     private String message=null;
+
+    @FXML
+    private Menu mnuEndpointConfig;
 
     @FXML
     private Label lblpsmartTitle;
@@ -56,10 +71,13 @@ public class HomeController  {
     private Button btnUpdateCard;
 
     @FXML
-    private FontAwesomeIconView btnNewCard;
+    private Button btnNewCard;
 
     @FXML
-    private FontAwesomeIconView btnReadCard;
+    private Button btnReadCard;
+
+    @FXML
+    private Button btnWriteToCard;
 
     @FXML
     private Label lblUserId;
@@ -142,11 +160,46 @@ public class HomeController  {
     }
 
     @FXML
+    void LoadEndpointConfig(ActionEvent event) {
+
+        try {
+            Stage stage = new Stage();
+            Parent root = FXMLLoader.load(
+                    Main.class.getResource("ApiEndpoints.fxml"));
+            stage.setScene(new Scene(root));
+            stage.setTitle("EndPoint Configuration");
+            stage.setMaximized(false);
+            stage.setResizable(false);
+            stage.initModality(Modality.APPLICATION_MODAL);
+           // stage.initOwner(
+             //       ((Node)event.getSource()).getScene().getWindow() );
+            stage.show();
+
+        }catch (Exception e){
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Confirmation Dialog");
+            alert.setHeaderText("P-Smart Middleware");
+            alert.setContentText(e.getMessage());
+
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == ButtonType.OK){
+                // ... user chose OK e.
+
+            } else {
+                // ... user chose CANCEL or closed the dialog
+            }
+        }
+    }
+
+
+    @FXML
     void sendDataToEmr(ActionEvent event) {
 
     }
 
 
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
 
-
+    }
 }

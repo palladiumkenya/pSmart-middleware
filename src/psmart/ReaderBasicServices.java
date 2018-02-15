@@ -28,6 +28,7 @@ import java.text.ParseException;
 import  controller.HomeController;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextArea;
 
 public class ReaderBasicServices implements ReaderEvents.TransmitApduHandler {
 
@@ -127,7 +128,7 @@ public class ReaderBasicServices implements ReaderEvents.TransmitApduHandler {
    // @Override
     public void WriteOperationLog(String message) {
 
-       // hc.txtProcessLogger.append(message+ "\r\n");
+       // ta.appendText(message+ "\r\n");
     }
 
    // @Override
