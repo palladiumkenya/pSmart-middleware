@@ -2,7 +2,7 @@ package card.OtherCards;//======================================================
 // 
 //  Author          : Teosseth G. Altar
 // 
-//  File            : ReaderEvents.java
+//  File            : DeviceReaderEvents.java
 // 
 //  Copyright (C)   : Advanced Card Systems Ltd.
 // 

@@ -53,14 +53,13 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.LayoutStyle;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.ScrollPaneConstants;
 
 import javax.smartcardio.CardException;
 
 
-public class ACOS3Account extends JFrame implements ReaderEvents.TransmitApduHandler, ActionListener, KeyListener{
+public class ACOS3Account extends JFrame implements Acos3CardReaderEvents.TransmitApduHandler, ActionListener, KeyListener{
 
 	int maxLen;
 	private static String algorithm = "DES";
@@ -96,7 +95,7 @@ public class ACOS3Account extends JFrame implements ReaderEvents.TransmitApduHan
         readerInterface = new ReaderInterface();
         
 		// Instantiate an event handler object 
-        readerInterface.setEventHandler(new ReaderEvents());
+        readerInterface.setEventHandler(new Acos3CardReaderEvents());
 		
 		// Register the event handler implementation of this class
         readerInterface.getEventHandler().addEventListener(this);
@@ -1691,12 +1690,12 @@ public class ACOS3Account extends JFrame implements ReaderEvents.TransmitApduHan
   		}
 	}
 	
-	public void onSendCommand(ReaderEvents.TransmitApduEventArg event) 
+	public void onSendCommand(Acos3CardReaderEvents.TransmitApduEventArg event)
 	{
 		displayOut(2, 0, event.getAsString(true));
 	}
 
-	public void onReceiveCommand(ReaderEvents.TransmitApduEventArg event) 
+	public void onReceiveCommand(Acos3CardReaderEvents.TransmitApduEventArg event)
 	{
 		displayOut(3, 0, event.getAsString(true) + "\r\n");
 	}

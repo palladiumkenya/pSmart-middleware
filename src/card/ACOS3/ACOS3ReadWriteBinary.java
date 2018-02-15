@@ -24,7 +24,7 @@ import javax.swing.*;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
-public class ACOS3ReadWriteBinary extends JFrame implements ActionListener, KeyListener, ReaderEvents.TransmitApduHandler{
+public class ACOS3ReadWriteBinary extends JFrame implements ActionListener, KeyListener, Acos3CardReaderEvents.TransmitApduHandler{
 	
 	static String VALIDCHARS = "ABCDEFabcdef0123456789";
 	
@@ -86,7 +86,7 @@ public class ACOS3ReadWriteBinary extends JFrame implements ActionListener, KeyL
         readerInterface = new ReaderInterface();
         
 		// Instantiate an event handler object 
-        readerInterface.setEventHandler(new ReaderEvents());
+        readerInterface.setEventHandler(new Acos3CardReaderEvents());
 		
 		// Register the event handler implementation of this class
         readerInterface.getEventHandler().addEventListener(this);
@@ -891,11 +891,11 @@ public class ACOS3ReadWriteBinary extends JFrame implements ActionListener, KeyL
   		}				
 	}
 	
-	public void onSendCommand(ReaderEvents.TransmitApduEventArg event)
+	public void onSendCommand(Acos3CardReaderEvents.TransmitApduEventArg event)
 	{
 		displayOut(2, 0, event.getAsString(true));
 	}
-	public void onReceiveCommand(ReaderEvents.TransmitApduEventArg event)
+	public void onReceiveCommand(Acos3CardReaderEvents.TransmitApduEventArg event)
 	{
 		displayOut(3, 0, event.getAsString(true) + "\r\n");
 	}

@@ -1,8 +1,9 @@
-package card.ACOS3;//===========================================================================================
+package device.Pcsc;
+//===========================================================================================
 // 
 //  Author          : Teosseth G. Altar
 // 
-//  File            : ReaderEvents.java
+//  File            : DeviceReaderEvents.java
 // 
 //  Copyright (C)   : Advanced Card Systems Ltd.
 // 
@@ -19,7 +20,8 @@ import java.util.EventObject;
 import java.util.Iterator;
 import java.util.List;
 
-public class ReaderEvents 
+
+public class DeviceReaderEvents
 {
 	@SuppressWarnings("serial")
 	public class TransmitApduEventArg extends EventObject
@@ -51,7 +53,7 @@ public class ReaderEvents
 		}
 	}       
 	        
-	interface TransmitApduHandler
+	public interface TransmitApduHandler
 	{
 		public void onSendCommand(TransmitApduEventArg event);
 		public void onReceiveCommand(TransmitApduEventArg event);

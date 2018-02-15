@@ -21,14 +21,12 @@ import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
-import javax.swing.GroupLayout.Alignment;
-import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.JOptionPane;
 import javax.swing.border.TitledBorder;
 
 import javax.smartcardio.CardException;
 
-public class ACOS3ReadWrite extends JFrame implements ActionListener, KeyListener, ReaderEvents.TransmitApduHandler{
+public class ACOS3ReadWrite extends JFrame implements ActionListener, KeyListener, Acos3CardReaderEvents.TransmitApduHandler{
 
 	PcscReader pcscReader;
 	Acos3 acos3;
@@ -57,7 +55,7 @@ public class ACOS3ReadWrite extends JFrame implements ActionListener, KeyListene
         readerInterface = new ReaderInterface();
         
 		// Instantiate an event handler object 
-        readerInterface.setEventHandler(new ReaderEvents());
+        readerInterface.setEventHandler(new Acos3CardReaderEvents());
 		
 		// Register the event handler implementation of this class
         readerInterface.getEventHandler().addEventListener(this);
@@ -607,11 +605,11 @@ public class ACOS3ReadWrite extends JFrame implements ActionListener, KeyListene
 		displayOut(0, 0, "Program Ready");
 	}
 	
-	public void onSendCommand(ReaderEvents.TransmitApduEventArg event)
+	public void onSendCommand(Acos3CardReaderEvents.TransmitApduEventArg event)
 	{
 		displayOut(2, 0, event.getAsString(true));
 	}
-	public void onReceiveCommand(ReaderEvents.TransmitApduEventArg event)
+	public void onReceiveCommand(Acos3CardReaderEvents.TransmitApduEventArg event)
 	{
 		displayOut(3, 0, event.getAsString(true) + "\r\n");
 	}
