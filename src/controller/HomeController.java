@@ -1,6 +1,7 @@
 package controller;
 
-import CardProgramming.MainSmartCardReadWrite;
+import pSmart.MainSmartCardReadWrite;
+import pSmart.SmartCardUtils;
 import com.jfoenix.controls.JFXComboBox;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -9,12 +10,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
-import psmart.ReaderBasicServices;
-import psmart.SmartCardReadWrite;
-import psmart.SmartCardUtils;
-
 import java.text.ParseException;
-import java.util.List;
 
 public class HomeController  {
 
@@ -116,8 +112,8 @@ public class HomeController  {
     public void writeToCard(ActionEvent event) throws ParseException {
         SmartCardUtils.displayOut(txtProcessLogger, "\nWrite to card initiated. ");
 
-        SmartCardReadWrite writer = new SmartCardReadWrite(txtProcessLogger, cboDeviceReaderList);
-        writer.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_CARD_DETAILS_USER_FILE_NAME), "This is test");
+        MainSmartCardReadWrite writer = new MainSmartCardReadWrite(txtProcessLogger, cboDeviceReaderList);
+        //writer.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_CARD_DETAILS_USER_FILE_NAME), "This is test");
     }
     /**
      * should ensure card reader is initialized and connected
@@ -125,7 +121,7 @@ public class HomeController  {
      */
     public void readCardContent(ActionEvent event) throws ParseException {
 
-        try{
+        /*try{
             SmartCardReadWrite reader = new SmartCardReadWrite(txtProcessLogger, cboDeviceReaderList);
 
             reader.readCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_CARD_DETAILS_USER_FILE_NAME));
@@ -134,7 +130,7 @@ public class HomeController  {
             SmartCardUtils.displayOut(txtProcessLogger, "Reader parse error. Cannot connect");
             e.printStackTrace();
 
-        }
+        }*/
 
     }
 
