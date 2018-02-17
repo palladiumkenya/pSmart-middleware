@@ -1,4 +1,5 @@
-package psmart;/*
+package CardProgramming;
+/*
   Copyright(C):      Advanced Card Systems Ltd
 
   File:              
@@ -13,10 +14,7 @@ package psmart;/*
 
 ======================================================================*/
 
-
-import psmart.pcscReader.card.PcscReader;
-
-public class Acos3
+public class Acos3 
 {
 	private String authenticationCode_;
 	
@@ -292,7 +290,7 @@ public class Acos3
 	{
 		Apdu apdu;
 		
-		apdu = new Apdu();
+		apdu = new Apdu();		
 		apdu.setCommand(new byte[] {(byte)0x80, (byte)0xB2, recordNumber, offset, lengthToRead});
 		
 		getPcscConnection().sendApduCommand(apdu);
@@ -307,7 +305,7 @@ public class Acos3
 	{
 		Apdu apdu;
 		
-		apdu = new Apdu();
+		apdu = new Apdu();		
 		apdu.setCommand(new byte[] {(byte)0x80, (byte)0xB0, highOffset, lowOffset, lengthToRead});
 	
 		getPcscConnection().sendApduCommand(apdu);		
@@ -579,13 +577,13 @@ public class Acos3
 	}
 
     public void createRecordFile(byte recordNumber, byte[] fileID, byte numberOfRecords, byte recordLength,
-                                 SecurityAttribute writeSecurityAttribute, SecurityAttribute readSecurityAttribute,
-                                 boolean readRequireSecureMessaging, boolean writeRequireSecureMessaging) throws Exception
+            SecurityAttribute writeSecurityAttribute, SecurityAttribute readSecurityAttribute,
+            boolean readRequireSecureMessaging, boolean writeRequireSecureMessaging) throws Exception
 	{
 		byte[] buffer;
-
+		
 		this.selectFile(INTERNAL_FILE.USER_FILE_MGMT_FILE);
-
+		
 		buffer = new byte[7];
 		buffer[0] = recordLength;
 		buffer[1] = numberOfRecords;
@@ -593,19 +591,19 @@ public class Acos3
 		buffer[3] = writeSecurityAttribute.getRawValue();
 		buffer[4] = fileID[0];
 		buffer[5] = fileID[1];
-
-
+		
+		
 		if (readRequireSecureMessaging)
 			buffer[6] |= 0x40;
-
+		
 		if (writeRequireSecureMessaging)
 			buffer[6] |= 0x20;
-
+		
 		writeRecord(recordNumber, (byte)0x00, buffer);
 	}
 
-    public void configurePersonalizationFile(OptionRegister optionRegister,
-                                             SecurityOptionRegister securityRegister, byte NumberOfFiles) throws Exception
+    public void configurePersonalizationFile(OptionRegister optionRegister, 
+    							SecurityOptionRegister securityRegister, byte NumberOfFiles) throws Exception
     {
     	try
     	{    	
@@ -624,8 +622,8 @@ public class Acos3
     }
 
     public void createBinaryFile(byte[] fileID, int fileLength,
-                                 SecurityAttribute writeSecurityAttribute, SecurityAttribute readSecurityAttribute,
-                                 boolean readRequireSecureMessaging, boolean writeRequireSecureMessaging) throws Exception
+            SecurityAttribute writeSecurityAttribute, SecurityAttribute readSecurityAttribute,
+            boolean readRequireSecureMessaging, boolean writeRequireSecureMessaging) throws Exception
 	{
 		byte[] buffer, fileLengthByte, tempFileLength;
 		byte numberOfFiles = 0x00;

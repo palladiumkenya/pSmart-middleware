@@ -19,7 +19,6 @@ package psmart;
 import card.ACOS3.ACOS3ReadWriteFx;
 import card.ACOS3.Acos3;
 import card.ACOS3.Acos3CardReaderEvents;
-import card.ACOS3.Helper;
 import card.ACOS3.PcscReader;
 import card.ACOS3.ReaderInterface;
 import device.Acr122u;
@@ -94,9 +93,8 @@ public class ReaderBasicServices implements ActionListener, KeyListener, DeviceR
                 _isConnected = false;
             }
 
-           //readerList = Arrays.asList(_acr122u.listTerminals());
-
-            readerList.addAll(Arrays.asList("ACOS3","Mifare"));
+           readerList = Arrays.asList(_acr122u.listTerminals());
+            //readerList.addAll(Arrays.asList("ACOS3","Mifare"));
 
         } catch (CardException ex) {
             this.feedback = PcscProvider.GetScardErrMsg(ex);
@@ -125,6 +123,8 @@ public class ReaderBasicServices implements ActionListener, KeyListener, DeviceR
                 _acr122u.disconnect();
             }
             // Connect directly to the smart card reader
+            //TODO: to remove this line
+            cbo.getSelectionModel().getSelectedIndex();
             _acr122u.connectDirect(cbo.getSelectionModel().getSelectedIndex(), true);
 
             SmartCardUtils.displayOut(logger, "\r\n Successfully connected to " + cbo.getSelectionModel().getSelectedItem());

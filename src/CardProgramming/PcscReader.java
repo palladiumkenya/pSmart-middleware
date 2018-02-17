@@ -1,8 +1,25 @@
-package psmart.pcscReader;
+package CardProgramming;
+//===========================================================================================
+// 
+//  Author          : Teosseth G. Altar
+// 
+//  File            : PcscReader.java
+// 
+//  Copyright (C)   : Advanced Card Systems Ltd.
+// 
+//  Description     : Base class for all the PC/SC smart card readers.
+//				      Wrapper class for the use of Java Smartcard IO class libraries
+// 
+//  Date            : October 28, 2011
+// 
+//  Revision Trail : [Author] / [Date of modification] / [Details of Modifications done]
+// 
+// 
+//=========================================================================================
 
-
-import card.ACOS3.Acos3CardReaderEvents;
-import psmart.Apdu;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.List;
 
 import javax.smartcardio.Card;
 import javax.smartcardio.CardChannel;
@@ -12,9 +29,6 @@ import javax.smartcardio.CardTerminals;
 import javax.smartcardio.CommandAPDU;
 import javax.smartcardio.ResponseAPDU;
 import javax.smartcardio.TerminalFactory;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.List;
 
 public class PcscReader 
 {
@@ -32,7 +46,7 @@ public class PcscReader
 	protected boolean _connectionActive;
 	private int returnCode;
 
-	protected Acos3CardReaderEvents _eventHandler;
+	protected ReaderEvents _eventHandler;
 
 	// Default constructor
 	public PcscReader()
@@ -81,8 +95,8 @@ public class PcscReader
 	public void setPreferredProtocol(String preferredProtocol) { this._preferredProtocol = preferredProtocol; }
 	public String getPreferredProtocol() { return this._preferredProtocol; }
 
-	public Acos3CardReaderEvents getEventHandler() { return this._eventHandler; }
-	public void setEventHandler(Acos3CardReaderEvents eventHandler) { this._eventHandler = eventHandler; }
+	public ReaderEvents getEventHandler() { return this._eventHandler; }
+	public void setEventHandler(ReaderEvents eventHandler) { this._eventHandler = eventHandler; }
 
 	public boolean isConnectionActive() { return this._connectionActive; }
 	public void setConnectionActive(boolean connectionActive) { this._connectionActive = connectionActive; }
@@ -106,11 +120,11 @@ public class PcscReader
 				throw ex;
 			}
 		}
-
-		String[] terminals = new String[getCardTerminalList().size()];
+		
+		String[] terminals = new String[getCardTerminalList().size()]; 
 
 		for (int i = 0; i < getCardTerminalList().size(); i++)
-			terminals[i] = getCardTerminalList().get(i).getName();
+			terminals[i] = getCardTerminalList().get(i).getName(); 
 
 		return terminals;
 	}
@@ -123,11 +137,11 @@ public class PcscReader
 
 		return connect();
 	}
-
+	
 	// Connect to the smart card through the specified smart card reader (overloaded function)
 	public int connect(String readerName, String preferredProtocol) throws Exception
 	{
-
+		
 		for (int i = 0; i < getCardTerminalList().size(); i++)
 		{
 			if (getCardTerminalList().get(i).getName().indexOf(readerName) > -1)
@@ -162,28 +176,28 @@ public class PcscReader
 			if(ex.getCause().getMessage().equals(PcscProvider.CODES.SCARD_E_SERVICE_STOPPED.toString()))
 			{
 				establishContext();
-
+				
 				String previousSelectedTerminal = getActiveTerminal().getName();
 				List<CardTerminal> previousCardTerminals = getCardTerminalList();
 
 				String[] newTerminals = listTerminals();
-
+				
 				int terminalIndex = -1;
 				for(int i = 0; i < newTerminals.length; i++)
 				{
 					if(newTerminals[i].equals(previousSelectedTerminal))
 					{
-						terminalIndex = i;
+						terminalIndex = i;							
 						break;
 					}
 				}
-
+				
 				if(terminalIndex == -1)
 				{
 					setCardTerminalList(previousCardTerminals);
 					throw new PcscException(PcscProvider.CODES.SCARD_E_UNKNOWN_READER);
 				}
-
+				
 				setActiveTerminal(getCardTerminalList().get(terminalIndex));
 				setCard(getActiveTerminal().connect(getPreferredProtocol()));
 				setCardChannel(getCard().getBasicChannel());
@@ -193,45 +207,42 @@ public class PcscReader
 				throw ex;
 			}
 		}
-
+		
 		setConnectionActive(true);
-
+		
 		return 0;
 	}
-	public byte[] getFirmwareVersion() throws Exception {
 
-		return null;
-	}
-	// Connect directly to the smart card reader
+	// Connect directly to the smart card reader	
 	public int connectDirect(int terminalNumber, boolean isSetTerminalNumber) throws Exception
 	{
 		try
 		{
 			if(isSetTerminalNumber)
 				setActiveTerminal(getCardTerminalList().get(terminalNumber));
-
+			
 			setCard(getActiveTerminal().connect("direct"));
 			setConnectionActive(true);
 		}
 		catch(CardException ex)
-		{
+		{			
 			if(ex.getCause().getMessage().equals(PcscProvider.CODES.SCARD_E_SERVICE_STOPPED.toString()))
 			{
 				establishContext();
-
+				
 				String previousSelectedTerminal = getActiveTerminal().getName();
 				List<CardTerminal> previousCardTerminals = getCardTerminalList();
 
 				String[] newTerminals = listTerminals();
-
+				
 				int terminalIndex = -1;
 				if(isSetTerminalNumber)
-				{
+				{					
 					for(int i = 0; i < newTerminals.length; i++)
 					{
 						if(newTerminals[i].equals(previousSelectedTerminal))
 						{
-							terminalIndex = i;
+							terminalIndex = i;							
 							break;
 						}
 					}
@@ -241,7 +252,7 @@ public class PcscReader
 					setCardTerminalList(previousCardTerminals);
 					throw new PcscException(PcscProvider.CODES.SCARD_E_UNKNOWN_READER);
 				}
-
+					
 				setActiveTerminal(getCardTerminalList().get(terminalIndex));
 				setCard(getActiveTerminal().connect("direct"));
 				setConnectionActive(true);
@@ -251,68 +262,70 @@ public class PcscReader
 				throw ex;
 			}
 		}
-
-		return 0;
+		
+		return 0;		
 	}
 
 	// Disconnect from the smart card
 	public int disconnect() throws Exception
 	{
-		//The disconnect method of Card.java has a reset parameter which is used as follows:
+		//The disconnect method of Card.java has a reset parameter which is used as follows:		
 		//SCardDisconnect(cardId, (reset ? SCARD_LEAVE_CARD : SCARD_RESET_CARD));
 		//So if reset is true, the card is not being reset, if false, the card is being reset.
 		getCard().disconnect(false);
-
+		
 		setConnectionActive(false);
 
 		return returnCode;
 	}
-
+	
 	// Send APDU commands to the smart card (overloaded function)
 	public int sendApduCommand(Apdu apdu) throws Exception
 	{
 		int sendApduCommand = 0;
-		int sendDataLength = 0;
+		int sendDataLength = 0;	
 		if (apdu.getSendData() != null)
-			sendDataLength = apdu.getSendData().length;
-
+			sendDataLength = apdu.getSendData().length; 
+		
 		byte[] commandApdu = new byte[5 + sendDataLength];
-
+		
 		System.arraycopy(new byte[] { apdu.getCla(), apdu.getIns(), apdu.getP1(), apdu.getP2(), apdu.getP3() }, 0, commandApdu, 0, 5);
-
+		
 		if (sendDataLength > 0)
 			System.arraycopy(apdu.getSendData(), 0, commandApdu, 5, apdu.getSendData().length);
 
 		try
 		{
 			sendApduCommand = sendApduCommand(commandApdu);
-
+			
 			apdu.setSw(new byte[] { (byte) getResponseApdu().getSW1(), (byte) getResponseApdu().getSW2() });
 			if (getResponseApdu().getData().length > 0)
 				apdu.setReceiveData(getResponseApdu().getData());
-		}
+		} 
 		catch(CardException ex)
 		{
 			if(ex.getCause().getMessage().equals(PcscProvider.CODES.SCARD_E_SERVICE_STOPPED.toString()))
 			{
-				establishContext();
-
+				establishContext();	
+				
 				sendApduCommand = sendApduCommand(commandApdu);
-
+				
 				apdu.setSw(new byte[] { (byte) getResponseApdu().getSW1(), (byte) getResponseApdu().getSW2() });
-
+				
 				if (getResponseApdu().getData().length > 0)
 					apdu.setReceiveData(getResponseApdu().getData());
 			}
 			else
 			{
+				ex.printStackTrace();
 				throw ex;
+
 			}
 		}
 
 		return sendApduCommand;
 	}
-
+	
 
 	// Send APDU commands to the smart card (overloaded function)
 	public int sendApduCommand(byte[] apdu) throws Exception
@@ -399,7 +412,6 @@ public class PcscReader
 	{		
 		return getCard().getATR().getBytes();
 	}
-
 	
 	// Get the protocol in use of the card
 	public String getCardProtocol() throws Exception

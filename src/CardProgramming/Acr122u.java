@@ -1,4 +1,4 @@
-package psmart.pcscReader;
+package CardProgramming;
 
 import psmart.pcscReader.device.PcscReader;
 

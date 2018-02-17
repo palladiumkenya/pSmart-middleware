@@ -1,15 +1,13 @@
-package psmart.pcscReader;
+package CardProgramming;
 
-import psmart.Acos3;
-import psmart.pcscReader.card.PcscReader;
-
-import javax.swing.*;
 import java.util.Arrays;
 
-public class ReaderInterface extends PcscReader {
+import javax.swing.JOptionPane;
 
+public class ReaderInterface extends PcscReader{
+    	
 	public enum CHIP_TYPE
-	{
+	{		
 		UNKNOWN(0x01),
 		ACOS3(0x02),
 		ACOS3COMBI(0x03),
@@ -19,9 +17,9 @@ public class ReaderInterface extends PcscReader {
 		private final int _id;
 		CHIP_TYPE(int id){this._id = id;}
 	}
-
-	public CHIP_TYPE getChipType()
-    {
+	
+	public CHIP_TYPE getChipType() 
+    {	        
         byte[] atr;
         byte[] cardVersion;
         byte[] cardVersionFirstFiveBytes = new byte[5];
@@ -32,13 +30,13 @@ public class ReaderInterface extends PcscReader {
 		try
 		{
 			atr = this.getAtr();
-
+			
 			if (atr.length == 8)
 			{
 		        // contactless
 		        if(atr[4] != (byte)0x41)
 		        	return CHIP_TYPE.UNKNOWN;
-
+		        
 		        cardVersion = acos3.getCardInfo(Acos3.CARD_INFO_TYPE.VERSION_NUMBER);
 		        
 		        if(cardVersion != null)
@@ -59,7 +57,9 @@ public class ReaderInterface extends PcscReader {
 		        	{
 	        			cardType = CHIP_TYPE.ACOS3;
 		        	}*/
-		        }
+		        } else {
+		        	System.out.println("Null card version");
+				}
 			}
 			else
 			{
@@ -115,10 +115,5 @@ public class ReaderInterface extends PcscReader {
 		
 		return cardType;
     }
-	// Get the ATR of the smart card
-	public byte[] getAtr() throws Exception
-	{
-		return getCard().getATR().getBytes();
-	}
 
 }

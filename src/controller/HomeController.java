@@ -1,5 +1,6 @@
 package controller;
 
+import CardProgramming.MainSmartCardReadWrite;
 import com.jfoenix.controls.JFXComboBox;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -18,6 +19,7 @@ import java.util.List;
 public class HomeController  {
 
     private String message=null;
+    MainSmartCardReadWrite readerWriter;
 
     @FXML
     private Label lblpsmartTitle;
@@ -83,33 +85,17 @@ public class HomeController  {
     void initialize() {
         btnWriteToCard.setDisable(false);
         btnReadCard.setDisable(false);
-
+        readerWriter = new MainSmartCardReadWrite(txtProcessLogger, cboDeviceReaderList);
     }
 
     @FXML
     public void initialiseCardReader(ActionEvent event) {
 
-        int index;
-
         try {
-            ReaderBasicServices reader=new ReaderBasicServices();
-            List<String> readerList=reader.InitialiseReader();
-            cboDeviceReaderList.getItems().clear(); // clear the combobox control
+            MainSmartCardReadWrite reader=new MainSmartCardReadWrite(txtProcessLogger, cboDeviceReaderList);
+            readerWriter.initializeReader(btnConnectReader);
 
-            if (readerList.size()>0) {
-                for(String readerName: readerList) {
-                    cboDeviceReaderList.getItems().add(readerName);
-                }
-                cboDeviceReaderList.getSelectionModel().select(0);
-                btnConnectReader.setDisable(false);
-                btnInitialiseReader.setDisable(true);
-            }else {
-                cboDeviceReaderList.getItems().add("No Reader Selected");
-                cboDeviceReaderList.getSelectionModel().select(0);
-            }
         }catch(Exception e){
-            cboDeviceReaderList.getItems().add("No Reader Selected");
-            cboDeviceReaderList.getSelectionModel().select(0);//.setValue("No Reader Selected");
             btnConnectReader.setDisable(true);
            SmartCardUtils.displayOut(txtProcessLogger, "Reader initialization error");
         }
@@ -118,15 +104,7 @@ public class HomeController  {
     @FXML
     public void connectReader(ActionEvent event){
 
-        try{
-            SmartCardReadWrite reader = new SmartCardReadWrite(txtProcessLogger, cboDeviceReaderList);
-
-            reader.connectReader(btnConnectReader);
-
-        }catch(Exception e){
-            SmartCardUtils.displayOut(txtProcessLogger, "Reader parse error. Cannot connect");
-
-        }
+            readerWriter.connectReader(btnConnectReader);
     }
 
     @FXML

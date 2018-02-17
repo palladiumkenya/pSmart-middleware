@@ -1,84 +1,118 @@
-package psmart;
+package CardProgramming;
 
+import CardProgramming.userFiles.UserFile;
 import com.jfoenix.controls.JFXComboBox;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
-import psmart.pcscReader.Acr122u;
-import psmart.pcscReader.PcscProvider;
-import psmart.pcscReader.device.PcscReader;
-import psmart.pcscReader.ReaderInterface;
-import psmart.userFiles.UserFile;
 
 import javax.smartcardio.CardException;
 
 
-public class SmartCardReadWrite {
-    Acos3 acos3;
-    Acr122u _acr122u;
-    ReaderInterface readerInterface;
+public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler {
     PcscReader pcscReader;
+    Acos3 acos3;
     TextArea loggerWidget;
-    JFXComboBox readerList;
+    JFXComboBox cboReaderList;
+    private ReaderInterface readerInterface;
     ReaderInterface.CHIP_TYPE currentChipType = ReaderInterface.CHIP_TYPE.UNKNOWN;
     private boolean _isConnected = false;
 
-    public SmartCardReadWrite(TextArea loggerWidget, JFXComboBox readerList) {
+    public MainSmartCardReadWrite(TextArea loggerWidget, JFXComboBox readerList) {
         this.loggerWidget = loggerWidget;
-        this.readerList = readerList;
+        this.cboReaderList = readerList;
         readerInterface = new ReaderInterface();
         pcscReader = new PcscReader();
-        _acr122u = new Acr122u();
+        //_acr122u = new Acr122u();
+        // Instantiate an event handler object
+        readerInterface.setEventHandler(new ReaderEvents());
+
+        // Register the event handler implementation of this class
+        readerInterface.getEventHandler().addEventListener(this);
 
     }
 
+    /**
+     * Initializes drop down for reader with list of scanned/attached card readers
+     * @param btnConnect button to be enabled for successful initialization
+     */
+    public void initializeReader(Button btnConnect) {
+        String[] readerList = null;
+
+        try {
+            cboReaderList.getItems().clear();
+
+            readerList = readerInterface.listTerminals();
+            if (readerList.length == 0)
+            {
+                SmartCardUtils.displayOut(loggerWidget, "No PC/SC reader detected");
+                cboReaderList.getItems().add("No PC/SC reader detected");
+                return;
+            }
+
+
+            for (int i = 0; i < readerList.length; i++)
+            {
+                if (!readerList.equals("")) {
+                    cboReaderList.getItems().add(readerList[i]);
+                } else {
+                    break;
+                }
+            }
+
+
+            SmartCardUtils.displayOut(loggerWidget, "Reader Initialization successful");
+
+            cboReaderList.getSelectionModel().selectFirst();
+            btnConnect.setDisable(false);
+
+        }
+        catch (Exception ex)
+        {
+            btnConnect.setDisable(true);
+            SmartCardUtils.displayOut(loggerWidget, "Error: Cannot find a smart card reader.");
+        }
+    }
 
     /**
      * Uses selected reader and establishes connection
      */
     public void connectReader(Button btnConnectReader) {
-        try {
-            if (readerList.getSelectionModel().getSelectedIndex() < 0) {
-                SmartCardUtils.displayOut(loggerWidget, "An error occured during card initialization");
-                return;
-            }
+        try
+        {
+            if(readerInterface.isConnectionActive())
+                readerInterface.disconnect();
 
-            if (_acr122u.isConnectionActive()) {
-                _acr122u.disconnect();
-            }
-            // Connect directly to the smart card reader
-            /**
-             * another lines for testing
-             */
-            String rdrcon = readerList.getValue().toString();
+            int rdrcon = cboReaderList.getSelectionModel().getSelectedIndex();
+
             readerInterface.connect(rdrcon, "*");
             acos3 = new Acos3(readerInterface);
 
-            if(!isAcos3(loggerWidget))
+            if (readerInterface._activeTerminal.isCardPresent()) {
+                SmartCardUtils.displayOut(loggerWidget,"Card Present on reader");
+            } else {
+                SmartCardUtils.displayOut(loggerWidget,"No Card on reader");
+            }
+            SmartCardUtils.displayOut(loggerWidget, "\nSuccessful connection to " + rdrcon);
+
+            //Check if card inserted is an ACOS Card
+            if(!isAcos3()) {
                 return;
+            }
+            if(currentChipType == ReaderInterface.CHIP_TYPE.ACOS3COMBI) {
+                SmartCardUtils.displayOut(loggerWidget, "Chip Type: ACOS3 Combi");
+            } else {
+                SmartCardUtils.displayOut(loggerWidget, "Chip Type: ACOS3");
+            }
 
-            if(currentChipType == ReaderInterface.CHIP_TYPE.ACOS3COMBI)
-                SmartCardUtils.displayOut(loggerWidget, "\r\n CHIP Type ACOS Combi ");
-            else
-                SmartCardUtils.displayOut(loggerWidget, "\r\n CHIP Type ACOS ");
-            /*readerInterface.connect(rdrcon, "*");
-            //TODO: remove the line below. purely for testing
-            readerList.getSelectionModel().getSelectedIndex();
-            _acr122u.connectDirect(readerList.getSelectionModel().getSelectedIndex(), true);
-
-            SmartCardUtils.displayOut(loggerWidget, "\r\n Successfully connected to " + readerList.getSelectionModel().getSelectedItem());
-            _isConnected = true;
-            acos3 = new Acos3(readerInterface);*/
-            btnConnectReader.setDisable(true);
-        } catch (CardException ex) {
-            ex.printStackTrace();
-            ex.getCause();
-            SmartCardUtils.displayOut(loggerWidget, "\r\n Error connecting to card: " + PcscProvider.GetScardErrMsg(ex));
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            ex.getCause();
-            SmartCardUtils.displayOut(loggerWidget, "\r\n Error connecting to card: " + ex.getMessage());
-
+        }
+        catch (CardException exception)
+        {
+            SmartCardUtils.displayOut(loggerWidget, PcscProvider.GetScardErrMsg(exception) + "\r\n");
+        }
+        catch(Exception exception)
+        {
+            SmartCardUtils.displayOut(loggerWidget, "There was an error connecting to card" + "\r\n");
+            exception.printStackTrace();
         }
     }
 
@@ -89,7 +123,7 @@ public class SmartCardReadWrite {
             if(readerInterface.isConnectionActive())
                 readerInterface.disconnect();
 
-            String rdrcon = (String)readerList.getValue();
+            String rdrcon = (String)cboReaderList.getValue();
 
             readerInterface.connect(rdrcon, "*");
             acos3 = new Acos3(readerInterface);
@@ -97,7 +131,7 @@ public class SmartCardReadWrite {
             SmartCardUtils.displayOut(loggerWidget, "\nSuccessful connection to "+ rdrcon);
 
             //Check if card inserted is an ACOS Card
-            if(!isAcos3(loggerWidget))
+            if(!isAcos3())
                 return;
 
             if(currentChipType == ReaderInterface.CHIP_TYPE.ACOS3COMBI) {
@@ -210,7 +244,7 @@ public class SmartCardReadWrite {
         }
     }
 
-    public boolean isAcos3(TextArea logWidget) {
+    public boolean isAcos3() {
         currentChipType = readerInterface.getChipType();
 
         if(currentChipType == ReaderInterface.CHIP_TYPE.ERROR)
@@ -218,9 +252,19 @@ public class SmartCardReadWrite {
 
         if(currentChipType != ReaderInterface.CHIP_TYPE.ACOS3)
         {
-            SmartCardUtils.displayOut(logWidget, "Card not supported. Please use ACOS3 Card" + "\r\n");
+            SmartCardUtils.displayOut(loggerWidget, "Card not supported. Please use ACOS3 Card" + "\r\n");
             return false;
         }
         return true;
+    }
+
+    @Override
+    public void onSendCommand(ReaderEvents.TransmitApduEventArg event) {
+        SmartCardUtils.displayOut(loggerWidget, event.getAsString(true));
+    }
+
+    @Override
+    public void onReceiveCommand(ReaderEvents.TransmitApduEventArg event) {
+        SmartCardUtils.displayOut(loggerWidget, event.getAsString(true) + "\r\n");
     }
 }
