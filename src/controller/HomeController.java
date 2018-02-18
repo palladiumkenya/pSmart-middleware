@@ -1,5 +1,7 @@
 package controller;
 
+import pSmart.MainSmartCardReadWrite;
+import pSmart.SmartCardUtils;
 import com.jfoenix.controls.JFXComboBox;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -8,16 +10,12 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
-import psmart.ReaderBasicServices;
-import psmart.SmartCardReadWrite;
-import psmart.SmartCardUtils;
-
 import java.text.ParseException;
-import java.util.List;
 
 public class HomeController  {
 
     private String message=null;
+    MainSmartCardReadWrite readerWriter;
 
     @FXML
     private Label lblpsmartTitle;
@@ -83,33 +81,17 @@ public class HomeController  {
     void initialize() {
         btnWriteToCard.setDisable(false);
         btnReadCard.setDisable(false);
-
+        readerWriter = new MainSmartCardReadWrite(txtProcessLogger, cboDeviceReaderList);
     }
 
     @FXML
     public void initialiseCardReader(ActionEvent event) {
 
-        int index;
-
         try {
-            ReaderBasicServices reader=new ReaderBasicServices();
-            List<String> readerList=reader.InitialiseReader();
-            cboDeviceReaderList.getItems().clear(); // clear the combobox control
+            MainSmartCardReadWrite reader=new MainSmartCardReadWrite(txtProcessLogger, cboDeviceReaderList);
+            readerWriter.initializeReader(btnConnectReader);
 
-            if (readerList.size()>0) {
-                for(String readerName: readerList) {
-                    cboDeviceReaderList.getItems().add(readerName);
-                }
-                cboDeviceReaderList.getSelectionModel().select(0);
-                btnConnectReader.setDisable(false);
-                btnInitialiseReader.setDisable(true);
-            }else {
-                cboDeviceReaderList.getItems().add("No Reader Selected");
-                cboDeviceReaderList.getSelectionModel().select(0);
-            }
         }catch(Exception e){
-            cboDeviceReaderList.getItems().add("No Reader Selected");
-            cboDeviceReaderList.getSelectionModel().select(0);//.setValue("No Reader Selected");
             btnConnectReader.setDisable(true);
            SmartCardUtils.displayOut(txtProcessLogger, "Reader initialization error");
         }
@@ -118,15 +100,7 @@ public class HomeController  {
     @FXML
     public void connectReader(ActionEvent event){
 
-        try{
-            SmartCardReadWrite reader = new SmartCardReadWrite(txtProcessLogger, cboDeviceReaderList);
-
-            reader.connectReader(btnConnectReader);
-
-        }catch(Exception e){
-            SmartCardUtils.displayOut(txtProcessLogger, "Reader parse error. Cannot connect");
-
-        }
+            readerWriter.connectReader(btnConnectReader);
     }
 
     @FXML
@@ -138,8 +112,8 @@ public class HomeController  {
     public void writeToCard(ActionEvent event) throws ParseException {
         SmartCardUtils.displayOut(txtProcessLogger, "\nWrite to card initiated. ");
 
-        SmartCardReadWrite writer = new SmartCardReadWrite(txtProcessLogger, cboDeviceReaderList);
-        writer.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_CARD_DETAILS_USER_FILE_NAME), "This is test");
+        MainSmartCardReadWrite writer = new MainSmartCardReadWrite(txtProcessLogger, cboDeviceReaderList);
+        //writer.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_CARD_DETAILS_USER_FILE_NAME), "This is test");
     }
     /**
      * should ensure card reader is initialized and connected
@@ -147,7 +121,7 @@ public class HomeController  {
      */
     public void readCardContent(ActionEvent event) throws ParseException {
 
-        try{
+        /*try{
             SmartCardReadWrite reader = new SmartCardReadWrite(txtProcessLogger, cboDeviceReaderList);
 
             reader.readCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_CARD_DETAILS_USER_FILE_NAME));
@@ -156,7 +130,7 @@ public class HomeController  {
             SmartCardUtils.displayOut(txtProcessLogger, "Reader parse error. Cannot connect");
             e.printStackTrace();
 
-        }
+        }*/
 
     }
 
