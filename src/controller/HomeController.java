@@ -175,4 +175,7 @@ public class HomeController  {
     }
 
 
+    public void formatCard(ActionEvent event) {
+        readerWriter.formatCard();
+    }
 }
