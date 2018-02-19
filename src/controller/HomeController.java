@@ -1,16 +1,24 @@
 package controller;
 
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import pSmart.MainSmartCardReadWrite;
 import pSmart.SmartCardUtils;
 import com.jfoenix.controls.JFXComboBox;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextArea;
+import view.Main;
+
+import javax.swing.*;
 import java.text.ParseException;
+import java.util.Optional;
+
+import static com.sun.javafx.scene.control.skin.Utils.getResource;
 
 public class HomeController  {
 
@@ -115,6 +123,38 @@ public class HomeController  {
         MainSmartCardReadWrite writer = new MainSmartCardReadWrite(txtProcessLogger, cboDeviceReaderList);
         //writer.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_CARD_DETAILS_USER_FILE_NAME), "This is test");
     }
+
+    public void LoadEndpointConfig(ActionEvent event) throws ParseException{
+
+        try {
+            Stage stage = new Stage();
+            Parent root = FXMLLoader.load(
+                    Main.class.getResource("ApiEndpoints.fxml"));
+            stage.setScene(new Scene(root));
+            stage.setTitle("EndPoint Configuration");
+            stage.setMaximized(false);
+            stage.setResizable(false);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            // stage.initOwner(
+            //       ((Node)event.getSource()).getScene().getWindow() );
+            stage.show();
+
+        }catch (Exception e){
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Confirmation Dialog");
+            alert.setHeaderText("P-Smart Middleware");
+            alert.setContentText(e.getMessage());
+
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == ButtonType.OK){
+                // ... user chose OK e.
+
+            } else {
+                // ... user chose CANCEL or closed the dialog
+            }
+        }
+    }
+
     /**
      * should ensure card reader is initialized and connected
      *
