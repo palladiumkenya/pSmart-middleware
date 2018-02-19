@@ -116,40 +116,71 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
         }
     }
 
-    private void connectCard() {
-
+    /**
+     * format card
+     */
+    public void formatCard()
+    {
         try
         {
-            if(readerInterface.isConnectionActive())
-                readerInterface.disconnect();
+            //Send IC Code
+            SmartCardUtils.displayOut(loggerWidget, "\nSubmit Code - IC");
+            acos3.submitCode(Acos3.CODE_TYPE.IC, "ACOSTEST");
 
-            String rdrcon = (String)cboReaderList.getValue();
+            //Select FF 02
+            //acos3.selectFile(Acos3.INTERNAL_FILE.PERSONALIZATION_FILE);
+            SmartCardUtils.displayOut(loggerWidget, "\nSelect File");
+            acos3.selectFile(new byte[] {(byte)0xFF, (byte)0x02});
 
-            readerInterface.connect(rdrcon, "*");
-            acos3 = new Acos3(readerInterface);
+			/* Write to FF 02
+		       This will create 3 User files, no Option registers and
+		       Security Option registers defined, Personalization bit is not set */
+            SmartCardUtils.displayOut(loggerWidget, "\nWrite Record");
+            acos3.writeRecord((byte)0x00, (byte)0x00, new byte[] {(byte)0x00, (byte)0x00, (byte)0x03, (byte)0x00});
+            SmartCardUtils.displayOut(loggerWidget, "FF 02 is updated\n");
 
-            SmartCardUtils.displayOut(loggerWidget, "\nSuccessful connection to "+ rdrcon);
+            // Select FF 04
+            SmartCardUtils.displayOut(loggerWidget, "Select File");
+            acos3.selectFile(new byte[] { (byte)0xFF, (byte)0x04 });
 
-            //Check if card inserted is an ACOS Card
-            if(!isAcos3())
-                return;
+            //Send IC Code
+            SmartCardUtils.displayOut(loggerWidget, "\nSubmit Code - IC");
+            acos3.submitCode(Acos3.CODE_TYPE.IC, "ACOSTEST");
 
-            if(currentChipType == ReaderInterface.CHIP_TYPE.ACOS3COMBI) {
-                SmartCardUtils.displayOut(loggerWidget, "Chip Type: ACOS3 Combi");
+			/* Write to FF 04
+		       Write to first record of FF 04 */
+            SmartCardUtils.displayOut(loggerWidget, "\nWrite Record");
+            acos3.writeRecord((byte)0x00, (byte)0x00, new byte[] { (byte)0x0A, (byte)0x03, (byte)0x00, (byte)0x00, (byte)0xAA, (byte)0x11, (byte)0x00 });
+            SmartCardUtils.displayOut(loggerWidget, "User File AA 11 is defined");
 
-            } else {
-                SmartCardUtils.displayOut(loggerWidget, "Chip Type: ACOS3");
-            }
-            // TODO: buttonFormat.setEnabled(true);
+            // Write to second record of FF 04
+            SmartCardUtils.displayOut(loggerWidget, "\nWrite Record");
+            acos3.writeRecord((byte)0x01, (byte)0x00, new byte[] { (byte)0x10, (byte)0x02, (byte)0x00, (byte)0x00, (byte)0xBB, (byte)0x22, (byte)0x00 });
+            SmartCardUtils.displayOut(loggerWidget, "User File BB 22 is defined");
+
+            // write to third record of FF 04
+            SmartCardUtils.displayOut(loggerWidget, "\nWrite Record");
+            acos3.writeRecord((byte)0x02, (byte)0x00, new byte[] { (byte)0x20, (byte)0x04, (byte)0x00, (byte)0x00, (byte)0xCC, (byte)0x33, (byte)0x00 });
+            SmartCardUtils.displayOut(loggerWidget, "User File CC 33 is defined");
+
+            /*radioButtonaa11.setSelected(true);
+            textFieldValue.setText("");
+
+            radioButtonaa11.setEnabled(true);
+            radioButtonbb22.setEnabled(true);
+            radioButtoncc33.setEnabled(true);
+            buttonRead.setEnabled(true);
+            buttonWrite.setEnabled(true);
+            textFieldValue.setEnabled(true);*/
 
         }
         catch (CardException exception)
         {
-            SmartCardUtils.displayOut(loggerWidget, PcscProvider.GetScardErrMsg(exception));
+            SmartCardUtils.displayOut(loggerWidget, PcscProvider.GetScardErrMsg(exception) + "\r\n");
         }
         catch(Exception exception)
         {
-            SmartCardUtils.displayOut(loggerWidget, exception.getMessage().toString());
+            SmartCardUtils.displayOut(loggerWidget, exception.getMessage().toString() + "\r\n");
         }
     }
     /**

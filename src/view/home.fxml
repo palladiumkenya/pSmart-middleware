@@ -196,6 +196,7 @@
                     <font>
                         <Font name="System Bold" size="15.0" />
                     </font></Button>
+
                 <Button fx:id="btnUpdateCard" contentDisplay="TOP" disable="true" layoutX="23.0" layoutY="220.0" mnemonicParsing="false" prefHeight="62.0" prefWidth="168.0" text="Update Card" underline="true">
                     <graphic>
                         <FontAwesomeIconView glyphName="EXCHANGE" size="20.0" />
