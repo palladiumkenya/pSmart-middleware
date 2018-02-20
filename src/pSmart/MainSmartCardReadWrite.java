@@ -124,54 +124,42 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
         try
         {
             //Send IC Code
-            SmartCardUtils.displayOut(loggerWidget, "\nSubmit Code - IC");
+            //SmartCardUtils.displayOut(loggerWidget, "\nSubmit Code - IC");
             acos3.submitCode(Acos3.CODE_TYPE.IC, "ACOSTEST");
 
             //Select FF 02
             //acos3.selectFile(Acos3.INTERNAL_FILE.PERSONALIZATION_FILE);
-            SmartCardUtils.displayOut(loggerWidget, "\nSelect File");
+            //SmartCardUtils.displayOut(loggerWidget, "\nSelect File");
             acos3.selectFile(new byte[] {(byte)0xFF, (byte)0x02});
 
 			/* Write to FF 02
 		       This will create 3 User files, no Option registers and
 		       Security Option registers defined, Personalization bit is not set */
-            SmartCardUtils.displayOut(loggerWidget, "\nWrite Record");
+            //SmartCardUtils.displayOut(loggerWidget, "\nWrite Record");
             acos3.writeRecord((byte)0x00, (byte)0x00, new byte[] {(byte)0x00, (byte)0x00, (byte)0x03, (byte)0x00});
-            SmartCardUtils.displayOut(loggerWidget, "FF 02 is updated\n");
+            //SmartCardUtils.displayOut(loggerWidget, "FF 02 is updated\n");
 
             // Select FF 04
-            SmartCardUtils.displayOut(loggerWidget, "Select File");
+            //SmartCardUtils.displayOut(loggerWidget, "Select File");
             acos3.selectFile(new byte[] { (byte)0xFF, (byte)0x04 });
 
             //Send IC Code
-            SmartCardUtils.displayOut(loggerWidget, "\nSubmit Code - IC");
+            //SmartCardUtils.displayOut(loggerWidget, "\nSubmit Code - IC");
             acos3.submitCode(Acos3.CODE_TYPE.IC, "ACOSTEST");
 
 			/* Write to FF 04
 		       Write to first record of FF 04 */
-            SmartCardUtils.displayOut(loggerWidget, "\nWrite Record");
-            acos3.writeRecord((byte)0x00, (byte)0x00, new byte[] { (byte)0x0A, (byte)0x03, (byte)0x00, (byte)0x00, (byte)0xAA, (byte)0x11, (byte)0x00 });
+            acos3.writeRecord((byte)0x00, (byte)0x00, new byte[] { (byte)0x250, (byte)0x03, (byte)0x00, (byte)0x00, (byte)0xAA, (byte)0x11, (byte)0x00 });
             SmartCardUtils.displayOut(loggerWidget, "User File AA 11 is defined");
 
             // Write to second record of FF 04
-            SmartCardUtils.displayOut(loggerWidget, "\nWrite Record");
             acos3.writeRecord((byte)0x01, (byte)0x00, new byte[] { (byte)0x10, (byte)0x02, (byte)0x00, (byte)0x00, (byte)0xBB, (byte)0x22, (byte)0x00 });
             SmartCardUtils.displayOut(loggerWidget, "User File BB 22 is defined");
 
             // write to third record of FF 04
-            SmartCardUtils.displayOut(loggerWidget, "\nWrite Record");
             acos3.writeRecord((byte)0x02, (byte)0x00, new byte[] { (byte)0x20, (byte)0x04, (byte)0x00, (byte)0x00, (byte)0xCC, (byte)0x33, (byte)0x00 });
             SmartCardUtils.displayOut(loggerWidget, "User File CC 33 is defined");
 
-            /*radioButtonaa11.setSelected(true);
-            textFieldValue.setText("");
-
-            radioButtonaa11.setEnabled(true);
-            radioButtonbb22.setEnabled(true);
-            radioButtoncc33.setEnabled(true);
-            buttonRead.setEnabled(true);
-            buttonWrite.setEnabled(true);
-            textFieldValue.setEnabled(true);*/
 
         }
         catch (CardException exception)
@@ -203,6 +191,8 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
             //TODO: displayOut(0, 0, "\nRead Record");
             data = acos3.readRecord((byte)0x00, (byte)0x00, dataLen);
             String readMsg = Helper.byteArrayToString(data, data.length);
+            SmartCardUtils.displayOut(loggerWidget, ">>Data read\n " + readMsg);
+
 
             // TODO: Dispaly in the grid:
             // grid.setText(Helper.byteArrayToString(data, data.length));
@@ -258,7 +248,6 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
                 indx++;
             }
 
-            //TODO: displayOut(0, 0, "\nWrite Record");
             acos3.writeRecord((byte)0x00, (byte)0x00, tmpArray);
 
             SmartCardUtils.displayOut(loggerWidget, "Data read from textbox is written to card" + "\r\n");
@@ -272,6 +261,7 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
         catch(Exception exception)
         {
             SmartCardUtils.displayOut(loggerWidget, "An error occured" + "\r\n");
+            exception.printStackTrace();
         }
     }
 

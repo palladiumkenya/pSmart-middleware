@@ -34,15 +34,15 @@ public class SmartCardUtils {
     public static Map<String, UserFile> getAllUserFiles() {
         Map<String, UserFile> allUserFiles = new HashMap<>();
         allUserFiles.put(SmartCardUtils.PATIENT_DEMOGRAPHICS_USER_FILE_NAME,
-                new UserFile(SmartCardUtils.PATIENT_DEMOGRAPHICS_USER_FILE_NAME, PATIENT_DEMOGRAPHICS_USER_FILE, new UserFileDescriptor(new byte[] { (byte)0xAA, (byte)0x11 },0x0A )));
+                new UserFile(SmartCardUtils.PATIENT_DEMOGRAPHICS_USER_FILE_NAME, PATIENT_DEMOGRAPHICS_USER_FILE, new UserFileDescriptor(new byte[] { (byte)0xAA, (byte)0x11 },50 )));
         allUserFiles.put(SmartCardUtils.PATIENT_IDENTIFIER_USER_FILE_NAME,
-                new UserFile(SmartCardUtils.PATIENT_IDENTIFIER_USER_FILE_NAME, PATIENT_IDENTIFIER_USER_FILE,  new UserFileDescriptor(new byte[] { (byte)0xBB, (byte)0x22 }, 0x10 )));
+                new UserFile(SmartCardUtils.PATIENT_IDENTIFIER_USER_FILE_NAME, PATIENT_IDENTIFIER_USER_FILE,  new UserFileDescriptor(new byte[] { (byte)0xBB, (byte)0x22 }, 16 )));
 
         allUserFiles.put(SmartCardUtils.PATIENT_HIV_TEST_USER_FILE_NAME,
-                new UserFile(SmartCardUtils.PATIENT_HIV_TEST_USER_FILE_NAME, PATIENT_HIV_TEST_USER_FILE,  new UserFileDescriptor(new byte[] { (byte)0xCC, (byte)0x33 }, 0x20 )));
+                new UserFile(SmartCardUtils.PATIENT_HIV_TEST_USER_FILE_NAME, PATIENT_HIV_TEST_USER_FILE,  new UserFileDescriptor(new byte[] { (byte)0xCC, (byte)0x33 }, 32 )));
 
         allUserFiles.put(SmartCardUtils.PATIENT_CARD_DETAILS_USER_FILE_NAME,
-                new UserFile(SmartCardUtils.PATIENT_CARD_DETAILS_USER_FILE_NAME, PATIENT_CARD_DETAILS_USER_FILE,  new UserFileDescriptor(new byte[] { (byte)0xDD, (byte)0x44 }, 0x30 )));
+                new UserFile(SmartCardUtils.PATIENT_CARD_DETAILS_USER_FILE_NAME, PATIENT_CARD_DETAILS_USER_FILE,  new UserFileDescriptor(new byte[] { (byte)0xDD, (byte)0x44 }, 0x254 )));
 
         return allUserFiles;
 

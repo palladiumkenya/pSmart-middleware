@@ -121,6 +121,7 @@ public class HomeController  {
      */
     public void readCardContent(ActionEvent event) throws ParseException {
 
+        readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_DEMOGRAPHICS_USER_FILE_NAME));
         /*try{
             SmartCardReadWrite reader = new SmartCardReadWrite(txtProcessLogger, cboDeviceReaderList);
 
@@ -137,5 +138,13 @@ public class HomeController  {
 
     public void formatCard(ActionEvent event) {
         readerWriter.formatCard();
+        btnUpdateCard.setDisable(false);
+    }
+
+    public void LoadEndpointConfig(ActionEvent event) {
+    }
+
+    public void updateCard(ActionEvent event) {
+        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_DEMOGRAPHICS_USER_FILE_NAME), "This is Palladium KHMIS. 2018");
     }
 }
