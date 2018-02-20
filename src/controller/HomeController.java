@@ -145,6 +145,7 @@ public class HomeController  {
     }
 
     public void updateCard(ActionEvent event) {
-        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_DEMOGRAPHICS_USER_FILE_NAME), "This is Palladium KHMIS. 2018");
+        String textToWrite = "To use this hex to binary converter tool, just type a hex value like 1E into the left field below, and then hit the Convert button. Therefore, you can convert up to 16 hex characters";
+        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_DEMOGRAPHICS_USER_FILE_NAME), textToWrite);
     }
 }

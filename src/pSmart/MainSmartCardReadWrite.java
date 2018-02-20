@@ -149,7 +149,7 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
 
 			/* Write to FF 04
 		       Write to first record of FF 04 */
-            acos3.writeRecord((byte)0x00, (byte)0x00, new byte[] { (byte)0x250, (byte)0x03, (byte)0x00, (byte)0x00, (byte)0xAA, (byte)0x11, (byte)0x00 });
+            acos3.writeRecord((byte)0x00, (byte)0x00, new byte[] { (byte)0xFF, (byte)0x03, (byte)0x00, (byte)0x00, (byte)0xAA, (byte)0x11, (byte)0x00 });
             SmartCardUtils.displayOut(loggerWidget, "User File AA 11 is defined");
 
             // Write to second record of FF 04

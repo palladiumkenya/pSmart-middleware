@@ -34,7 +34,7 @@ public class SmartCardUtils {
     public static Map<String, UserFile> getAllUserFiles() {
         Map<String, UserFile> allUserFiles = new HashMap<>();
         allUserFiles.put(SmartCardUtils.PATIENT_DEMOGRAPHICS_USER_FILE_NAME,
-                new UserFile(SmartCardUtils.PATIENT_DEMOGRAPHICS_USER_FILE_NAME, PATIENT_DEMOGRAPHICS_USER_FILE, new UserFileDescriptor(new byte[] { (byte)0xAA, (byte)0x11 },50 )));
+                new UserFile(SmartCardUtils.PATIENT_DEMOGRAPHICS_USER_FILE_NAME, PATIENT_DEMOGRAPHICS_USER_FILE, new UserFileDescriptor(new byte[] { (byte)0xAA, (byte)0x11 },200 )));
         allUserFiles.put(SmartCardUtils.PATIENT_IDENTIFIER_USER_FILE_NAME,
                 new UserFile(SmartCardUtils.PATIENT_IDENTIFIER_USER_FILE_NAME, PATIENT_IDENTIFIER_USER_FILE,  new UserFileDescriptor(new byte[] { (byte)0xBB, (byte)0x22 }, 16 )));
 
