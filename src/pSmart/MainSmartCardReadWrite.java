@@ -360,4 +360,6 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
     public void onReceiveCommand(ReaderEvents.TransmitApduEventArg event) {
         SmartCardUtils.displayOut(loggerWidget, event.getAsString(true) + "\r\n");
     }
+
+
 }
