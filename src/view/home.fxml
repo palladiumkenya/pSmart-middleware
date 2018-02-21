@@ -145,6 +145,28 @@
                                 <FontAwesomeIconView glyphName="OBJECT_UNGROUP" size="20.0" />
                             </graphic>
                         </Tab>
+                  <Tab text="End Point Configuration">
+                     <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <TableView fx:id="GridClientLastENcounter1" layoutX="72.0" layoutY="-18.0" prefHeight="113.0" prefWidth="543.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="15.0">
+                                 <columns>
+                                    <TableColumn prefWidth="75.0" text="Endpoint Type" />
+                                    <TableColumn prefWidth="75.0" text="Endpoint Name" />
+                                    <TableColumn prefWidth="75.0" text="Endpoint Url" />
+                                    <TableColumn prefWidth="75.0" text="Endpoint Status" />
+                                 </columns>
+                                 <columnResizePolicy>
+                                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                 </columnResizePolicy>
+                              </TableView>
+                           </children>
+                        </AnchorPane>
+                     </content>
+                     <graphic>
+                        <FontAwesomeIconView glyphName="FEED" size="20.0" />
+                     </graphic>
+                  </Tab>
                     </tabs>
                 </TabPane>
                 <ToolBar layoutX="-148.0" layoutY="99.0" opacity="0.82" prefHeight="47.0" prefWidth="951.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="102.0">
