@@ -99,6 +99,7 @@ public class HomeController  {
             MainSmartCardReadWrite reader=new MainSmartCardReadWrite(txtProcessLogger, cboDeviceReaderList);
             readerWriter.initializeReader(btnConnectReader);
 
+
         }catch(Exception e){
             btnConnectReader.setDisable(true);
            SmartCardUtils.displayOut(txtProcessLogger, "Reader initialization error");
@@ -176,6 +177,19 @@ public class HomeController  {
 
 
     public void formatCard(ActionEvent event) {
-        readerWriter.formatCard();
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("CARD Formatting Dialog");
+        alert.setHeaderText("Are you sure you want to Format ?");
+       // alert.setContentText(e.getMessage());
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == ButtonType.OK){
+            readerWriter.formatCard();
+
+        } else {
+            // ... user chose CANCEL or closed the dialog
+        }
+
     }
 }

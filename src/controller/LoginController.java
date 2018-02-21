@@ -30,6 +30,7 @@ public class LoginController {
 
     public void validateLogin(ActionEvent actionEvent) {
 
+
         if (username.getText().isEmpty() == true || password.getText().isEmpty() == true ) {
             lblMsg.setText("Invalid login details! Try again");
             lblMsg.setStyle("-fx-background-color: rgba(6,6,33,0.8); -fx-border-width: 3px;");
