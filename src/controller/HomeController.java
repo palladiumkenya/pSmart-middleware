@@ -1,12 +1,22 @@
 package controller;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import jsonvalidator.apiclient.APIClient;
+import jsonvalidator.mapper.SHR;
+import jsonvalidator.utils.SHRUtils;
+import models.CardDetail;
+import models.HIVTest;
+import models.Identifier;
 import pSmart.MainSmartCardReadWrite;
 import pSmart.SmartCardUtils;
 import com.jfoenix.controls.JFXComboBox;
@@ -21,6 +31,8 @@ import java.util.Optional;
 import static com.sun.javafx.scene.control.skin.Utils.getResource;
 
 public class HomeController  {
+
+    private static final String SHRURL = "https://my-json-server.typicode.com/tedb19/SHR/SHR";
 
     private String message=null;
     MainSmartCardReadWrite readerWriter;
@@ -37,26 +49,56 @@ public class HomeController  {
     @FXML
     private TextArea txtProcessLogger;
 
-    @FXML
-    private TableColumn<?, ?> gridCardSummary;
+    //@FXML
+    //private TableColumn<SHR.CARD_DETAILS, String> colSerialNumber;
 
     @FXML
-    private TableColumn<?, ?> gridCardSummary1;
+    private TableColumn<CardDetail, String> colCardStatus;
 
     @FXML
-    private TableColumn<?, ?> gridCardSummary2;
+    private TableColumn<CardDetail, String> colReason;
 
     @FXML
-    private TableColumn<?, ?> gridCardSummary21;
+    private TableColumn<CardDetail, String> colLastUpdate;
 
     @FXML
-    private TableView<?> GridClientIdentifiers;
+    private TableColumn<CardDetail, String> colFacilityLastUpdated;
 
     @FXML
-    private TableView<?> GridClientLastENcounter;
+    private TableView<CardDetail> GridCardSummary;
 
     @FXML
-    private TableView<?> GridClientLastENcounter1;
+    private TableView<HIVTest> GridClientLastENcounter;
+
+    @FXML
+    private TableColumn<HIVTest, String> colTestDate;
+
+    @FXML
+    private TableColumn<HIVTest, String> colResult;
+
+    @FXML
+    private TableColumn<HIVTest, String> colType;
+
+    @FXML
+    private TableColumn<HIVTest, String> colFacility;
+
+    @FXML
+    private TableColumn<HIVTest, String> colStrategy;
+
+    @FXML
+    private TableView<Identifier> GridClientIdentifiers;
+
+    @FXML
+    private TableColumn<Identifier, String> colIdentifierId;
+
+    @FXML
+    private TableColumn<Identifier, String> colIdentifierType;
+
+    @FXML
+    private TableColumn<Identifier, String> colAssigningAuthority;
+
+    @FXML
+    private TableColumn<Identifier, String> colAssigningFacility;
 
     @FXML
     private Label lblCardStatus;
@@ -87,9 +129,78 @@ public class HomeController  {
 
     @FXML
     void initialize() {
+
         btnWriteToCard.setDisable(false);
         btnReadCard.setDisable(false);
         readerWriter = new MainSmartCardReadWrite(txtProcessLogger, cboDeviceReaderList);
+    }
+
+    //Load Card Details
+    private final void loadCardDetails(SHR shr){
+        colCardStatus.setCellValueFactory(new PropertyValueFactory<CardDetail, String>("status"));
+        colFacilityLastUpdated.setCellValueFactory(new PropertyValueFactory<CardDetail, String>("lastUpdatedFacility"));
+        colLastUpdate.setCellValueFactory(new PropertyValueFactory<CardDetail, String>("lastUpdated"));
+        colReason.setCellValueFactory(new PropertyValueFactory<CardDetail, String>("reason"));
+        GridCardSummary.setItems(FXCollections.observableArrayList(getCardDetails(shr)));
+    }
+
+    private final ObservableList<CardDetail> getCardDetails(SHR shr){
+        CardDetail cardDetail = new CardDetail(
+                shr.cARD_DETAILS.sTATUS,
+                shr.cARD_DETAILS.rEASON,
+                shr.cARD_DETAILS.lAST_UPDATED,
+                shr.cARD_DETAILS.lAST_UPDATED_FACILITY
+        );
+        ObservableList<CardDetail> cardsDetails = FXCollections.observableArrayList(cardDetail);
+        return cardsDetails;
+    }
+
+    //Load Identifiers
+    private final void loadIdentifiers(SHR shr){
+        colIdentifierId.setCellValueFactory(new PropertyValueFactory<Identifier, String>("identifier"));
+        colIdentifierType.setCellValueFactory(new PropertyValueFactory<Identifier, String>("identifierType"));
+        colAssigningAuthority.setCellValueFactory(new PropertyValueFactory<Identifier, String>("assigningAuthority"));
+        colAssigningFacility.setCellValueFactory(new PropertyValueFactory<Identifier, String>("assigningFacility"));
+        GridClientIdentifiers.setItems(FXCollections.observableArrayList(getIdentifiers(shr)));
+    }
+
+    private final ObservableList<Identifier> getIdentifiers(SHR shr){
+        ObservableList<Identifier> identifiers = FXCollections.observableArrayList();
+        for(int i=0; i < shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID.length;i++ ){
+            Identifier identifier = new Identifier(
+                    shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID[i].iD,
+                    shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID[i].iDENTIFIER_TYPE,
+                    shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID[i].aSSIGNING_AUTHORITY,
+                    shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID[i].aSSIGNING_FACILITY
+            );
+            identifiers.add(identifier);
+        }
+        return identifiers;
+    }
+
+    //Load Identifiers
+    private final void loadHIVTests(SHR shr){
+        colTestDate.setCellValueFactory(new PropertyValueFactory<HIVTest, String>("testDate"));
+        colResult.setCellValueFactory(new PropertyValueFactory<HIVTest, String>("result"));
+        colFacility.setCellValueFactory(new PropertyValueFactory<HIVTest, String>("facility"));
+        colStrategy.setCellValueFactory(new PropertyValueFactory<HIVTest, String>("strategy"));
+        colType.setCellValueFactory(new PropertyValueFactory<HIVTest, String>("type"));
+        GridClientLastENcounter.setItems(FXCollections.observableArrayList(getHIVTests(shr)));
+    }
+
+    private final ObservableList<HIVTest> getHIVTests(SHR shr){
+        ObservableList<HIVTest> hivTests = FXCollections.observableArrayList();
+        for(int i=0; i < shr.hIV_TEST.length;i++ ){
+            HIVTest hivTest = new HIVTest(
+                    shr.hIV_TEST[i].dATE,
+                    shr.hIV_TEST[i].rESULT,
+                    shr.hIV_TEST[i].tYPE,
+                    shr.hIV_TEST[i].fACILITY,
+                    shr.hIV_TEST[i].sTRATEGY
+            );
+            hivTests.add(hivTest);
+        }
+        return hivTests;
     }
 
     @FXML
@@ -124,6 +235,15 @@ public class HomeController  {
         //writer.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_CARD_DETAILS_USER_FILE_NAME), "This is test");
     }
 
+    public void getFromEMR(ActionEvent actionEvent){
+        String SHRStr = APIClient.getSHRStr(SHRURL, "");
+        SHR shr = SHRUtils.getSHR(SHRStr);
+        loadCardDetails(shr);
+        loadIdentifiers(shr);
+        loadHIVTests(shr);
+    }
+
+
     public void LoadEndpointConfig(ActionEvent event) throws ParseException{
 
         try {
@@ -135,8 +255,6 @@ public class HomeController  {
             stage.setMaximized(false);
             stage.setResizable(false);
             stage.initModality(Modality.APPLICATION_MODAL);
-            // stage.initOwner(
-            //       ((Node)event.getSource()).getScene().getWindow() );
             stage.show();
 
         }catch (Exception e){
@@ -177,5 +295,8 @@ public class HomeController  {
 
     public void formatCard(ActionEvent event) {
         readerWriter.formatCard();
+    }
+
+    public void loadEndPointConfig(ActionEvent actionEvent) {
     }
 }
