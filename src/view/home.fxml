@@ -240,7 +240,7 @@
                         </GridPane>
                     </children>
                 </AnchorPane>
-                <TextArea fx:id="txtProcessLogger" layoutX="23.0" layoutY="409.0" prefHeight="543.0" prefWidth="265.0" promptText="logger" AnchorPane.bottomAnchor="9.0" AnchorPane.topAnchor="409.0">
+                <TextArea fx:id="txtProcessLogger" layoutX="23.0" layoutY="377.0" prefHeight="582.0" prefWidth="265.0" promptText="logger" AnchorPane.bottomAnchor="9.0" AnchorPane.topAnchor="370.0">
                     <font>
                         <Font name="System Bold Italic" size="15.0" />
                     </font>
