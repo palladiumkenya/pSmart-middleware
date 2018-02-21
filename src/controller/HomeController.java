@@ -1,12 +1,22 @@
 package controller;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import jsonvalidator.apiclient.APIClient;
+import jsonvalidator.mapper.SHR;
+import jsonvalidator.utils.SHRUtils;
+import models.CardDetail;
+import models.HIVTest;
+import models.Identifier;
 import jsonvalidator.utils.SHRUtils;
 import pSmart.MainSmartCardReadWrite;
 import pSmart.SmartCardUtils;
@@ -28,6 +38,8 @@ import static com.sun.javafx.scene.control.skin.Utils.getResource;
 
 public class HomeController  {
 
+    private static final String SHRURL = "https://my-json-server.typicode.com/tedb19/SHR/SHR";
+
     private String message=null;
     MainSmartCardReadWrite readerWriter;
 
@@ -44,25 +56,52 @@ public class HomeController  {
     private TextArea txtProcessLogger;
 
     @FXML
-    private TableColumn<?, ?> gridCardSummary;
+    private TableColumn<CardDetail, String> colCardStatus;
 
     @FXML
-    private TableColumn<?, ?> gridCardSummary1;
+    private TableColumn<CardDetail, String> colReason;
 
     @FXML
-    private TableColumn<?, ?> gridCardSummary2;
+    private TableColumn<CardDetail, String> colLastUpdate;
 
     @FXML
-    private TableColumn<?, ?> gridCardSummary21;
+    private TableColumn<CardDetail, String> colFacilityLastUpdated;
 
     @FXML
-    private TableView<?> GridClientIdentifiers;
+    private TableView<CardDetail> GridCardSummary;
 
     @FXML
-    private TableView<?> GridClientLastENcounter;
+    private TableView<HIVTest> GridClientLastENcounter;
 
     @FXML
-    private TableView<?> GridClientLastENcounter1;
+    private TableColumn<HIVTest, String> colTestDate;
+
+    @FXML
+    private TableColumn<HIVTest, String> colResult;
+
+    @FXML
+    private TableColumn<HIVTest, String> colType;
+
+    @FXML
+    private TableColumn<HIVTest, String> colFacility;
+
+    @FXML
+    private TableColumn<HIVTest, String> colStrategy;
+
+    @FXML
+    private TableView<Identifier> GridClientIdentifiers;
+
+    @FXML
+    private TableColumn<Identifier, String> colIdentifierId;
+
+    @FXML
+    private TableColumn<Identifier, String> colIdentifierType;
+
+    @FXML
+    private TableColumn<Identifier, String> colAssigningAuthority;
+
+    @FXML
+    private TableColumn<Identifier, String> colAssigningFacility;
 
     @FXML
     private Label lblCardStatus;
@@ -167,26 +206,21 @@ public class HomeController  {
      */
     public void readCardContent(ActionEvent event) throws ParseException {
 
-        readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_DEMOGRAPHICS_USER_FILE_NAME));
-        readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_IDENTIFIER_USER_FILE_NAME));
+        /*try{
+            SmartCardReadWrite reader = new SmartCardReadWrite(txtProcessLogger, cboDeviceReaderList);
+
+            reader.readCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_CARD_DETAILS_USER_FILE_NAME));
+
+        }catch(Exception e){
+            SmartCardUtils.displayOut(txtProcessLogger, "Reader parse error. Cannot connect");
+            e.printStackTrace();
+
+        }*/
 
     }
 
 
     public void formatCard(ActionEvent event) {
         readerWriter.formatCard();
-        btnUpdateCard.setDisable(false);
-    }
-
-
-    public void updateCard(ActionEvent event) {
-        String patientDemographics = SHRUtils.getPatientDemographicsSampleData();
-        String patientIdentifiers = SHRUtils.getPatientIdentifiersSampleData();
-        String htsData = SHRUtils.getHivTestSampleData();
-        String cardDetails = SHRUtils.getCardDetails();
-
-        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_DEMOGRAPHICS_USER_FILE_NAME), patientDemographics);
-        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_IDENTIFIER_USER_FILE_NAME), patientIdentifiers);
-        //readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_CARD_DETAILS_USER_FILE_NAME), cardDetails);
     }
 }
