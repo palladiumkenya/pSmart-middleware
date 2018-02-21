@@ -1,20 +1,25 @@
 package controller;
 
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import jsonvalidator.utils.SHRUtils;
 import pSmart.MainSmartCardReadWrite;
 import pSmart.SmartCardUtils;
 import com.jfoenix.controls.JFXComboBox;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import view.Main;
 
-import javax.swing.*;
 import java.text.ParseException;
 import java.util.Optional;
 
@@ -161,21 +166,26 @@ public class HomeController  {
      */
     public void readCardContent(ActionEvent event) throws ParseException {
 
-        /*try{
-            SmartCardReadWrite reader = new SmartCardReadWrite(txtProcessLogger, cboDeviceReaderList);
-
-            reader.readCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_CARD_DETAILS_USER_FILE_NAME));
-
-        }catch(Exception e){
-            SmartCardUtils.displayOut(txtProcessLogger, "Reader parse error. Cannot connect");
-            e.printStackTrace();
-
-        }*/
+        readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_DEMOGRAPHICS_USER_FILE_NAME));
+        readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_IDENTIFIER_USER_FILE_NAME));
 
     }
 
 
     public void formatCard(ActionEvent event) {
         readerWriter.formatCard();
+        btnUpdateCard.setDisable(false);
+    }
+
+
+    public void updateCard(ActionEvent event) {
+        String patientDemographics = SHRUtils.getPatientDemographicsSampleData();
+        String patientIdentifiers = SHRUtils.getPatientIdentifiersSampleData();
+        String htsData = SHRUtils.getHivTestSampleData();
+        String cardDetails = SHRUtils.getCardDetails();
+
+        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_DEMOGRAPHICS_USER_FILE_NAME), patientDemographics);
+        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_IDENTIFIER_USER_FILE_NAME), patientIdentifiers);
+        //readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_CARD_DETAILS_USER_FILE_NAME), cardDetails);
     }
 }
