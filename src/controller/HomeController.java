@@ -1,5 +1,6 @@
 package controller;
 
+import jsonvalidator.utils.SHRUtils;
 import pSmart.MainSmartCardReadWrite;
 import pSmart.SmartCardUtils;
 import com.jfoenix.controls.JFXComboBox;
@@ -122,16 +123,7 @@ public class HomeController  {
     public void readCardContent(ActionEvent event) throws ParseException {
 
         readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_DEMOGRAPHICS_USER_FILE_NAME));
-        /*try{
-            SmartCardReadWrite reader = new SmartCardReadWrite(txtProcessLogger, cboDeviceReaderList);
-
-            reader.readCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_CARD_DETAILS_USER_FILE_NAME));
-
-        }catch(Exception e){
-            SmartCardUtils.displayOut(txtProcessLogger, "Reader parse error. Cannot connect");
-            e.printStackTrace();
-
-        }*/
+        readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_IDENTIFIER_USER_FILE_NAME));
 
     }
 
@@ -145,7 +137,13 @@ public class HomeController  {
     }
 
     public void updateCard(ActionEvent event) {
-        String textToWrite = "To use this hex to binary converter tool, just type a hex value like 1E into the left field below, and then hit the Convert button. Therefore, you can convert up to 16 hex characters";
-        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_DEMOGRAPHICS_USER_FILE_NAME), textToWrite);
+        String patientDemographics = SHRUtils.getPatientDemographicsSampleData();
+        String patientIdentifiers = SHRUtils.getPatientIdentifiersSampleData();
+        String htsData = SHRUtils.getHivTestSampleData();
+        String cardDetails = SHRUtils.getCardDetails();
+
+        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_DEMOGRAPHICS_USER_FILE_NAME), patientDemographics);
+        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_IDENTIFIER_USER_FILE_NAME), patientIdentifiers);
+        //readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_CARD_DETAILS_USER_FILE_NAME), cardDetails);
     }
 }
