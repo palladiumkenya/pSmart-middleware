@@ -119,6 +119,9 @@ public class HomeController  {
     private Button btnNewCard;
 
     @FXML
+    private Button btnFormatCard;
+
+    @FXML
     private Button btnReadCard;
 
     @FXML
@@ -200,9 +203,10 @@ public class HomeController  {
 
     @FXML
     void initialize() {
-        btnWriteToCard.setDisable(false);
-        btnReadCard.setDisable(false);
+        btnWriteToCard.setDisable(true);
+        btnReadCard.setDisable(true);
         readerWriter = new MainSmartCardReadWrite(txtProcessLogger, cboDeviceReaderList);
+        btnConnectReader.setDisable(true);
     }
 
     @FXML
@@ -211,6 +215,7 @@ public class HomeController  {
         try {
             MainSmartCardReadWrite reader=new MainSmartCardReadWrite(txtProcessLogger, cboDeviceReaderList);
             readerWriter.initializeReader(btnConnectReader);
+            btnConnectReader.setDisable(false);
 
         }catch(Exception e){
             btnConnectReader.setDisable(true);
@@ -222,6 +227,9 @@ public class HomeController  {
     public void connectReader(ActionEvent event){
 
             readerWriter.connectReader(btnConnectReader);
+            btnReadCard.setDisable(false);
+            btnFormatCard.setDisable(false);
+
     }
 
     @FXML
@@ -283,6 +291,7 @@ public class HomeController  {
     public void formatCard(ActionEvent event) {
         readerWriter.formatCard();
         btnUpdateCard.setDisable(false);
+        btnNewCard.setDisable(false);
     }
 
     public void updateCard(ActionEvent event) {
