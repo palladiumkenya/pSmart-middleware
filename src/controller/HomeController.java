@@ -282,9 +282,11 @@ public class HomeController  {
 
     public void formatCard(ActionEvent event) {
         readerWriter.formatCard();
+        btnUpdateCard.setDisable(false);
     }
 
     public void updateCard(ActionEvent event) {
+
         String patientDemographics = SHRUtils.getPatientDemographicsSampleData();
         String patientIdentifiers = SHRUtils.getPatientIdentifiersSampleData();
         String htsData = SHRUtils.getHivTestSampleData();
