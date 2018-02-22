@@ -274,16 +274,8 @@ public class HomeController  {
      */
     public void readCardContent(ActionEvent event) throws ParseException {
 
-        /*try{
-            SmartCardReadWrite reader = new SmartCardReadWrite(txtProcessLogger, cboDeviceReaderList);
-
-            reader.readCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_CARD_DETAILS_USER_FILE_NAME));
-
-        }catch(Exception e){
-            SmartCardUtils.displayOut(txtProcessLogger, "Reader parse error. Cannot connect");
-            e.printStackTrace();
-
-        }*/
+        readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_DEMOGRAPHICS_USER_FILE_NAME));
+        readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_IDENTIFIER_USER_FILE_NAME));
 
     }
 
@@ -292,6 +284,16 @@ public class HomeController  {
         readerWriter.formatCard();
     }
 
+    public void updateCard(ActionEvent event) {
+        String patientDemographics = SHRUtils.getPatientDemographicsSampleData();
+        String patientIdentifiers = SHRUtils.getPatientIdentifiersSampleData();
+        String htsData = SHRUtils.getHivTestSampleData();
+        String cardDetails = SHRUtils.getCardDetails();
+
+        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_DEMOGRAPHICS_USER_FILE_NAME), patientDemographics);
+        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_IDENTIFIER_USER_FILE_NAME), patientIdentifiers);
+        //readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_CARD_DETAILS_USER_FILE_NAME), cardDetails);
+    }
     public void getFromEMR(ActionEvent actionEvent){
         String SHRStr = APIClient.getSHRStr(SHRURL, "");
         SHR shr = SHRUtils.getSHR(SHRStr);
