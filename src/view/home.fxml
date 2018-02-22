@@ -87,13 +87,13 @@
                             <content>
                                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                     <children>
-                                        <TableView layoutX="14.0" layoutY="14.0" prefHeight="113.0" prefWidth="543.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="15.0">
+                                        <TableView fx:id="GridCardSummary" layoutX="14.0" layoutY="14.0" prefHeight="113.0" prefWidth="543.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="15.0">
                                             <columns>
-                                                <TableColumn fx:id="gridCardSummary" prefWidth="273.0" text="SerialNumber" />
-                                                <TableColumn minWidth="0.0" prefWidth="227.0" text="CardStatus" />
-                                                <TableColumn fx:id="gridCardSummary1" prefWidth="273.0" text="Reason" />
-                                                <TableColumn fx:id="gridCardSummary2" prefWidth="273.0" text="LastUpdate" />
-                                                <TableColumn fx:id="gridCardSummary21" prefWidth="273.0" text="FacilityLastUpdated" />
+                                                <!--<TableColumn fx:id="colSerialNumber" prefWidth="273.0" text="SerialNumber" />-->
+                                                <TableColumn fx:id="colCardStatus" minWidth="0.0" prefWidth="227.0" text="Card Status" />
+                                                <TableColumn fx:id="colReason" prefWidth="273.0" text="Reason" />
+                                                <TableColumn fx:id="colLastUpdate" prefWidth="273.0" text="Last Update" />
+                                                <TableColumn fx:id="colFacilityLastUpdated" prefWidth="273.0" text="Facility Last Updated" />
                                             </columns>
                                             <columnResizePolicy>
                                                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
@@ -111,10 +111,10 @@
                                     <children>
                                         <TableView fx:id="GridClientIdentifiers" layoutX="27.0" layoutY="-1.0" prefHeight="113.0" prefWidth="543.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="15.0">
                                             <columns>
-                                                <TableColumn prefWidth="75.0" text="Identifier Id" />
-                                                <TableColumn prefWidth="75.0" text="Identifier Type" />
-                                                <TableColumn prefWidth="75.0" text="Assigning Authourity" />
-                                                <TableColumn prefWidth="75.0" text="Assigning Facility" />
+                                                <TableColumn fx:id="colIdentifierId" prefWidth="75.0" text="Identifier Id" />
+                                                <TableColumn fx:id="colIdentifierType" prefWidth="75.0" text="Identifier Type" />
+                                                <TableColumn fx:id="colAssigningAuthority" prefWidth="75.0" text="Assigning Authourity" />
+                                                <TableColumn fx:id="colAssigningFacility" prefWidth="75.0" text="Assigning Facility" />
                                             </columns>
                                             <columnResizePolicy>
                                                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
@@ -130,10 +130,13 @@
                             <content>
                                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                     <children>
-                                        <TableView fx:id="GridClientLastENcounter" layoutX="72.0" layoutY="-18.0" prefHeight="113.0" prefWidth="543.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="15.0">
+                                        <TableView fx:id="GridClientLastENcounter" layoutX="27.0" layoutY="-1.0" prefHeight="113.0" prefWidth="543.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="15.0">
                                             <columns>
-                                                <TableColumn prefWidth="75.0" text="C1" />
-                                                <TableColumn prefWidth="75.0" text="C2" />
+                                                <TableColumn fx:id="colTestDate" prefWidth="75.0" text="Test Date" />
+                                                <TableColumn fx:id="colType" prefWidth="75.0" text="Type" />
+                                                <TableColumn fx:id="colResult" prefWidth="75.0" text="Result" />
+                                                <TableColumn fx:id="colFacility" prefWidth="75.0" text="Facility" />
+                                                <TableColumn fx:id="colStrategy" prefWidth="75.0" text="Strategy" />
                                             </columns>
                                             <columnResizePolicy>
                                                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
@@ -149,7 +152,7 @@
                 </TabPane>
                 <ToolBar layoutX="-148.0" layoutY="99.0" opacity="0.82" prefHeight="47.0" prefWidth="951.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="102.0">
                     <items>
-                        <Label prefHeight="25.0" prefWidth="146.0" text="Select  Reader :" wrapText="true">
+                        <Label prefHeight="25.0" prefWidth="146.0" text="Select  Device :" wrapText="true">
                             <font>
                                 <Font name="System Bold" size="16.0" />
                             </font>
@@ -183,7 +186,7 @@
                         <Font name="System Bold" size="15.0" />
                     </font>
                 </Button>
-                <Button fx:id="btnNewCard" contentDisplay="TOP" disable="true" layoutX="23.0" layoutY="345.0" mnemonicParsing="false" prefHeight="62.0" prefWidth="265.0" text="New  Client Card" AnchorPane.leftAnchor="23.0" AnchorPane.topAnchor="345.0">
+                <Button fx:id="btnNewCard" contentDisplay="TOP" layoutX="23.0" layoutY="288.0" mnemonicParsing="false" onAction="#getFromEMR" prefHeight="62.0" prefWidth="168.0" text="Load From EMR">
                     <graphic>
                         <FontAwesomeIconView glyphName="CLONE" size="20.0" />
                     </graphic>
