@@ -48,21 +48,23 @@ public class SHRUtils {
     }
 
     public static String getPatientDemographicsSampleData () {
-        return "'DEMOGRAPHICS': {\n" +
-                "      'FIRST_NAME': 'THERESA',\n" +
-                "      'MIDDLE_NAME': 'MAY',\n" +
-                "      'LAST_NAME': 'WAIRIMU',\n" +
-                "      'DATE_OF_BIRTH': '20171111',\n" +
-                "      'SEX': 'F',\n" +
-                "      'PHONE_NUMBER': '254720278654',\n" +
-                "      'MARITAL_STATUS': 'MARRIED'\n" +
-                "    }";
+        return  "{\n" +
+                "\t\"DEMOGRAPHICS\": {\n" +
+                "\t\t\"FIRST_NAME\": \"THERESA\",\n" +
+                "\t\t\"MIDDLE_NAME\": \"MAY\",\n" +
+                "\t\t\"LAST_NAME\": \"WAIRIMU\",\n" +
+                "\t\t\"DATE_OF_BIRTH\": \"20171111\",\n" +
+                "\t\t\"SEX\": \"F\",\n" +
+                "\t\t\"PHONE_NUMBER\": \"254720278654\",\n" +
+                "\t\t\"MARITAL_STATUS\": \"MARRIED\"\n" +
+                "\t}\n" +
+                "}";
+
+
     }
 
     public static String getPatientIdentifiersSampleData () {
-        return "'IDENTIFIERS':[{'ID':'12345678-ADFGHJY-0987654-NHYI890','TYPE':'CARD','FACILITY':'10829'}," +
-                "{'ID':'12345678','TYPE':'HEI','FACILITY':'10829'},{'ID':'12345678','TYPE':'CCC','FACILITY':'10829'}," +
-                "{'ID':'001','TYPE':'HTS','FACILITY':'10829'}]";
+        return "{\"IDENTIFIERS\":[{\"ID\":\"12345678-ADFGHJY-0987654-NHYI890\",\"TYPE\":\"CARD\",\"FACILITY\":\"10829\"},{\"ID\":\"12345678\",\"TYPE\":\"HEI\",\"FACILITY\":\"10829\"},{\"ID\":\"12345678\",\"TYPE\":\"CCC\",\"FACILITY\":\"10829\"},{\"ID\":\"001\",\"TYPE\":\"HTS\",\"FACILITY\":\"10829\"}]}";
     }
 
     public static String getPatientAddressSampleData () {
