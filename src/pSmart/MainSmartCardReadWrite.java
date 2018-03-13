@@ -139,7 +139,7 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
 		       This will create 6 User files, no Option registers and
 		       Security Option registers defined, Personalization bit is not set */
             //SmartCardUtils.displayOut(loggerWidget, "\nWrite Record");
-            acos3.writeRecord((byte)0x00, (byte)0x00, new byte[] {(byte)0x00, (byte)0x00, (byte)0x03, (byte)0x00});
+            acos3.writeRecord((byte)0x00, (byte)0x00, new byte[] {(byte)0x00, (byte)0x00, (byte)0x07, (byte)0x00});
             SmartCardUtils.displayOut(loggerWidget, "FF 02 is updated\n");
 
             // Select FF 04
@@ -176,30 +176,45 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
             //Write record to Personalization File
             //Number of File = 3
             //Select Personalization File
-            SmartCardUtils.displayOut(loggerWidget, "Creating 4 user files");
+            SmartCardUtils.displayOut(loggerWidget, "Initializing 7 user files");
 
-            acos3.configurePersonalizationFile(optionRegister, securityOptionRegister, (byte)0x05);
-            SmartCardUtils.displayOut(loggerWidget, "Successfully created 4 user files");
+            acos3.configurePersonalizationFile(optionRegister, securityOptionRegister, (byte)0x07);
+            SmartCardUtils.displayOut(loggerWidget, "Successfully initialized 7 user files");
 
             acos3.submitCode(Acos3.CODE_TYPE.IC, "ACOSTEST");
             acos3.selectFile(new byte[] { (byte)0xFF, (byte)0x04 });
 
 			// Write to FF 04
-		    //   Write to first record of FF 04 (AA 11)
-            acos3.writeRecord((byte)0x00, (byte)0x00, new byte[] { (byte)0xFF, (byte)0x0A, (byte)0x00, (byte)0x00, (byte)0xAA, (byte)0x11, (byte)0x00 });
-            SmartCardUtils.displayOut(loggerWidget, "Demographics User File defined");
+		    //   Write to first record of FF 04 (AA 00)
+            acos3.writeRecord((byte)0x00, (byte)0x00, new byte[] { (byte)0xFF, (byte)0x0A, (byte)0x00, (byte)0x00, (byte)0xAA, (byte)0x00, (byte)0x00 });
+            SmartCardUtils.displayOut(loggerWidget, "User file for Card details defined");
 
             // Write to second record of FF 04 (BB 22)
-            acos3.writeRecord((byte)0x01, (byte)0x00, new byte[] { (byte)0xFF, (byte)0x20, (byte)0x00, (byte)0x00, (byte)0xBB, (byte)0x22, (byte)0x00 });
-            SmartCardUtils.displayOut(loggerWidget, "Patient Identifier User File defined");
+            acos3.writeRecord((byte)0x01, (byte)0x00, new byte[] { (byte)0xFF, (byte)0x20, (byte)0x00, (byte)0x00, (byte)0xBB, (byte)0x00, (byte)0x00 });
+            SmartCardUtils.displayOut(loggerWidget, "User file for Immunization defined");
 
             // write to third record of FF 04 (CC 33)
-            acos3.writeRecord((byte)0x02, (byte)0x00, new byte[] { (byte)0xFF, (byte)0x0A, (byte)0x00, (byte)0x00, (byte)0xCC, (byte)0x33, (byte)0x00 });
-            SmartCardUtils.displayOut(loggerWidget, "HIV Test Data User File defined");
+            acos3.writeRecord((byte)0x02, (byte)0x00, new byte[] { (byte)0xFF, (byte)0x0A, (byte)0x00, (byte)0x00, (byte)0xCC, (byte)0x00, (byte)0x00 });
+            SmartCardUtils.displayOut(loggerWidget, "User file for hiv tests defined");
 
             // write to fourth record of FF 04 (DD 44)
-            acos3.writeRecord((byte)0x03, (byte)0x00, new byte[] { (byte)0xFF, (byte)0x40, (byte)0x00, (byte)0x00, (byte)0xDD, (byte)0x44, (byte)0x00 });
-            SmartCardUtils.displayOut(loggerWidget, "Card Details User File defined");
+            acos3.writeRecord((byte)0x03, (byte)0x00, new byte[] { (byte)0xFF, (byte)0x40, (byte)0x00, (byte)0x00, (byte)0xDD, (byte)0x00, (byte)0x00 });
+            SmartCardUtils.displayOut(loggerWidget, "User file for external identifiers defined");
+
+            // write to fifth record of FF 04 (DD 44)
+            acos3.writeRecord((byte)0x04, (byte)0x00, new byte[] { (byte)0xFF, (byte)0x40, (byte)0x00, (byte)0x00, (byte)0xDD, (byte)0x11, (byte)0x00 });
+            SmartCardUtils.displayOut(loggerWidget, "User file for internal identifiers defined");
+
+            // write to sixth record of FF 04 (DD 44)
+            acos3.writeRecord((byte)0x05, (byte)0x00, new byte[] { (byte)0xFF, (byte)0x40, (byte)0x00, (byte)0x00, (byte)0xDD, (byte)0x22, (byte)0x00 });
+            SmartCardUtils.displayOut(loggerWidget, "User file for demographics defined");
+
+            // write to seventh record of FF 04 (DD 44)
+            acos3.writeRecord((byte)0x06, (byte)0x00, new byte[] { (byte)0xFF, (byte)0x40, (byte)0x00, (byte)0x00, (byte)0xDD, (byte)0x33, (byte)0x00 });
+            SmartCardUtils.displayOut(loggerWidget, "User file for address defined");
+
+            SmartCardUtils.displayOut(loggerWidget, "All user files successfully defined");
+
 
 
 
@@ -261,11 +276,61 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
      * Writes data to card
      * @param textToWrite
      */
+    public void writeBinaryDataToCard (String textToWrite) {
+        byte[] fileId = new byte[2];
+        byte[] dataToWrite;
+        byte hiByte, loByte;
+
+
+
+        try
+        {
+            //Validate input
+            if (textToWrite.equals("") || textToWrite.isEmpty())
+            {
+                SmartCardUtils.displayOut(loggerWidget, "Data to be written not found." + "\r\n");
+                return;
+            }
+
+            fileId = new byte[] { (byte)0xDD, (byte)0x55 } ;//userFile.getFileDescriptor().getFileId();
+            hiByte = (byte)0x00;
+            loByte = (byte)0x7D0;
+            String strLength = String.valueOf(textToWrite.length());
+            dataToWrite = new byte[(Integer)Integer.parseInt(strLength, 16)];
+
+            for(int i = 0; i < textToWrite.length(); i++) {
+                dataToWrite[i] = (byte) textToWrite.charAt(i);
+            }
+            // Select user file
+            //TODO:displayOut(0, 0, "\nSelect File");
+            acos3.selectFile(fileId);
+            SmartCardUtils.displayOut(loggerWidget, "Binary file (DD 55) selected" + "\r\n");
+            acos3.writeBinary((byte) hiByte, (byte) loByte, dataToWrite);
+
+            SmartCardUtils.displayOut(loggerWidget, "Patient data successfully written to binary card" + "\r\n");
+
+        }
+        catch (CardException exception)
+        {
+            SmartCardUtils.displayOut(loggerWidget, PcscProvider.GetScardErrMsg(exception) + "\r\n");
+        }
+        catch(Exception exception)
+        {
+            SmartCardUtils.displayOut(loggerWidget, "An error occured" + "\r\n");
+            exception.printStackTrace();
+        }
+    }
+    /**
+     * Writes data to card
+     * @param textToWrite
+     */
     public void writeCard (UserFile userFile, String textToWrite) {
         byte[] fileId = new byte[2];
         int expLength = 0;
         String tmpStr = "";
         byte[] tmpArray = new byte[56];
+
+
 
         try
         {
@@ -300,31 +365,6 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
             acos3.writeRecord((byte)0x00, (byte)0x00, tmpArray);
 
             SmartCardUtils.displayOut(loggerWidget, "Patient data successfully written to card" + "\r\n");
-
-            // disabling this for now. binary file also has a cap of 255 characters
-
-           /* SmartCardUtils.displayOut(loggerWidget, "\nWriting EE 55 Binary File");
-
-            String dataToWrite = "Verify command is a command sent by a reader-side application" +
-                    " to the security system on the card to allow it to check for a match to password type" +
-                    " information stored on the card. It is used to allow the reader-side application" +
-                    " to convince the card that it";
-            byte [] binarFileId = new byte[] { (byte)0xEE, (byte)0x55 } ;
-            acos3.selectFile(binarFileId);
-
-
-            byte[] tmpBinaryArray = new byte[dataToWrite.length()];
-            int i = 0;
-            while (i < dataToWrite.length())
-            {
-                tmpBinaryArray[i] = dataToWrite.getBytes()[i];
-                i++;
-            }
-
-            acos3.writeBinary((byte) 0, (byte) 0, tmpBinaryArray);
-
-            SmartCardUtils.displayOut(loggerWidget, " Data successfully written to Binary file");
-            */
         }
         catch (CardException exception)
         {
