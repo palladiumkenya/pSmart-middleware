@@ -286,6 +286,9 @@ public class HomeController  {
         readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.IMMUNIZATION_USER_FILE_NAME));
         readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.HIV_TEST_USER_FILE_NAME));
         readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_ADDRESS_NAME));
+        readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_INTERNAL_NAME));
+        readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_EXTERNAL_NAME));
+        readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_DEMOGRAPHICS_NAME));
 
     }
 
@@ -298,8 +301,9 @@ public class HomeController  {
 
     public void updateCard(ActionEvent event) {
 
-        String patientDemographics = SHRUtils.getPatientDemographicsSampleData();
-        String patientIdentifiers = SHRUtils.getPatientIdentifiersSampleData();
+        String patientName = SHRUtils.getPatientName();
+        String patientExternalIdentifiers = SHRUtils.getExternalPatientIdentifier();
+        String patientInternalIdentifiers = SHRUtils.getInternalPatientIdentifiers();
         String htsData = SHRUtils.getHivTestSampleData();
         String cardDetails = SHRUtils.getCardDetails();
         String immunizationDetails = SHRUtils.getImmunizationDetails();
@@ -309,6 +313,10 @@ public class HomeController  {
         readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.IMMUNIZATION_USER_FILE_NAME), immunizationDetails);
         readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.HIV_TEST_USER_FILE_NAME), htsData);
         readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_ADDRESS_NAME),addressDetails);
+        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_INTERNAL_NAME),patientExternalIdentifiers);
+        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_EXTERNAL_NAME),patientInternalIdentifiers);
+        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_DEMOGRAPHICS_NAME),patientName);
+
     }
     public void getFromEMR(ActionEvent actionEvent){
         String SHRStr = APIClient.getSHRStr(SHRURL, "");
