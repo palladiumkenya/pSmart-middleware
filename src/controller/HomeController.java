@@ -282,8 +282,10 @@ public class HomeController  {
      */
     public void readCardContent(ActionEvent event) throws ParseException {
 
-        readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_DEMOGRAPHICS_USER_FILE_NAME));
-        readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_IDENTIFIER_USER_FILE_NAME));
+        readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.CARD_DETAILS_USER_FILE_NAME));
+        readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.IMMUNIZATION_USER_FILE_NAME));
+        readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.HIV_TEST_USER_FILE_NAME));
+        readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_ADDRESS_NAME));
 
     }
 
@@ -300,11 +302,13 @@ public class HomeController  {
         String patientIdentifiers = SHRUtils.getPatientIdentifiersSampleData();
         String htsData = SHRUtils.getHivTestSampleData();
         String cardDetails = SHRUtils.getCardDetails();
+        String immunizationDetails = SHRUtils.getImmunizationDetails();
+        String addressDetails=SHRUtils.getPatientAddressSampleData();
 
-        readerWriter.writeBinaryDataToCard(SHRUtils.getSlicedSHR());
-        //readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_DEMOGRAPHICS_USER_FILE_NAME), patientDemographics);
-        //readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_IDENTIFIER_USER_FILE_NAME), patientIdentifiers);
-        //readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_CARD_DETAILS_USER_FILE_NAME), cardDetails);
+        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.CARD_DETAILS_USER_FILE_NAME), cardDetails);
+        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.IMMUNIZATION_USER_FILE_NAME), immunizationDetails);
+        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.HIV_TEST_USER_FILE_NAME), htsData);
+        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_ADDRESS_NAME),addressDetails);
     }
     public void getFromEMR(ActionEvent actionEvent){
         String SHRStr = APIClient.getSHRStr(SHRURL, "");
