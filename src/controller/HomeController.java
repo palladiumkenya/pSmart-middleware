@@ -1,10 +1,8 @@
 package controller;
 
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -17,7 +15,6 @@ import jsonvalidator.utils.SHRUtils;
 import models.CardDetail;
 import models.HIVTest;
 import models.Identifier;
-import jsonvalidator.utils.SHRUtils;
 import pSmart.MainSmartCardReadWrite;
 import pSmart.SmartCardUtils;
 import com.jfoenix.controls.JFXComboBox;
@@ -30,11 +27,8 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import view.Main;
 
-import javax.swing.*;
 import java.text.ParseException;
 import java.util.Optional;
-
-import static com.sun.javafx.scene.control.skin.Utils.getResource;
 
 public class HomeController  {
 
@@ -282,13 +276,13 @@ public class HomeController  {
      */
     public void readCardContent(ActionEvent event) throws ParseException {
 
-        readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.CARD_DETAILS_USER_FILE_NAME));
-        readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.IMMUNIZATION_USER_FILE_NAME));
-        readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.HIV_TEST_USER_FILE_NAME));
-        readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_ADDRESS_NAME));
-        readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_INTERNAL_NAME));
-        readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_EXTERNAL_NAME));
-        readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_DEMOGRAPHICS_NAME));
+        readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.CARD_DETAILS_USER_FILE_NAME), (byte)0x00 );
+        readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.IMMUNIZATION_USER_FILE_NAME), (byte)0x00);
+        readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.HIV_TEST_USER_FILE_NAME), (byte)0x00);
+        readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_ADDRESS_NAME), (byte)0x00);
+        readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_INTERNAL_NAME), (byte)0x00);
+        readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_EXTERNAL_NAME), (byte)0x00);
+        readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_DEMOGRAPHICS_NAME), (byte)0x00);
 
     }
 
@@ -309,13 +303,13 @@ public class HomeController  {
         String immunizationDetails = SHRUtils.getImmunizationDetails();
         String addressDetails=SHRUtils.getPatientAddressSampleData();
 
-        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.CARD_DETAILS_USER_FILE_NAME), cardDetails);
-        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.IMMUNIZATION_USER_FILE_NAME), immunizationDetails);
-        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.HIV_TEST_USER_FILE_NAME), htsData);
-        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_ADDRESS_NAME),addressDetails);
-        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_INTERNAL_NAME),patientExternalIdentifiers);
-        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_EXTERNAL_NAME),patientInternalIdentifiers);
-        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_DEMOGRAPHICS_NAME),patientName);
+        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.CARD_DETAILS_USER_FILE_NAME), cardDetails, (byte)0x00 );
+        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.IMMUNIZATION_USER_FILE_NAME), immunizationDetails, (byte)0x00);
+        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.HIV_TEST_USER_FILE_NAME), htsData, (byte)0x00 );
+        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_ADDRESS_NAME),addressDetails, (byte)0x00);
+        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_INTERNAL_NAME),patientExternalIdentifiers, (byte)0x00);
+        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_EXTERNAL_NAME),patientInternalIdentifiers, (byte)0x00);
+        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_DEMOGRAPHICS_NAME),patientName, (byte)0x00);
 
     }
     public void getFromEMR(ActionEvent actionEvent){
