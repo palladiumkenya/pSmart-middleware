@@ -139,7 +139,7 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
 		       This will create 6 User files, no Option registers and
 		       Security Option registers defined, Personalization bit is not set */
             //SmartCardUtils.displayOut(loggerWidget, "\nWrite Record");
-            acos3.writeRecord((byte)0x00, (byte)0x00, new byte[] {(byte)0x00, (byte)0x00, (byte)0x03, (byte)0x00});
+            acos3.writeRecord((byte)0x00, (byte)0x00, new byte[] {(byte)0x00, (byte)0x00, (byte)0x05, (byte)0x00});
             SmartCardUtils.displayOut(loggerWidget, "FF 02 is updated\n");
 
             // Select FF 04
@@ -176,10 +176,10 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
             //Write record to Personalization File
             //Number of File = 3
             //Select Personalization File
-            SmartCardUtils.displayOut(loggerWidget, "Creating 4 user files");
+            SmartCardUtils.displayOut(loggerWidget, "Initializing 5 user files");
 
             acos3.configurePersonalizationFile(optionRegister, securityOptionRegister, (byte)0x05);
-            SmartCardUtils.displayOut(loggerWidget, "Successfully created 4 user files");
+            SmartCardUtils.displayOut(loggerWidget, "Successfully initialized 5 user files");
 
             acos3.submitCode(Acos3.CODE_TYPE.IC, "ACOSTEST");
             acos3.selectFile(new byte[] { (byte)0xFF, (byte)0x04 });
@@ -200,6 +200,35 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
             // write to fourth record of FF 04 (DD 44)
             acos3.writeRecord((byte)0x03, (byte)0x00, new byte[] { (byte)0xFF, (byte)0x40, (byte)0x00, (byte)0x00, (byte)0xDD, (byte)0x44, (byte)0x00 });
             SmartCardUtils.displayOut(loggerWidget, "Card Details User File defined");
+
+            // write to fifth record of FF 04 (DD 55)
+            //new byte[] { (byte)0xDD, (byte)0x44 };
+            SecurityAttribute readSecurityAttribute = new SecurityAttribute();
+
+            //Set read to free access
+            readSecurityAttribute.setAccessCondition1(false);
+            readSecurityAttribute.setAccessCondition2(false);
+            readSecurityAttribute.setAccessCondition3(false);
+            readSecurityAttribute.setAccessCondition4(false);
+            readSecurityAttribute.setAccessCondition5(false);
+            readSecurityAttribute.setIssuerCode(false);
+            readSecurityAttribute.setPin(false);
+
+            SecurityAttribute writeSecurityAttribute = new SecurityAttribute();
+
+            //Set write to free access
+            writeSecurityAttribute.setAccessCondition1(false);
+            writeSecurityAttribute.setAccessCondition2(false);
+            writeSecurityAttribute.setAccessCondition3(false);
+            writeSecurityAttribute.setAccessCondition4(false);
+            writeSecurityAttribute.setAccessCondition5(false);
+            writeSecurityAttribute.setIssuerCode(false);
+            writeSecurityAttribute.setPin(false);
+
+            acos3.createBinaryFile(new byte[] { (byte)0xDD, (byte)0x55 }, (byte)0x30D40, writeSecurityAttribute, readSecurityAttribute, false, false);
+            //acos3.createBinaryFile((byte)0x04, (byte)0x00, new byte[] { (byte)0xFF, (byte)0x40, (byte)0x00, (byte)0x00, (byte)0xDD, (byte)0x55, (byte)0x00 });
+            SmartCardUtils.displayOut(loggerWidget, "Test binary File defined");
+
 
 
 
@@ -223,8 +252,8 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
 
         try {
 
-            fileId = userFile.getFileDescriptor().getFileId();
-            dataLen = (byte)userFile.getFileDescriptor().getExpLength();
+            fileId = new byte[] { (byte)0xDD, (byte)0x55 } ;//userFile.getFileDescriptor().getFileId();
+            dataLen = (byte)0x30D40 ;//(byte)userFile.getFileDescriptor().getExpLength();
 
             // Select user file
             acos3.selectFile(fileId);
@@ -261,11 +290,61 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
      * Writes data to card
      * @param textToWrite
      */
+    public void writeBinaryDataToCard (String textToWrite) {
+        byte[] fileId = new byte[2];
+        byte[] dataToWrite;
+        byte hiByte, loByte;
+
+
+
+        try
+        {
+            //Validate input
+            if (textToWrite.equals("") || textToWrite.isEmpty())
+            {
+                SmartCardUtils.displayOut(loggerWidget, "Data to be written not found." + "\r\n");
+                return;
+            }
+
+            fileId = new byte[] { (byte)0xDD, (byte)0x55 } ;//userFile.getFileDescriptor().getFileId();
+            hiByte = (byte)0x00;
+            loByte = (byte)0x7D0;
+            String strLength = String.valueOf(textToWrite.length());
+            dataToWrite = new byte[(Integer)Integer.parseInt(strLength, 16)];
+
+            for(int i = 0; i < textToWrite.length(); i++) {
+                dataToWrite[i] = (byte) textToWrite.charAt(i);
+            }
+            // Select user file
+            //TODO:displayOut(0, 0, "\nSelect File");
+            acos3.selectFile(fileId);
+            SmartCardUtils.displayOut(loggerWidget, "Binary file (DD 55) selected" + "\r\n");
+            acos3.writeBinary((byte) hiByte, (byte) loByte, dataToWrite);
+
+            SmartCardUtils.displayOut(loggerWidget, "Patient data successfully written to binary card" + "\r\n");
+
+        }
+        catch (CardException exception)
+        {
+            SmartCardUtils.displayOut(loggerWidget, PcscProvider.GetScardErrMsg(exception) + "\r\n");
+        }
+        catch(Exception exception)
+        {
+            SmartCardUtils.displayOut(loggerWidget, "An error occured" + "\r\n");
+            exception.printStackTrace();
+        }
+    }
+    /**
+     * Writes data to card
+     * @param textToWrite
+     */
     public void writeCard (UserFile userFile, String textToWrite) {
         byte[] fileId = new byte[2];
         int expLength = 0;
         String tmpStr = "";
         byte[] tmpArray = new byte[56];
+
+
 
         try
         {
