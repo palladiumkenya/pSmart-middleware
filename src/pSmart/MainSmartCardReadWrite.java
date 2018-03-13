@@ -231,7 +231,7 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
     /**
      * Reads card content
      */
-    public void readCard (UserFile userFile) {
+    public void readCard(UserFile userFile, byte recordNumber) {
         byte[] fileId = new byte[2];
         byte dataLen = 0x00;
         byte[] data;
@@ -246,18 +246,10 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
 
             // read first record of user file selected
             //TODO: displayOut(0, 0, "\nRead Record");
-            data = acos3.readRecord((byte)0x00, (byte)0x00, dataLen);
+            data = acos3.readRecord(recordNumber, (byte)0x00, dataLen);
             String readMsg = Helper.byteArrayToString(data, data.length);
             SmartCardUtils.displayOut(loggerWidget, ">>Data from Smart Card: \n " + readMsg);
 
-            /**
-             * binary file still has a cap of 255 characters and thus may not work as expected
-             * byte [] binarFileId = new byte[] { (byte)0xEE, (byte)0x55 } ;
-            acos3.selectFile(binarFileId);
-            byte [] readData = acos3.readBinary((byte) 0xFF, (byte) 0x00, (byte) 0xFF);
-
-            SmartCardUtils.displayOut(loggerWidget, ">>Data from binary file: \n " +Helper.byteArrayToString(readData, 50));
-*/
         }
         catch (CardException exception)
         {
@@ -323,8 +315,9 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
     /**
      * Writes data to card
      * @param textToWrite
+     * @param recordNumber
      */
-    public void writeCard (UserFile userFile, String textToWrite) {
+    public void writeCard(UserFile userFile, String textToWrite, byte recordNumber) {
         byte[] fileId = new byte[2];
         int expLength = 0;
         String tmpStr = "";
@@ -362,7 +355,7 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
                 indx++;
             }
 
-            acos3.writeRecord((byte)0x00, (byte)0x00, tmpArray);
+            acos3.writeRecord(recordNumber, (byte)0x00, tmpArray);
 
             SmartCardUtils.displayOut(loggerWidget, "Patient data successfully written to card" + "\r\n");
         }
