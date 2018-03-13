@@ -60,6 +60,17 @@ public class SHRUtils {
 
 
     }
+    public static String getPatientName() {
+        return "\"PATIENT_NAME\":{\"FIRST_NAME\":\"THERESA\",\"MIDDLE_NAME\":\"MAY\",\"LAST_NAME\":\"WAIRIMU\"},\"DATE_OF_BIRTH\":\"20171111\",\"DATE_OF_BIRTH_PRECISION\":\"ESTIMATED/EXACT\",\"SEX\":\"F\",\"DEATH_DATE\":\"\",\"DEATH_INDICATOR\":\"N\"";
+    }
+
+    public static String getExternalPatientIdentifier () {
+        return "\"EXTERNAL_PATIENT_ID\":{\"ID\":\"110ec58a-a0f2-4ac4-8393-c866d813b8d1\",\"IDENTIFIER_TYPE\":\"GODS_NUMBER\",\"ASSIGNING_AUTHORITY\":\"MPI\",\"ASSIGNING_FACILITY\":\"10829\"}";
+    }
+
+    public static String getInternalPatientIdentifiers () {
+        return "\"INTERNAL_PATIENT_ID\":[{\"ID\":\"12345678\",\"IDENTIFIER_TYPE\":\"HEI_NUMBER\",\"ASSIGNING_AUTHORITY\":\"MCH\",\"ASSIGNING_FACILITY\":\"10829\"},{\"ID\":\"001\",\"IDENTIFIER_TYPE\":\"HTS_NUMBER\",\"ASSIGNING_AUTHORITY\":\"HTS\",\"ASSIGNING_FACILITY\":\"10829\"}]";
+    }
 
     public static String getPatientIdentifiersSampleData () {
         return "{\"IDENTIFIERS\":[{\"ID\":\"12345678-ADFGHJY-0987654-NHYI890\",\"TYPE\":\"CARD\",\"FACILITY\":\"40829\"},{\"ID\":\"37645678\",\"TYPE\":\"HEI\",\"FACILITY\":\"10829\"},{\"ID\":\"12345678\",\"TYPE\":\"CCC\",\"FACILITY\":\"10829\"},{\"ID\":\"001\",\"TYPE\":\"HTS\",\"FACILITY\":\"10829\"}]}";
