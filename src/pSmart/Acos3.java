@@ -350,7 +350,7 @@ public class Acos3
 		if (dataToWrite == null || dataToWrite.length < 1)
 			throw new Exception ("Data to write is not specified");
 		
-		if (dataToWrite.length > 255)
+		if (dataToWrite.length > 5000)
 			throw new Exception ("Data to write is too long");
 		
 		apdu = new Apdu();
