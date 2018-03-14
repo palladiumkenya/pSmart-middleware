@@ -11,29 +11,20 @@ import static java.sql.DriverManager.println;
 
 public  class DBConnection {
 
-    private static String username;
-    private static String password;
-    private static String host;
-    private static int port;
-    private static String dbName;
-    private static String dburl;
+    private static String host = "localhost";
+    private static String port = "3306";
+    private static String dbName = "psmart";
+    private static String dburl = "jdbc:mysql://"+host + ":"+ port +"/"+dbName + "?autoReconnect=true&useSSL=false";
+    private static String className = "com.mysql.jdbc.Driver";
     private static Connection conn=null;
     private static ResultSet rs=null;
-
-    public DBConnection(String database){
-        this.dbName = database;
-        this.username="root";
-        this.password="root";
-        this.host="localhost";
-        this.port=3306;
-        this.dbName="psmart";
-        this.dburl="jdbc:mysql://"+this.host+"/"+ this.dbName;//LOGIN is the database.
-    }
+    private static String username = "root"; //get from properties file
+    private static String password = "maun"; //get from properties file
 
     public static Connection connect() throws SQLException{
 
         try{
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
+            Class.forName(className).newInstance();
         }catch(ClassNotFoundException cnfe){
             System.err.println("Error: "+cnfe.getMessage());
         }catch(InstantiationException ie){
@@ -41,7 +32,7 @@ public  class DBConnection {
         }catch(IllegalAccessException iae){
             System.err.println("Error: "+iae.getMessage());
         }
-        conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/psmart","root","");
+        conn = DriverManager.getConnection(dburl,username,password);
         return conn;
     }
 

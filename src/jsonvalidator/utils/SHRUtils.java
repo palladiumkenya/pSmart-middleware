@@ -8,9 +8,11 @@ package jsonvalidator.utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jsonvalidator.mapper.EligibleList;
 import jsonvalidator.mapper.SHR;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  *
@@ -30,15 +32,37 @@ public class SHRUtils {
         return shr;
     }
 
-    public static String getJSON(SHR shr) {
+    public static List<EligibleList> getEligibleList(String eligibleListStr) {
+        ObjectMapper mapper = new ObjectMapper();
+        List<EligibleList> eligibleList = null;
+        try {
+            eligibleList = mapper.readValue(eligibleListStr, new TypeReference<List<EligibleList>>() {
+            });
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+        }
+        return eligibleList;
+    }
+
+    public static String getJSON(Object obj) {
         ObjectMapper mapper = new ObjectMapper();
         String JSONStr = "";
         try {
-            JSONStr = mapper.writeValueAsString(shr);
+            JSONStr = mapper.writeValueAsString(obj);
         } catch (JsonProcessingException ex) {
             System.out.println(ex.getMessage());
         }
         return JSONStr;
+    }
+
+    public static String getCardSerialNo(SHR shr) {
+        String cardSerialNo = "";
+        for (SHR.PATIENT_IDENTIFICATION.INTERNAL_PATIENT_ID internal_patient_id : shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID) {
+            if(internal_patient_id.iDENTIFIER_TYPE.equals("CARD_SERIAL_NUMBER")){
+                cardSerialNo = internal_patient_id.iD;
+            }
+        }
+        return cardSerialNo;
     }
 
     public static String getHivTestSampleData () {
