@@ -4,10 +4,8 @@
  * and open the template in the editor.
  */
 package jsonvalidator.apiclient;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import javax.net.ssl.HttpsURLConnection;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -17,11 +15,11 @@ import java.net.URL;
  * @author tedb19
  */
 public class APIClient {
+    private static final String USER_AGENT = "Mozilla/5.0";
 
-    public static String getSHRStr(String SHRURL, String cardSerial) {
+    public static String fetchData(String SHRURL) {
         String SHRJsonStr = "";
         try {
-            //cardSerial will be passed to the GET endpoint
             URL url = new URL(SHRURL);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
@@ -56,8 +54,8 @@ public class APIClient {
         return SHRJsonStr;
     }
     
-    public static String postSHR(String SHRURL, String SHRStr) {
-        String response = "";
+    public static String postData(String SHRURL, String SHRStr) {
+        StringBuffer response = new StringBuffer();
         try {
             URL url = new URL(SHRURL);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -68,11 +66,7 @@ public class APIClient {
             OutputStream os = conn.getOutputStream();
             os.write(SHRStr.getBytes());
             os.flush();
-
-            if (conn.getResponseCode() != HttpURLConnection.HTTP_CREATED) {
-                throw new RuntimeException("Failed : HTTP error code : "
-                        + conn.getResponseCode());
-            }
+            os.close();
 
             BufferedReader br = new BufferedReader(new InputStreamReader(
                     (conn.getInputStream())));
@@ -80,17 +74,21 @@ public class APIClient {
             String output;
             System.out.println("Output from Server .... \n");
             while ((output = br.readLine()) != null) {
-                response += output;
+                response.append(output);
             }
-
+            br.close();
+            if (conn.getResponseCode() != HttpURLConnection.HTTP_CREATED) {
+               response.append("Failed : HTTP error code : "
+                        + conn.getResponseCode());
+            }
+            System.out.println(response.toString());
             conn.disconnect();
-            
         } catch (MalformedURLException e) {
             System.out.println(e.getMessage());
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
-        return response;
+        return response.toString();
     }
 
 }

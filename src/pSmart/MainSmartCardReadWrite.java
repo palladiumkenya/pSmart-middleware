@@ -1,11 +1,15 @@
 package pSmart;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jsonvalidator.mapper.SHR;
 import pSmart.userFiles.UserFile;
 import com.jfoenix.controls.JFXComboBox;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 
 import javax.smartcardio.CardException;
+import java.io.IOException;
 
 
 public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler {
@@ -16,6 +20,8 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
     private ReaderInterface readerInterface;
     ReaderInterface.CHIP_TYPE currentChipType = ReaderInterface.CHIP_TYPE.UNKNOWN;
     private boolean _isConnected = false;
+    private static final String DUMMY_MSG = "{\"PATIENT_IDENTIFICATION\":{\"EXTERNAL_PATIENT_ID\":{\"ID\":\"110ec58a-a0f2-4ac4-8393-c866d813b8d1\",\"IDENTIFIER_TYPE\":\"GODS_NUMBER\",\"ASSIGNING_AUTHORITY\":\"MPI\",\"ASSIGNING_FACILITY\":\"10829\"},\"INTERNAL_PATIENT_ID\":[{\"ID\":\"12345678-ADFGHJY-0987654-NHYI890\",\"IDENTIFIER_TYPE\":\"CARD_SERIAL_NUMBER\",\"ASSIGNING_AUTHORITY\":\"CARD_REGISTRY\",\"ASSIGNING_FACILITY\":\"10829\"},{\"ID\":\"12345678\",\"IDENTIFIER_TYPE\":\"HEI_NUMBER\",\"ASSIGNING_AUTHORITY\":\"MCH\",\"ASSIGNING_FACILITY\":\"10829\"},{\"ID\":\"12345678\",\"IDENTIFIER_TYPE\":\"CCC_NUMBER\",\"ASSIGNING_AUTHORITY\":\"CCC\",\"ASSIGNING_FACILITY\":\"10829\"},{\"ID\":\"001\",\"IDENTIFIER_TYPE\":\"HTS_NUMBER\",\"ASSIGNING_AUTHORITY\":\"HTS\",\"ASSIGNING_FACILITY\":\"10829\"},{\"ID\":\"ABC567\",\"IDENTIFIER_TYPE\":\"ANC_NUMBER\",\"ASSIGNING_AUTHORITY\":\"ANC\",\"ASSIGNING_FACILITY\":\"10829\"}],\"PATIENT_NAME\":{\"FIRST_NAME\":\"THERESA\",\"MIDDLE_NAME\":\"MAY\",\"LAST_NAME\":\"WAIRIMU\"},\"DATE_OF_BIRTH\":\"\",\"DATE_OF_BIRTH_PRECISION\":\"\",\"SEX\":\"F\",\"DEATH_DATE\":\"\",\"DEATH_INDICATOR\":\"N\",\"PATIENT_ADDRESS\":{\"PHYSICAL_ADDRESS\":{\"VILLAGE\":\"KWAKIMANI\",\"WARD\":\"KIMANINI\",\"SUB_COUNTY\":\"KIAMBU EAST\",\"COUNTY\":\"KIAMBU\",\"NEAREST_LANDMARK\":\"KIAMBU EAST\"},\"POSTAL_ADDRESS\":\"789 KIAMBU\"},\"PHONE_NUMBER\":\"254720278654\",\"MARITAL_STATUS\":\"\",\"MOTHER_DETAILS\":{\"MOTHER_NAME\":{\"FIRST_NAME\":\"WAMUYU\",\"MIDDLE_NAME\":\"MARY\",\"LAST_NAME\":\"WAITHERA\"},\"MOTHER_IDENTIFIER\":[{\"ID\":\"1234567\",\"IDENTIFIER_TYPE\":\"NATIONAL_ID\",\"ASSIGNING_AUTHORITY\":\"GOK\",\"ASSIGNING_FACILITY\":\"\"},{\"ID\":\"12345678\",\"IDENTIFIER_TYPE\":\"NHIF\",\"ASSIGNING_AUTHORITY\":\"NHIF\",\"ASSIGNING_FACILITY\":\"\"},{\"ID\":\"12345-67890\",\"IDENTIFIER_TYPE\":\"CCC_NUMBER\",\"ASSIGNING_AUTHORITY\":\"CCC\",\"ASSIGNING_FACILITY\":\"10829\"},{\"ID\":\"12345678\",\"IDENTIFIER_TYPE\":\"PMTCT_NUMBER\",\"ASSIGNING_AUTHORITY\":\"PMTCT\",\"ASSIGNING_FACILITY\":\"10829\"}]}},\"NEXT_OF_KIN\":[{\"NOK_NAME\":{\"FIRST_NAME\":\"WAIGURU\",\"MIDDLE_NAME\":\"KIMUTAI\",\"LAST_NAME\":\"WANJOKI\"},\"RELATIONSHIP\":\"\",\"ADDRESS\":\"4678 KIAMBU\",\"PHONE_NUMBER\":\"25489767899\",\"SEX\":\"F\",\"DATE_OF_BIRTH\":\"19871022\",\"CONTACT_ROLE\":\"T\"}],\"HIV_TEST\":[{\"DATE\":\"20180101\",\"RESULT\":\"POSITIVE\",\"TYPE\":\"SCREENING\",\"FACILITY\":\"10829\",\"STRATEGY\":\"HP\",\"PROVIDER_DETAILS\":{\"NAME\":\"MATTHEW NJOROGE, MD\",\"ID\":\"12345-67890-abcde\"}}],\"IMMUNIZATION\":[{\"NAME\":\"BCG\",\"DATE_ADMINISTERED\":\"20180101\"}],\"CARD_DETAILS\":{\"STATUS\":\"ACTIVE\",\"REASON\":\"\",\"LAST_UPDATED\":\"20180101\",\"LAST_UPDATED_FACILITY\":\"10829\"}}";
+
 
     public MainSmartCardReadWrite(TextArea loggerWidget, JFXComboBox readerList) {
         this.loggerWidget = loggerWidget;
@@ -216,43 +222,66 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
     /**
      * Reads card content
      */
-    public void readCard (UserFile userFile) {
+    public SHR readCard (UserFile userFile) {
         byte[] fileId = new byte[2];
         byte dataLen = 0x00;
         byte[] data;
+        ObjectMapper mapper = new ObjectMapper();
+        SHR shr = null;
 
         try {
 
             fileId = userFile.getFileDescriptor().getFileId();
             dataLen = (byte)userFile.getFileDescriptor().getExpLength();
-
-            // Select user file
             acos3.selectFile(fileId);
-
-            // read first record of user file selected
             //TODO: displayOut(0, 0, "\nRead Record");
             data = acos3.readRecord((byte)0x00, (byte)0x00, dataLen);
             String readMsg = Helper.byteArrayToString(data, data.length);
-            SmartCardUtils.displayOut(loggerWidget, ">>Data from Smart Card: \n " + readMsg);
+            /*
+                When the 256kb cards come, the readMsg will have the full SHR.
+                For now, we just have a dummy SHR to be able to complete the other sections
+            */
+            shr = mapper.readValue(DUMMY_MSG, new TypeReference<SHR>() {});
 
-            /**
-             * binary file still has a cap of 255 characters and thus may not work as expected
-             * byte [] binarFileId = new byte[] { (byte)0xEE, (byte)0x55 } ;
-            acos3.selectFile(binarFileId);
-            byte [] readData = acos3.readBinary((byte) 0xFF, (byte) 0x00, (byte) 0xFF);
+        }catch(Exception exception){
+            exception.printStackTrace();
+        }
+        return shr;
+    }
 
-            SmartCardUtils.displayOut(loggerWidget, ">>Data from binary file: \n " +Helper.byteArrayToString(readData, 50));
-*/
+    /**
+     * Writes data to card
+     * @param tmpArray
+     */
+    public void writeCard (UserFile userFile, byte[] tmpArray) {
+        byte[] fileId = new byte[2];
+        int expLength = 0;
+        String tmpStr = "";
+
+        try
+        {
+            //Validate input
+            if (tmpArray.length == 0)
+            {
+                SmartCardUtils.displayOut(loggerWidget, "Data to be written not found." + "\r\n");
+                return;
+            }
+
+            fileId = userFile.getFileDescriptor().getFileId();
+            expLength = userFile.getFileDescriptor().getExpLength();
+
+            acos3.selectFile(fileId);
+            acos3.writeRecord((byte)0x00, (byte)0x00, tmpArray);
+
+            SmartCardUtils.displayOut(loggerWidget, "Patient data successfully written to card" + "\r\n");
         }
         catch (CardException exception)
         {
-            //SmartCardUtils.displayOut(loggerWidget, PcscProvider.GetScardErrMsg(exception) + "\r\n");
-            exception.printStackTrace();
-
+            SmartCardUtils.displayOut(loggerWidget, PcscProvider.GetScardErrMsg(exception) + "\r\n");
         }
         catch(Exception exception)
         {
-            //SmartCardUtils.displayOut(loggerWidget, exception.getMessage().toString() + "\r\n");
+            SmartCardUtils.displayOut(loggerWidget, "An error occured" + "\r\n");
             exception.printStackTrace();
         }
     }

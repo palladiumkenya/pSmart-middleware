@@ -1,7 +1,5 @@
 package jsonvalidator.main;
 
-
-import jsonvalidator.apiclient.APIClient;
 import jsonvalidator.mapper.SHR;
 import jsonvalidator.utils.SHRUtils;
 
@@ -18,13 +16,13 @@ public class Main {
     
     public static void main(String[] args)  {
         //Get an SHR from the EMR
-        String SHRStr = APIClient.getSHRStr(SHRURL, "");
+        String SHRStr = jsonvalidator.apiclient.APIClient.fetchData(SHRURL);
         SHR shr = SHRUtils.getSHR(SHRStr);
         System.out.println("CARD STATUS: "+ shr.cARD_DETAILS.sTATUS);
         
         //Post the SHR back to the EMR
         String SHRStrToPost = SHRUtils.getJSON(shr);
-        String response = APIClient.postSHR(SHRURL, SHRStrToPost);
+        String response = jsonvalidator.apiclient.APIClient.postData(SHRURL, SHRStrToPost);
         System.out.println(response);        
     }
 }
