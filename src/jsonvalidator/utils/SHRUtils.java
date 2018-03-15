@@ -20,7 +20,19 @@ import java.util.List;
  */
 public class SHRUtils {
 
-    public static SHR getSHR(String SHRStr) {
+    public static SHR.CARD_DETAILS getCardDetailsObj(String SHRStr) {
+        ObjectMapper mapper = new ObjectMapper();
+        SHR.CARD_DETAILS card_details = null;
+        try {
+            card_details = mapper.readValue(SHRStr, new TypeReference<SHR.CARD_DETAILS>() {
+            });
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+        }
+        return card_details;
+    }
+
+    public static SHR getSHRObj(String SHRStr) {
         ObjectMapper mapper = new ObjectMapper();
         SHR shr = null;
         try {
@@ -56,7 +68,7 @@ public class SHRUtils {
     }
 
     public static String getCardSerialNo(SHR shr) {
-        String cardSerialNo = "";
+        String cardSerialNo = "12345678-ADFGHJY-0987654-QWERTY";
         for (SHR.PATIENT_IDENTIFICATION.INTERNAL_PATIENT_ID internal_patient_id : shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID) {
             if(internal_patient_id.iDENTIFIER_TYPE.equals("CARD_SERIAL_NUMBER")){
                 cardSerialNo = internal_patient_id.iD;
@@ -96,16 +108,16 @@ public class SHRUtils {
         return "\"INTERNAL_PATIENT_ID\":[{\"ID\":\"12345678\",\"IDENTIFIER_TYPE\":\"HEI_NUMBER\",\"ASSIGNING_AUTHORITY\":\"MCH\",\"ASSIGNING_FACILITY\":\"10829\"},{\"ID\":\"001\",\"IDENTIFIER_TYPE\":\"HTS_NUMBER\",\"ASSIGNING_AUTHORITY\":\"HTS\",\"ASSIGNING_FACILITY\":\"10829\"}]";
     }
 
-    public static String getPatientIdentifiersSampleData () {
-        return "{\"IDENTIFIERS\":[{\"ID\":\"12345678-ADFGHJY-0987654-NHYI890\",\"TYPE\":\"CARD\",\"FACILITY\":\"40829\"},{\"ID\":\"37645678\",\"TYPE\":\"HEI\",\"FACILITY\":\"10829\"},{\"ID\":\"12345678\",\"TYPE\":\"CCC\",\"FACILITY\":\"10829\"},{\"ID\":\"001\",\"TYPE\":\"HTS\",\"FACILITY\":\"10829\"}]}";
+    public static String getPatientIdentifiers(SHR shr) {
+        return getJSON(shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID);
     }
 
-    public static String getPatientAddressSampleData () {
-        return "\"PATIENT_ADDRESS\":{\"PHYSICAL_ADDRESS\":{\"VILLAGE\":\"KWAKIMANI\",\"WARD\":\"KIMANINI\",\"SUB_COUNTY\":\"KIAMBU EAST\",\"COUNTY\":\"KIAMBU\",\"NEAREST_LANDMARK\":\"KIAMBU EAST\"}";
+    public static String getPatientAddress(SHR shr) {
+        return getJSON(shr.pATIENT_IDENTIFICATION.pATIENT_ADDRESS);
     }
 
-    public static String getCardDetails () {
-        return "\"CARD_DETAILS\":{\"STATUS\":\"ACTIVE/INACTIVE\",\"REASON\":\"LOST/DEATH/DAMAGED\",\"LAST_UPDATED\":\"20180101\",\"LAST_UPDATED_FACILITY\":\"10829\"}";
+    public static String getCardDetails (SHR shr) {
+        return getJSON(shr.cARD_DETAILS);
     }
 
     public static String getImmunizationDetails () {

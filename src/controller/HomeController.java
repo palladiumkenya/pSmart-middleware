@@ -20,9 +20,6 @@ import jsonvalidator.utils.SHRUtils;
 import models.CardDetail;
 import models.HIVTest;
 import models.Identifier;
-import jsonvalidator.utils.Compression;
-import jsonvalidator.utils.Encryption;
-import jsonvalidator.utils.SHRUtils;
 import models.*;
 import pSmart.MainSmartCardReadWrite;
 import pSmart.SmartCardUtils;
@@ -34,9 +31,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
+import pSmart.userFiles.UserFile;
 import view.Main;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -228,7 +225,7 @@ public class HomeController  {
 					    CardAssignment cardAssignment = new CardAssignment(rowData.getPatientId(), "card-serial-number");
 					    String cardAssignmentStr = SHRUtils.getJSON(cardAssignment);
                         String response = APIClient.postData(url, cardAssignmentStr);
-                        shr = SHRUtils.getSHR(response);
+                        shr = SHRUtils.getSHRObj(response);
                         loadCardDetails();
 						loadIdentifiers();
 						loadHIVTests();
@@ -331,6 +328,7 @@ public class HomeController  {
             readerWriter.connectReader(btnConnectReader);
             btnReadCard.setDisable(false);
             btnLoadEligibleList.setDisable(false);
+            btnLoadFromEMR.setDisable(false);
     }
 
     private String getURL(String purpose) {
@@ -391,33 +389,87 @@ public class HomeController  {
     }
 
 
+    public List<String> getStringArr(SHR shr, String context){
+        List<String> stringArr = new ArrayList<>();
+        switch (context) {
+            case "INTERNAL_PATIENT_ID":
+                for(int i = 0; i < shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID.length ; i++){
+                    stringArr.add(SHRUtils.getJSON(shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID[i]));
+                }
+                break;
+
+            case "HIV_TEST":
+                for(int i = 0; i < shr.hIV_TEST.length; i++){
+                    stringArr.add(SHRUtils.getJSON(shr.hIV_TEST[i]));
+                }
+                break;
+            case "IMMUNIZATION":
+                for(int i = 0; i < shr.iMMUNIZATION.length; i++){
+                    stringArr.add(SHRUtils.getJSON(shr.iMMUNIZATION[i]));
+                }
+                break;
+            case "MOTHER_IDENTIFIER":
+                for(int i = 0; i < shr.pATIENT_IDENTIFICATION.mOTHER_DETAILS.mOTHER_IDENTIFIER.length; i++){
+                    stringArr.add(SHRUtils.getJSON(shr.pATIENT_IDENTIFICATION.mOTHER_DETAILS.mOTHER_IDENTIFIER[i]));
+                }
+                break;
+            default:
+                break;
+        }
+        return stringArr;
+    }
+
     public void writeToCard(ActionEvent event) throws ParseException {
         SmartCardUtils.displayOut(txtProcessLogger, "\nWrite to card initiated. ");
-        SmartCardUtils.displayOut(txtProcessLogger, "\nFormatting the card... ");
         readerWriter.formatCard();
-        MainSmartCardReadWrite writer = new MainSmartCardReadWrite(txtProcessLogger, cboDeviceReaderList);
-        String shrStr = SHRUtils.getJSON(shr);
-        String encryptedSHR = Encryption.encrypt(shrStr);
+        List<String> demographics = new ArrayList<>();
 
-        try {
-            byte[] compressedMessage = Compression.Compress(encryptedSHR);
-            //write the compressed encrypted SHR to card
-            //writer.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.PATIENT_CARD_DETAILS_USER_FILE_NAME), compressedMessage);
-            shr = null;
-			btnWriteToCard.setDisable(true);
-			btnReadCard.setDisable(true);
-			readerWriter = new MainSmartCardReadWrite(txtProcessLogger, cboDeviceReaderList);
-			btnConnectReader.setDisable(true);
-			btnLoadEligibleList.setDisable(true);
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-            e.getMessage();
-        }
+        StringBuilder otherDemographics = new StringBuilder();
+        otherDemographics
+                .append("\"DATE_OF_BIRTH\": \"").append(shr.pATIENT_IDENTIFICATION.dATE_OF_BIRTH).append("\"")
+                .append(", \"DATE_OF_BIRTH_PRECISION\": \"").append(shr.pATIENT_IDENTIFICATION.dATE_OF_BIRTH_PRECISION).append("\"")
+                .append(", \"SEX\": \"").append(shr.pATIENT_IDENTIFICATION.sEX).append("\"")
+                .append(", \"DEATH_DATE\": \"").append(shr.pATIENT_IDENTIFICATION.dEATH_DATE).append("\"")
+                .append(", \"DEATH_INDICATOR\": \"").append(shr.pATIENT_IDENTIFICATION.dEATH_INDICATOR).append("\"")
+                .append(", \"PHONE_NUMBER\": \"").append(shr.pATIENT_IDENTIFICATION.pHONE_NUMBER).append("\"")
+                .append(", \"MARITAL_STATUS\": \"").append(shr.pATIENT_IDENTIFICATION.mARITAL_STATUS).append("\"");
+        String patientName = SHRUtils.getJSON(shr.pATIENT_IDENTIFICATION.pATIENT_NAME);
+        demographics.add(patientName);
+        demographics.add(otherDemographics.toString());
+        String patientExternalIdentifiers = SHRUtils.getJSON(shr.pATIENT_IDENTIFICATION.eXTERNAL_PATIENT_ID);
+        String cardDetails = SHRUtils.getJSON(shr.cARD_DETAILS);
+        String motherDetails = SHRUtils.getJSON(shr.pATIENT_IDENTIFICATION.mOTHER_DETAILS.mOTHER_NAME);
+        List<String> immunizationDetails = getStringArr(shr, "IMMUNIZATION");
+        List<String> hivTests = getStringArr(shr, "HIV_TEST");
+        List<String> internalIdentifiers = getStringArr(shr, "INTERNAL_PATIENT_ID");
+        List<String> motherIdentifiers = getStringArr(shr, "MOTHER_IDENTIFIER");
+        String addressDetails=SHRUtils.getJSON(shr.pATIENT_IDENTIFICATION.pATIENT_ADDRESS);
+
+        //write arrays
+        readerWriter.writeArray(immunizationDetails, SmartCardUtils.getUserFile(SmartCardUtils.IMMUNIZATION_USER_FILE_NAME));
+        readerWriter.writeArray(hivTests, SmartCardUtils.getUserFile(SmartCardUtils.HIV_TEST_USER_FILE_NAME));
+        readerWriter.writeArray(internalIdentifiers, SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_INTERNAL_NAME));
+        readerWriter.writeArray(demographics, SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_DEMOGRAPHICS_NAME));
+        readerWriter.writeArray(motherIdentifiers, SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_MOTHER_IDENTIFIER_NAME));
+
+        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.CARD_DETAILS_USER_FILE_NAME), cardDetails, (byte)0x00 );
+        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_EXTERNAL_NAME), patientExternalIdentifiers, (byte)0x00);
+        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_ADDRESS_NAME), addressDetails, (byte)0x00);
+        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_MOTHER_DETAIL_NAME), motherDetails, (byte)0x00);
+        //TODO: encrypt and compress SHR and send to EMR
+        //byte[] compressedMessage = Compression.Compress(encryptedSHR);
+
+        //prepare UI for next card
+        shr = null;
+        btnWriteToCard.setDisable(true);
+        btnReadCard.setDisable(true);
+        readerWriter = new MainSmartCardReadWrite(txtProcessLogger, cboDeviceReaderList);
+        btnConnectReader.setDisable(true);
+        btnLoadEligibleList.setDisable(true);
+
     }
 
     public void LoadEndpointConfig(ActionEvent event) throws ParseException{
-
         try {
             Stage stage = new Stage();
             Parent root = FXMLLoader.load(
@@ -452,54 +504,44 @@ public class HomeController  {
      *
      */
     public void readCardContent(ActionEvent event) throws ParseException {
+        String shrStr = "{\n";
+        shrStr += "\t\"CARD_DETAILS\": " +  readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.CARD_DETAILS_USER_FILE_NAME), (byte)0x00 );
+        shrStr += ", \t\"IMMUNIZATION\": [" + readerWriter.readArray(SmartCardUtils.getUserFile(SmartCardUtils.IMMUNIZATION_USER_FILE_NAME)) + "]";
+        shrStr += ",\t\"HIV_TEST\": [" + readerWriter.readArray(SmartCardUtils.getUserFile(SmartCardUtils.HIV_TEST_USER_FILE_NAME))+ "]";
 
-        readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.CARD_DETAILS_USER_FILE_NAME), (byte)0x00 );
-        readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.IMMUNIZATION_USER_FILE_NAME), (byte)0x00);
-        readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.HIV_TEST_USER_FILE_NAME), (byte)0x00);
-        readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_ADDRESS_NAME), (byte)0x00);
-        readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_INTERNAL_NAME), (byte)0x00);
-        readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_EXTERNAL_NAME), (byte)0x00);
-        readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_DEMOGRAPHICS_NAME), (byte)0x00);
+        shrStr += ", \t\"PATIENT_IDENTIFICATION\": {\n";
+        shrStr += "  \t\"PATIENT_NAME\": " + readerWriter.readArray(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_DEMOGRAPHICS_NAME));
 
+        shrStr += ", \t\"EXTERNAL_PATIENT_ID\": " + readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_EXTERNAL_NAME), (byte)0x00);
+        shrStr += ", \t\"INTERNAL_PATIENT_ID\": [" + readerWriter.readArray(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_INTERNAL_NAME)) + "]";
+        shrStr += ", \t\"PATIENT_ADDRESS\": " + readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_ADDRESS_NAME), (byte)0x00);
+        shrStr += ", \t\"MOTHER_DETAILS\": { \n\t\"MOTHER_NAME\": " + readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_MOTHER_DETAIL_NAME), (byte)0x00);
+        shrStr += ", \t\"MOTHER_IDENTIFIER\": [" + readerWriter.readArray(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_MOTHER_IDENTIFIER_NAME)) + "]";
+        shrStr += "}\n}";
+        shrStr += ", \t\"NEXT_OF_KIN\": []";
+        shrStr += ", \t\"VERSION\": \"1.0.0\"";
+        shrStr += "\n}";
+        System.out.println(shrStr);
     }
 
 
     public void formatCard(ActionEvent event) {
-
         readerWriter.connectReader(btnConnectReader);
         btnReadCard.setDisable(false);
         //btnFormatCard.setDisable(false);
     }
 
-    public void updateCard(ActionEvent event) {
-
-        String patientName = SHRUtils.getPatientName();
-        String patientExternalIdentifiers = SHRUtils.getExternalPatientIdentifier();
-        String patientInternalIdentifiers = SHRUtils.getInternalPatientIdentifiers();
-        String htsData = SHRUtils.getHivTestSampleData();
-        String cardDetails = SHRUtils.getCardDetails();
-        String immunizationDetails = SHRUtils.getImmunizationDetails();
-        String addressDetails=SHRUtils.getPatientAddressSampleData();
-
-        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.CARD_DETAILS_USER_FILE_NAME), cardDetails, (byte)0x00 );
-        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.IMMUNIZATION_USER_FILE_NAME), immunizationDetails, (byte)0x00);
-        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.HIV_TEST_USER_FILE_NAME), htsData, (byte)0x00 );
-        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_ADDRESS_NAME),addressDetails, (byte)0x00);
-        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_INTERNAL_NAME),patientExternalIdentifiers, (byte)0x00);
-        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_EXTERNAL_NAME),patientInternalIdentifiers, (byte)0x00);
-        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_DEMOGRAPHICS_NAME),patientName, (byte)0x00);
-
-    }
     public void getFromEMR(ActionEvent actionEvent){
 
         String purpose = "HTTP GET - Fetch SHR from EMR. Takes Card serial as parameter";
         String url = getURL(purpose);
 
         if(!url.isEmpty()){
-            String cardSerialNo = SHRUtils.getCardSerialNo(shr);
-            url += (url.endsWith("/")) ? cardSerialNo : "/" + cardSerialNo;
+            //String cardSerialNo = SHRUtils.getCardSerialNo(shr);
+            //url += (url.endsWith("/")) ? cardSerialNo : "/" + cardSerialNo;
+            url += (url.endsWith("/")) ? "12345678-ADFGHJY-0987654-QWERTY" : "/" + "12345678-ADFGHJY-0987654-QWERTY";
             String SHRStr = APIClient.fetchData(url);
-            shr = SHRUtils.getSHR(SHRStr);
+            shr = SHRUtils.getSHRObj(SHRStr);
             loadCardDetails();
             loadIdentifiers();
             loadHIVTests();

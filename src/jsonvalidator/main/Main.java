@@ -17,7 +17,7 @@ public class Main {
     public static void main(String[] args)  {
         //Get an SHR from the EMR
         String SHRStr = jsonvalidator.apiclient.APIClient.fetchData(SHRURL);
-        SHR shr = SHRUtils.getSHR(SHRStr);
+        SHR shr = SHRUtils.getSHRObj(SHRStr);
         System.out.println("CARD STATUS: "+ shr.cARD_DETAILS.sTATUS);
         
         //Post the SHR back to the EMR
