@@ -10,6 +10,9 @@ import javafx.scene.control.TextArea;
 
 import javax.smartcardio.CardException;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler {
@@ -79,6 +82,45 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
         }
     }
 
+    public void writeArray(List<String> elements, UserFile userFile) {
+        for(int i=0; i < elements.size();i++) {
+            String data = elements.get(i);
+            Byte aByte = getByte(i);
+            writeCard(userFile, data, aByte);
+        }
+    }
+
+    //TODO: Add more bytes to the map
+    public Byte getByte (Integer key) {
+        Map<Integer, Byte> recordUserFiles = new HashMap<>();
+        recordUserFiles.put(0, (byte)0x00);
+        recordUserFiles.put(1, (byte)0x01);
+        recordUserFiles.put(2, (byte)0x02);
+        recordUserFiles.put(3, (byte)0x03);
+        recordUserFiles.put(4, (byte)0x04);
+        recordUserFiles.put(5, (byte)0x05);
+        recordUserFiles.put(6, (byte)0x06);
+        recordUserFiles.put(7, (byte)0x07);
+        recordUserFiles.put(8, (byte)0x08);
+        recordUserFiles.put(9, (byte)0x09);
+        recordUserFiles.put(10, (byte)0x0A);
+        return recordUserFiles.get(key);
+    }
+
+    public String readArray(UserFile userFile) {
+        StringBuilder builder = new StringBuilder();
+        String data = "";
+        for(int i=0; i<255;i++) {
+            String readData = readCard(userFile, getByte(i));
+            if(readData.startsWith("ÿÿÿ")){
+                data = builder.toString().substring(0, builder.toString().length() - 1);
+                break;
+            }
+            builder.append(readData).append(",");
+        }
+        return data;
+    }
+
     /**
      * Uses selected reader and establishes connection
      */
@@ -145,7 +187,7 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
 		       This will create 6 User files, no Option registers and
 		       Security Option registers defined, Personalization bit is not set */
             //SmartCardUtils.displayOut(loggerWidget, "\nWrite Record");
-            acos3.writeRecord((byte)0x00, (byte)0x00, new byte[] {(byte)0x00, (byte)0x00, (byte)0x07, (byte)0x00});
+            acos3.writeRecord((byte)0x00, (byte)0x00, new byte[] {(byte)0x00, (byte)0x00, (byte)0x09, (byte)0x00});
             SmartCardUtils.displayOut(loggerWidget, "FF 02 is updated\n");
 
             // Select FF 04
@@ -182,9 +224,9 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
             //Write record to Personalization File
             //Number of File = 3
             //Select Personalization File
-            SmartCardUtils.displayOut(loggerWidget, "Initializing 7 user files");
+            SmartCardUtils.displayOut(loggerWidget, "Initializing 9 user files");
 
-            acos3.configurePersonalizationFile(optionRegister, securityOptionRegister, (byte)0x07);
+            acos3.configurePersonalizationFile(optionRegister, securityOptionRegister, (byte)0x09);
             SmartCardUtils.displayOut(loggerWidget, "Successfully initialized 7 user files");
 
             acos3.submitCode(Acos3.CODE_TYPE.IC, "ACOSTEST");
@@ -213,11 +255,19 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
 
             // write to sixth record of FF 04 (DD 44)
             acos3.writeRecord((byte)0x05, (byte)0x00, new byte[] { (byte)0xFF, (byte)0x40, (byte)0x00, (byte)0x00, (byte)0xDD, (byte)0x22, (byte)0x00 });
-            SmartCardUtils.displayOut(loggerWidget, "User file for demographics defined");
+            SmartCardUtils.displayOut(loggerWidget, "User file for patient names defined");
 
             // write to seventh record of FF 04 (DD 44)
             acos3.writeRecord((byte)0x06, (byte)0x00, new byte[] { (byte)0xFF, (byte)0x40, (byte)0x00, (byte)0x00, (byte)0xDD, (byte)0x33, (byte)0x00 });
             SmartCardUtils.displayOut(loggerWidget, "User file for address defined");
+
+            // write to eighth record of FF 04 (EE 00)
+            acos3.writeRecord((byte)0x07, (byte)0x00, new byte[] { (byte)0xFF, (byte)0x40, (byte)0x00, (byte)0x00, (byte)0xEE, (byte)0x00, (byte)0x00 });
+            SmartCardUtils.displayOut(loggerWidget, "User file for mother details defined");
+
+            // write to Nineth record of FF 04 (EE 11)
+            acos3.writeRecord((byte)0x08, (byte)0x00, new byte[] { (byte)0xFF, (byte)0x40, (byte)0x00, (byte)0x00, (byte)0xEE, (byte)0x11, (byte)0x00 });
+            SmartCardUtils.displayOut(loggerWidget, "User file for mother identifiers defined");
 
             SmartCardUtils.displayOut(loggerWidget, "All user files successfully defined");
 
@@ -237,10 +287,11 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
     /**
      * Reads card content
      */
-    public void readCard(UserFile userFile, byte recordNumber) {
+    public String readCard(UserFile userFile, byte recordNumber) {
         byte[] fileId = new byte[2];
         byte dataLen = 0x00;
         byte[] data;
+        String readMsg = "";
 
         try {
 
@@ -253,21 +304,14 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
             // read first record of user file selected
             //TODO: displayOut(0, 0, "\nRead Record");
             data = acos3.readRecord(recordNumber, (byte)0x00, dataLen);
-            String readMsg = Helper.byteArrayToString(data, data.length);
-            SmartCardUtils.displayOut(loggerWidget, ">>Data from Smart Card: \n " + readMsg);
-
-        }
-        catch (CardException exception)
-        {
-            //SmartCardUtils.displayOut(loggerWidget, PcscProvider.GetScardErrMsg(exception) + "\r\n");
-            exception.printStackTrace();
-
+            if(data.length > 0) readMsg = Helper.byteArrayToString(data, data.length);
         }
         catch(Exception exception)
         {
-            //SmartCardUtils.displayOut(loggerWidget, exception.getMessage().toString() + "\r\n");
-            exception.printStackTrace();
+            SmartCardUtils.displayOut(loggerWidget, exception.getMessage().toString() + "\r\n");
+            //exception.printStackTrace();
         }
+        return readMsg;
     }
 
     /**
@@ -363,7 +407,7 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
 
             acos3.writeRecord(recordNumber, (byte)0x00, tmpArray);
 
-            SmartCardUtils.displayOut(loggerWidget, "Patient data successfully written to card" + "\r\n");
+            SmartCardUtils.displayOut(loggerWidget, userFile.getDescription() + " successfully written to card" + "\r\n");
         }
         catch (CardException exception)
         {

@@ -234,7 +234,7 @@
                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                             </rowConstraints>
                             <children>
-                                <Label text="John Doe " textFill="WHITE">
+                                <Label text="Insert a card to read it's contents." textFill="WHITE" fx:id="lblCurrentPatient">
                                     <font>
                                         <Font name="System Bold" size="18.0" />
                                     </font>
@@ -242,7 +242,7 @@
                                         <FontAwesomeIconView fill="WHITE" glyphName="STREET_VIEW" size="20.0" />
                                     </graphic>
                                 </Label>
-                                <Label text="Male /Female" textFill="WHITE" GridPane.rowIndex="1">
+                                <Label text="Male /Female" textFill="WHITE" GridPane.rowIndex="1" fx:id="lblSex">
                                     <font>
                                         <Font name="System Bold" size="11.0" />
                                     </font>
@@ -250,7 +250,7 @@
                                         <Insets left="20.0" />
                                     </GridPane.margin>
                                 </Label>
-                                <Label text="20 Years" textFill="WHITE" GridPane.rowIndex="2">
+                                <Label text="20 Years" textFill="WHITE" GridPane.rowIndex="2" fx:id="lblAge">
                                     <GridPane.margin>
                                         <Insets left="20.0" />
                                     </GridPane.margin>
