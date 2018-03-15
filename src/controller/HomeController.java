@@ -37,8 +37,11 @@ import view.Main;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,6 +55,9 @@ public class HomeController  {
     private Label lblpsmartTitle;
 
     @FXML
+    private Label lblCurrentPatient;
+
+    @FXML
     private TabPane tpMainTabPane;
 
     @FXML
@@ -59,6 +65,12 @@ public class HomeController  {
 
     @FXML
     private Label lblFacilityName;
+
+    @FXML
+    private Label lblSex;
+
+    @FXML
+    private Label lblAge;
 
     @FXML
     private TextArea txtProcessLogger;
@@ -165,9 +177,9 @@ public class HomeController  {
 
     //Load Card Details
     private final void loadCardDetails(){
-        colCardStatus.setCellValueFactory(new PropertyValueFactory<CardDetail, String>("status"));
-        colFacilityLastUpdated.setCellValueFactory(new PropertyValueFactory<CardDetail, String>("lastUpdatedFacility"));
-        colLastUpdate.setCellValueFactory(new PropertyValueFactory<CardDetail, String>("lastUpdated"));
+        colCardStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
+        colFacilityLastUpdated.setCellValueFactory(new PropertyValueFactory<>("lastUpdatedFacility"));
+        colLastUpdate.setCellValueFactory(new PropertyValueFactory<>("lastUpdated"));
         colReason.setCellValueFactory(new PropertyValueFactory<CardDetail, String>("reason"));
         GridCardSummary.setItems(FXCollections.observableArrayList(getCardDetails()));
     }
@@ -183,23 +195,59 @@ public class HomeController  {
         return cardsDetails;
     }
 
+    private static final int getMonthsDifference(Date date1, Date date2) {
+        int m1 = date1.getYear() * 12 + date1.getMonth();
+        int m2 = date2.getYear() * 12 + date2.getMonth();
+        return m2 - m1 + 1;
+    }
+
+    private final void showCurrentClient() {
+        String patientName = shr.pATIENT_IDENTIFICATION.pATIENT_NAME.fIRST_NAME + " " + shr.pATIENT_IDENTIFICATION.pATIENT_NAME.mIDDLE_NAME + " " + shr.pATIENT_IDENTIFICATION.pATIENT_NAME.lAST_NAME;
+        String patientDob = shr.pATIENT_IDENTIFICATION.dATE_OF_BIRTH;
+        String patientSex = shr.pATIENT_IDENTIFICATION.sEX;
+        DateFormat formatter = new SimpleDateFormat("yyyyMMdd");
+        if(!patientDob.equals("") && !patientDob.isEmpty()) {
+            try {
+                Date dob = formatter.parse(patientDob);
+                Date now = new Date();
+                long timeBetween = now.getTime() - dob.getTime();
+                double yearsBetween = timeBetween / 3.156e+10;
+                if(yearsBetween < 1) {
+                    int months = getMonthsDifference(dob, now);
+                    lblAge.setVisible(true);
+                    lblAge.setText("Age: " + Integer.toString(months) + " months old");
+                } else {
+                    int age = (int) Math.floor(yearsBetween);
+                    lblAge.setVisible(true);
+                    lblAge.setText("Age: " + Integer.toString(age) + " years old");
+                }
+
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+
+        lblCurrentPatient.setText(patientName);
+        lblSex.setVisible(true);
+        lblSex.setText("Sex: " + patientSex);
+    }
     //Load Identifiers
     private final void loadIdentifiers(){
-        colIdentifierId.setCellValueFactory(new PropertyValueFactory<Identifier, String>("identifier"));
-        colIdentifierType.setCellValueFactory(new PropertyValueFactory<Identifier, String>("identifierType"));
-        colAssigningAuthority.setCellValueFactory(new PropertyValueFactory<Identifier, String>("assigningAuthority"));
-        colAssigningFacility.setCellValueFactory(new PropertyValueFactory<Identifier, String>("assigningFacility"));
+        colIdentifierId.setCellValueFactory(new PropertyValueFactory<>("identifier"));
+        colIdentifierType.setCellValueFactory(new PropertyValueFactory<>("identifierType"));
+        colAssigningAuthority.setCellValueFactory(new PropertyValueFactory<>("assigningAuthority"));
+        colAssigningFacility.setCellValueFactory(new PropertyValueFactory<>("assigningFacility"));
         GridClientIdentifiers.setItems(FXCollections.observableArrayList(getIdentifiers()));
     }
 
     //Load Identifiers
     private final void loadElligibleList(){
-        colPatientId.setCellValueFactory(new PropertyValueFactory<EligiblePerson, String>("patientId"));
-        colFirstName.setCellValueFactory(new PropertyValueFactory<EligiblePerson, String>("firstName"));
-        colMiddleName.setCellValueFactory(new PropertyValueFactory<EligiblePerson, String>("middleName"));
-        colLastName.setCellValueFactory(new PropertyValueFactory<EligiblePerson, String>("lastName"));
-        colGender.setCellValueFactory(new PropertyValueFactory<EligiblePerson, String>("gender"));
-        colAge.setCellValueFactory(new PropertyValueFactory<EligiblePerson, String>("age"));
+        colPatientId.setCellValueFactory(new PropertyValueFactory<>("patientId"));
+        colFirstName.setCellValueFactory(new PropertyValueFactory<>("firstName"));
+        colMiddleName.setCellValueFactory(new PropertyValueFactory<>("middleName"));
+        colLastName.setCellValueFactory(new PropertyValueFactory<>("lastName"));
+        colGender.setCellValueFactory(new PropertyValueFactory<>("gender"));
+        colAge.setCellValueFactory(new PropertyValueFactory<>("age"));
         GridEligibleList.setItems(FXCollections.observableArrayList(getEligibilityList()));
 
 		GridEligibleList.setRowFactory( tv -> {
@@ -222,13 +270,14 @@ public class HomeController  {
 					Optional<ButtonType> result = alert.showAndWait();
 					if (result.get() == buttonTypeYes){
 					    String url = getURL("HTTP POST - Push the card assignment details to EMR");
-					    CardAssignment cardAssignment = new CardAssignment(rowData.getPatientId(), "card-serial-number");
+					    CardAssignment cardAssignment = new CardAssignment(rowData.getPatientId(), "123456-hjkuyi-lo9087");
 					    String cardAssignmentStr = SHRUtils.getJSON(cardAssignment);
                         String response = APIClient.postData(url, cardAssignmentStr);
                         shr = SHRUtils.getSHRObj(response);
                         loadCardDetails();
 						loadIdentifiers();
 						loadHIVTests();
+                        showCurrentClient();
 						btnWriteToCard.setDisable(false);
 						tpMainTabPane.getSelectionModel().select(0);
                         SmartCardUtils.displayOut(txtProcessLogger, "\n"+ response +"\n");
@@ -308,6 +357,8 @@ public class HomeController  {
         readerWriter = new MainSmartCardReadWrite(txtProcessLogger, cboDeviceReaderList);
         btnConnectReader.setDisable(true);
         btnLoadEligibleList.setDisable(true);
+        lblSex.setVisible(false);
+        lblAge.setVisible(false);
     }
 
     @FXML
@@ -521,7 +572,15 @@ public class HomeController  {
         shrStr += ", \t\"NEXT_OF_KIN\": []";
         shrStr += ", \t\"VERSION\": \"1.0.0\"";
         shrStr += "\n}";
-        System.out.println(shrStr);
+        shr = SHRUtils.getSHRObj(shrStr);
+        loadCardDetails();
+        loadIdentifiers();
+        loadHIVTests();
+        showCurrentClient();
+        btnWriteToCard.setDisable(false);
+        btnLoadFromEMR.setDisable(false);
+        btnPushToEMR.setDisable(false);
+        SmartCardUtils.displayOut(txtProcessLogger, "\nSuccessfully read the Shared Health Record from card\n");
     }
 
 
@@ -545,6 +604,7 @@ public class HomeController  {
             loadCardDetails();
             loadIdentifiers();
             loadHIVTests();
+            showCurrentClient();
             btnWriteToCard.setDisable(false);
             btnLoadFromEMR.setDisable(true);
             btnPushToEMR.setDisable(true);

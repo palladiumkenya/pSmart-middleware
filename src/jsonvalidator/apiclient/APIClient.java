@@ -4,6 +4,8 @@
  * and open the template in the editor.
  */
 package jsonvalidator.apiclient;
+import sun.misc.BASE64Encoder;
+
 import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -23,6 +25,13 @@ public class APIClient {
             URL url = new URL(SHRURL);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
+            String username = "admin";
+            String password = "Admin123";
+            BASE64Encoder enc = new sun.misc.BASE64Encoder();
+            String userpassword = username + ":" + password;
+            String encodedAuthorization = enc.encode( userpassword.getBytes() );
+            conn.setRequestProperty("Authorization", "Basic "+
+                    encodedAuthorization);
             conn.setRequestProperty("Accept", "application/json");
 
             if (conn.getResponseCode() != 200) {
@@ -61,6 +70,13 @@ public class APIClient {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setDoOutput(true);
             conn.setRequestMethod("POST");
+            String username = "admin";
+            String password = "Admin123";
+            BASE64Encoder enc = new sun.misc.BASE64Encoder();
+            String userpassword = username + ":" + password;
+            String encodedAuthorization = enc.encode( userpassword.getBytes() );
+            conn.setRequestProperty("Authorization", "Basic "+
+                    encodedAuthorization);
             conn.setRequestProperty("Content-Type", "application/json");
 
             OutputStream os = conn.getOutputStream();
