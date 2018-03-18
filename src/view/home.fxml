@@ -83,29 +83,7 @@
                 </Pane>
                 <TabPane fx:id="tpMainTabPane" layoutX="296.0" layoutY="330.0" prefHeight="299.0" prefWidth="669.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="70.0" AnchorPane.leftAnchor="296.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="330.0">
                     <tabs>
-                        <Tab text="Card Summary">
-                            <content>
-                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                                    <children>
-                                        <TableView fx:id="GridCardSummary" layoutX="14.0" layoutY="14.0" prefHeight="113.0" prefWidth="543.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="15.0">
-                                            <columns>
-                                                <!--<TableColumn fx:id="colSerialNumber" prefWidth="273.0" text="SerialNumber" />-->
-                                                <TableColumn fx:id="colCardStatus" minWidth="0.0" prefWidth="227.0" text="Card Status" />
-                                                <TableColumn fx:id="colReason" prefWidth="273.0" text="Reason" />
-                                                <TableColumn fx:id="colLastUpdate" prefWidth="273.0" text="Last Update" />
-                                                <TableColumn fx:id="colFacilityLastUpdated" prefWidth="273.0" text="Facility Last Updated" />
-                                            </columns>
-                                            <columnResizePolicy>
-                                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                                            </columnResizePolicy>
-                                        </TableView>
-                                    </children></AnchorPane>
-                            </content>
-                     <graphic>
-                        <FontAwesomeIconView glyphName="CLONE" size="20.0" />
-                     </graphic>
-                        </Tab>
-                        <Tab text="Client Identifies">
+                        <Tab text="Client Identifiers">
                             <content>
                                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                     <children>
@@ -122,11 +100,32 @@
                                         </TableView>
                                     </children></AnchorPane>
                             </content>
-                     <graphic>
-                        <FontAwesomeIconView glyphName="CLIPBOARD" size="20.0" />
-                     </graphic>
+                            <graphic>
+                                <FontAwesomeIconView glyphName="CLIPBOARD" size="20.0" />
+                            </graphic>
                         </Tab>
-                        <Tab text="Client Last Encounter">
+                        <Tab text="Mother Identifiers">
+                            <content>
+                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                    <children>
+                                        <TableView fx:id="GridMotherIdentifiers" layoutX="14.0" layoutY="14.0" prefHeight="113.0" prefWidth="543.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="15.0">
+                                            <columns>
+                                                <TableColumn fx:id="colMotherIdentifierId" prefWidth="75.0" text="Identifier Id" />
+                                                <TableColumn fx:id="colMotherIdentifierType" prefWidth="75.0" text="Identifier Type" />
+                                                <TableColumn fx:id="colMotherAssigningAuthority" prefWidth="75.0" text="Assigning Authority" />
+                                                <TableColumn fx:id="colMotherAssigningFacility" prefWidth="75.0" text="Assigning Facility" />
+                                            </columns>
+                                            <columnResizePolicy>
+                                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                            </columnResizePolicy>
+                                        </TableView>
+                                    </children></AnchorPane>
+                            </content>
+                            <graphic>
+                                <FontAwesomeIconView glyphName="CLONE" size="20.0" />
+                            </graphic>
+                        </Tab>
+                        <Tab text="HIV Tests">
                             <content>
                                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                     <children>
@@ -144,8 +143,28 @@
                                         </TableView>
                                     </children></AnchorPane>
                             </content>
+                            <graphic>
+                                <FontAwesomeIconView glyphName="OBJECT_UNGROUP" size="20.0" />
+                            </graphic>
+                        </Tab>
+                        <Tab text="Immunizations">
+                            <content>
+                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                    <children>
+                                        <TableView fx:id="GridCardSummary" layoutX="14.0" layoutY="14.0" prefHeight="113.0" prefWidth="543.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="15.0">
+                                            <columns>
+                                                <!--<TableColumn fx:id="colSerialNumber" prefWidth="273.0" text="SerialNumber" />-->
+                                                <TableColumn fx:id="colImmunizationName" minWidth="0.0" prefWidth="227.0" text="Name" />
+                                                <TableColumn fx:id="colDateAdministered" prefWidth="273.0" text="Date Administered" />
+                                            </columns>
+                                            <columnResizePolicy>
+                                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                            </columnResizePolicy>
+                                        </TableView>
+                                    </children></AnchorPane>
+                            </content>
                      <graphic>
-                        <FontAwesomeIconView glyphName="OBJECT_UNGROUP" size="20.0" />
+                        <FontAwesomeIconView glyphName="CLONE" size="20.0" />
                      </graphic>
                         </Tab>
                         <Tab text="Eligible List">
@@ -232,9 +251,10 @@
                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints />
                             </rowConstraints>
                             <children>
-                                <Label text="Insert a card to read it's contents." textFill="WHITE" fx:id="lblCurrentPatient">
+                                <Label fx:id="lblCurrentPatient" text="Insert a card to read it's contents." textFill="WHITE">
                                     <font>
                                         <Font name="System Bold" size="18.0" />
                                     </font>
@@ -242,21 +262,53 @@
                                         <FontAwesomeIconView fill="WHITE" glyphName="STREET_VIEW" size="20.0" />
                                     </graphic>
                                 </Label>
-                                <Label text="Male /Female" textFill="WHITE" GridPane.rowIndex="1" fx:id="lblSex">
+                                <Label fx:id="lblSex" text="Male /Female" textFill="WHITE" GridPane.rowIndex="1">
                                     <font>
-                                        <Font name="System Bold" size="11.0" />
+                                        <Font name="System Bold" size="16.0" />
                                     </font>
                                     <GridPane.margin>
                                         <Insets left="20.0" />
                                     </GridPane.margin>
                                 </Label>
-                                <Label text="20 Years" textFill="WHITE" GridPane.rowIndex="2" fx:id="lblAge">
+                                <Label fx:id="lblAge" text="20 Years" textFill="WHITE" GridPane.rowIndex="2">
                                     <GridPane.margin>
                                         <Insets left="20.0" />
                                     </GridPane.margin>
                                     <font>
-                                        <Font size="11.0" />
+                                        <Font size="16.0" />
                                     </font>
+                                </Label>
+                                <Label fx:id="lblMotherNames" text="20 Years" textFill="WHITE" GridPane.rowIndex="3">
+                                    <GridPane.margin>
+                                        <Insets left="20.0" />
+                                    </GridPane.margin>
+                                    <font>
+                                        <Font size="14.0" />
+                                    </font>
+                                </Label>
+                        <Label fx:id="lblStatus" alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="1000.0" layoutY="27.0" text="Card Status: ACTIVE" textAlignment="RIGHT" textFill="WHITE" GridPane.columnIndex="1" GridPane.columnSpan="2147483647">
+                           <font>
+                              <Font size="16.0" />
+                           </font>
+                           <GridPane.margin>
+                              <Insets left="200.0" />
+                           </GridPane.margin>
+                        </Label>
+                                <Label fx:id="lblLastUpdated" alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="1000.0" layoutY="27.0" text="Last Updated: 12 May 2012" textAlignment="RIGHT" textFill="WHITE" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.rowIndex="1">
+                                    <font>
+                                        <Font size="16.0" />
+                                    </font>
+                                    <GridPane.margin>
+                                        <Insets left="200.0" />
+                                    </GridPane.margin>
+                                </Label>
+                                <Label fx:id="lblLastUpdatedFacility" alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="1000.0" layoutY="27.0" text="Last Updated Facility: 12456" textAlignment="RIGHT" textFill="WHITE" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.rowIndex="2">
+                                    <font>
+                                        <Font size="16.0" />
+                                    </font>
+                                    <GridPane.margin>
+                                        <Insets left="200.0" />
+                                    </GridPane.margin>
                                 </Label>
                             </children>
                         </GridPane>

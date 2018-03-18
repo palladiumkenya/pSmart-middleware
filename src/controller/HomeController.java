@@ -31,7 +31,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
-import pSmart.userFiles.UserFile;
 import view.Main;
 
 import java.sql.Connection;
@@ -40,10 +39,7 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 
 public class HomeController  {
@@ -70,13 +66,25 @@ public class HomeController  {
     private Label lblSex;
 
     @FXML
+    private Label lblStatus;
+
+    @FXML
+    private Label lblMotherNames;
+
+    @FXML
+    private Label lblLastUpdated;
+
+    @FXML
+    private Label lblLastUpdatedFacility;
+
+    @FXML
     private Label lblAge;
 
     @FXML
     private TextArea txtProcessLogger;
 
     @FXML
-    private TableColumn<CardDetail, String> colCardStatus;
+    private TableColumn<Immunization, String> colImmunizationName;
 
     @FXML
     private TableColumn<CardDetail, String> colReason;
@@ -85,10 +93,10 @@ public class HomeController  {
     private TableColumn<CardDetail, String> colLastUpdate;
 
     @FXML
-    private TableColumn<CardDetail, String> colFacilityLastUpdated;
+    private TableColumn<Immunization, String> colDateAdministered;
 
     @FXML
-    private TableView<CardDetail> GridCardSummary;
+    private TableView<Immunization> GridCardSummary;
 
     @FXML
     private TableView<HIVTest> GridClientLastENcounter;
@@ -110,6 +118,21 @@ public class HomeController  {
 
     @FXML
     private TableView<Identifier> GridClientIdentifiers;
+
+    @FXML
+    private TableView<Identifier> GridMotherIdentifiers;
+
+    @FXML
+    private TableColumn<Identifier, String> colMotherIdentifierId;
+
+    @FXML
+    private TableColumn<Identifier, String> colMotherIdentifierType;
+
+    @FXML
+    private TableColumn<Identifier, String> colMotherAssigningAuthority;
+
+    @FXML
+    private TableColumn<Identifier, String> colMotherAssigningFacility;
 
     @FXML
     private TableColumn<Identifier, String> colIdentifierId;
@@ -176,23 +199,33 @@ public class HomeController  {
     private EncryptedSHR encryptedSHR;
 
     //Load Card Details
-    private final void loadCardDetails(){
-        colCardStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
-        colFacilityLastUpdated.setCellValueFactory(new PropertyValueFactory<>("lastUpdatedFacility"));
-        colLastUpdate.setCellValueFactory(new PropertyValueFactory<>("lastUpdated"));
-        colReason.setCellValueFactory(new PropertyValueFactory<CardDetail, String>("reason"));
-        GridCardSummary.setItems(FXCollections.observableArrayList(getCardDetails()));
+    private final void loadImmunizations(){
+        colImmunizationName.setCellValueFactory(new PropertyValueFactory<>("name"));
+        colDateAdministered.setCellValueFactory(new PropertyValueFactory<>("dateAdministered"));
+        GridCardSummary.setItems(FXCollections.observableArrayList(getImmunizations()));
     }
 
-    private final ObservableList<CardDetail> getCardDetails(){
-        CardDetail cardDetail = new CardDetail(
-                shr.cARD_DETAILS.sTATUS,
-                shr.cARD_DETAILS.rEASON,
-                shr.cARD_DETAILS.lAST_UPDATED,
-                shr.cARD_DETAILS.lAST_UPDATED_FACILITY
-        );
-        ObservableList<CardDetail> cardsDetails = FXCollections.observableArrayList(cardDetail);
-        return cardsDetails;
+    private final void showCardDetails() {
+        lblLastUpdatedFacility.setVisible(true);
+        lblLastUpdatedFacility.setText("Last Updated @: " + shr.cARD_DETAILS.lAST_UPDATED_FACILITY);
+
+        lblStatus.setVisible(true);
+        lblStatus.setText("Card Status: " + shr.cARD_DETAILS.sTATUS);
+
+        lblLastUpdated.setVisible(true);
+        lblLastUpdated.setText("Last Updated On: "+ shr.cARD_DETAILS.lAST_UPDATED);
+    }
+
+    private final ObservableList<Immunization> getImmunizations(){
+        ObservableList<Immunization> immunizations = FXCollections.observableArrayList();
+        for(int i=0; i < shr.iMMUNIZATION.length;i++ ){
+            Immunization immunization = new Immunization(
+                    shr.iMMUNIZATION[i].nAME,
+                    shr.iMMUNIZATION[i].dATE_ADMINISTERED
+            );
+            immunizations.add(immunization);
+        }
+        return immunizations;
     }
 
     private static final int getMonthsDifference(Date date1, Date date2) {
@@ -205,6 +238,7 @@ public class HomeController  {
         String patientName = shr.pATIENT_IDENTIFICATION.pATIENT_NAME.fIRST_NAME + " " + shr.pATIENT_IDENTIFICATION.pATIENT_NAME.mIDDLE_NAME + " " + shr.pATIENT_IDENTIFICATION.pATIENT_NAME.lAST_NAME;
         String patientDob = shr.pATIENT_IDENTIFICATION.dATE_OF_BIRTH;
         String patientSex = shr.pATIENT_IDENTIFICATION.sEX;
+        String patientMotherName = shr.pATIENT_IDENTIFICATION.mOTHER_DETAILS.mOTHER_NAME.fIRST_NAME + " " + shr.pATIENT_IDENTIFICATION.mOTHER_DETAILS.mOTHER_NAME.lAST_NAME;
         DateFormat formatter = new SimpleDateFormat("yyyyMMdd");
         if(!patientDob.equals("") && !patientDob.isEmpty()) {
             try {
@@ -230,6 +264,8 @@ public class HomeController  {
         lblCurrentPatient.setText(patientName);
         lblSex.setVisible(true);
         lblSex.setText("Sex: " + patientSex);
+        lblMotherNames.setVisible(true);
+        lblMotherNames.setText("Mother Name: "+ patientMotherName);
     }
     //Load Identifiers
     private final void loadIdentifiers(){
@@ -240,7 +276,14 @@ public class HomeController  {
         GridClientIdentifiers.setItems(FXCollections.observableArrayList(getIdentifiers()));
     }
 
-    //Load Identifiers
+    private final void loadMotherIdentifiers(){
+        colMotherIdentifierId.setCellValueFactory(new PropertyValueFactory<>("identifier"));
+        colMotherIdentifierType.setCellValueFactory(new PropertyValueFactory<>("identifierType"));
+        colMotherAssigningAuthority.setCellValueFactory(new PropertyValueFactory<>("assigningAuthority"));
+        colMotherAssigningFacility.setCellValueFactory(new PropertyValueFactory<>("assigningFacility"));
+        GridMotherIdentifiers.setItems(FXCollections.observableArrayList(getMotherIdentifiers()));
+    }
+
     private final void loadElligibleList(){
         colPatientId.setCellValueFactory(new PropertyValueFactory<>("patientId"));
         colFirstName.setCellValueFactory(new PropertyValueFactory<>("firstName"));
@@ -270,14 +313,16 @@ public class HomeController  {
 					Optional<ButtonType> result = alert.showAndWait();
 					if (result.get() == buttonTypeYes){
 					    String url = getURL("HTTP POST - Push the card assignment details to EMR");
-					    CardAssignment cardAssignment = new CardAssignment(rowData.getPatientId(), "123456-hjkuyi-lo9087");
+					    CardAssignment cardAssignment = new CardAssignment(rowData.getPatientId(), UUID.randomUUID().toString());
 					    String cardAssignmentStr = SHRUtils.getJSON(cardAssignment);
                         String response = APIClient.postData(url, cardAssignmentStr);
                         shr = SHRUtils.getSHRObj(response);
-                        loadCardDetails();
+                        loadImmunizations();
+                        loadMotherIdentifiers();
 						loadIdentifiers();
 						loadHIVTests();
                         showCurrentClient();
+                        showCardDetails();
 						btnWriteToCard.setDisable(false);
 						tpMainTabPane.getSelectionModel().select(0);
                         SmartCardUtils.displayOut(txtProcessLogger, "\n"+ response +"\n");
@@ -300,6 +345,20 @@ public class HomeController  {
                     shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID[i].iDENTIFIER_TYPE,
                     shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID[i].aSSIGNING_AUTHORITY,
                     shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID[i].aSSIGNING_FACILITY
+            );
+            identifiers.add(identifier);
+        }
+        return identifiers;
+    }
+
+    private final ObservableList<Identifier> getMotherIdentifiers(){
+        ObservableList<Identifier> identifiers = FXCollections.observableArrayList();
+        for(int i=0; i < shr.pATIENT_IDENTIFICATION.mOTHER_DETAILS.mOTHER_IDENTIFIER.length;i++ ){
+            Identifier identifier = new Identifier(
+                    shr.pATIENT_IDENTIFICATION.mOTHER_DETAILS.mOTHER_IDENTIFIER[i].iD,
+                    shr.pATIENT_IDENTIFICATION.mOTHER_DETAILS.mOTHER_IDENTIFIER[i].iDENTIFIER_TYPE,
+                    shr.pATIENT_IDENTIFICATION.mOTHER_DETAILS.mOTHER_IDENTIFIER[i].aSSIGNING_AUTHORITY,
+                    shr.pATIENT_IDENTIFICATION.mOTHER_DETAILS.mOTHER_IDENTIFIER[i].aSSIGNING_FACILITY
             );
             identifiers.add(identifier);
         }
@@ -359,6 +418,10 @@ public class HomeController  {
         btnLoadEligibleList.setDisable(true);
         lblSex.setVisible(false);
         lblAge.setVisible(false);
+        lblStatus.setVisible(false);
+        lblLastUpdated.setVisible(false);
+        lblLastUpdatedFacility.setVisible(false);
+        lblMotherNames.setVisible(false);
     }
 
     @FXML
@@ -411,7 +474,7 @@ public class HomeController  {
 
     @FXML
     void getEligibleList(ActionEvent actionEvent) {
-        tpMainTabPane.getSelectionModel().select(3);
+        tpMainTabPane.getSelectionModel().select(4);
         loadElligibleList();
         btnLoadEligibleList.setDisable(true);
         btnReadCard.setDisable(true);
@@ -456,7 +519,10 @@ public class HomeController  {
                 break;
             case "IMMUNIZATION":
                 for(int i = 0; i < shr.iMMUNIZATION.length; i++){
-                    stringArr.add(SHRUtils.getJSON(shr.iMMUNIZATION[i]));
+                    stringArr.add(" {\n" +
+                            "        \"NAME\": \"BCG\",\n" +
+                            "        \"DATE_ADMINISTERED\": \"20180101\"\n" +
+                            "      }");
                 }
                 break;
             case "MOTHER_IDENTIFIER":
@@ -557,7 +623,10 @@ public class HomeController  {
     public void readCardContent(ActionEvent event) throws ParseException {
         String shrStr = "{\n";
         shrStr += "\t\"CARD_DETAILS\": " +  readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.CARD_DETAILS_USER_FILE_NAME), (byte)0x00 );
-        shrStr += ", \t\"IMMUNIZATION\": [" + readerWriter.readArray(SmartCardUtils.getUserFile(SmartCardUtils.IMMUNIZATION_USER_FILE_NAME)) + "]";
+        shrStr += ", \t\"IMMUNIZATION\": [" + "{\n" +
+                "        \"NAME\": \"BCG\",\n" +
+                "        \"DATE_ADMINISTERED\": \"20180101\"\n" +
+                "      }" + "]";
         shrStr += ",\t\"HIV_TEST\": [" + readerWriter.readArray(SmartCardUtils.getUserFile(SmartCardUtils.HIV_TEST_USER_FILE_NAME))+ "]";
 
         shrStr += ", \t\"PATIENT_IDENTIFICATION\": {\n";
@@ -573,10 +642,13 @@ public class HomeController  {
         shrStr += ", \t\"VERSION\": \"1.0.0\"";
         shrStr += "\n}";
         shr = SHRUtils.getSHRObj(shrStr);
-        loadCardDetails();
+        loadImmunizations();
+        loadMotherIdentifiers();
         loadIdentifiers();
         loadHIVTests();
         showCurrentClient();
+        showCardDetails();
+        tpMainTabPane.getSelectionModel().select(0);
         btnWriteToCard.setDisable(false);
         btnLoadFromEMR.setDisable(false);
         btnPushToEMR.setDisable(false);
@@ -601,10 +673,13 @@ public class HomeController  {
             url += (url.endsWith("/")) ? "12345678-ADFGHJY-0987654-QWERTY" : "/" + "12345678-ADFGHJY-0987654-QWERTY";
             String SHRStr = APIClient.fetchData(url);
             shr = SHRUtils.getSHRObj(SHRStr);
-            loadCardDetails();
+            loadImmunizations();
             loadIdentifiers();
             loadHIVTests();
+            loadMotherIdentifiers();
             showCurrentClient();
+            showCardDetails();
+            tpMainTabPane.getSelectionModel().select(0);
             btnWriteToCard.setDisable(false);
             btnLoadFromEMR.setDisable(true);
             btnPushToEMR.setDisable(true);
