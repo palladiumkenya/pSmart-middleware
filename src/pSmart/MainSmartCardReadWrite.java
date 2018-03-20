@@ -109,16 +109,20 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
 
     public String readArray(UserFile userFile) {
         StringBuilder builder = new StringBuilder();
-        String data = "";
         for(int i=0; i<255;i++) {
             String readData = readCard(userFile, getByte(i));
             if(readData.startsWith("ÿÿÿ")){
-                data = builder.toString().substring(0, builder.toString().length() - 1);
                 break;
             }
             builder.append(readData).append(",");
         }
-        return data;
+        if(builder.length() > 0) {
+            builder.toString().substring(0, builder.toString().length() - 1);
+            builder.deleteCharAt(builder.length()-1);
+        } else {
+            builder.append("");
+        }
+        return builder.toString();
     }
 
     /**
