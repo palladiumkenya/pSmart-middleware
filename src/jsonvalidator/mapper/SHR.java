@@ -264,11 +264,19 @@ public  class SHR {
                 this.aSSIGNING_FACILITY = aSSIGNING_FACILITY;
             }
 
-            public static boolean compare(INTERNAL_PATIENT_ID id1, INTERNAL_PATIENT_ID id2) {
-                if(id1.iD.equals(id2.iD) && id1.iDENTIFIER_TYPE.equals(id2.iDENTIFIER_TYPE) && id1.aSSIGNING_FACILITY.equals(id2.aSSIGNING_FACILITY) && id1.aSSIGNING_AUTHORITY.equals(id2.aSSIGNING_AUTHORITY)){
-                    return true;
+            @Override
+            public boolean equals(Object obj) {
+                if (obj instanceof INTERNAL_PATIENT_ID) {
+                    return ((INTERNAL_PATIENT_ID) obj).iDENTIFIER_TYPE.equals(iDENTIFIER_TYPE);
                 }
                 return false;
+            }
+
+            @Override
+            public int hashCode() {
+                int hash = 7;
+                hash = 29 * hash + (this.iDENTIFIER_TYPE).hashCode();
+                return hash;
             }
         }
 
@@ -439,6 +447,21 @@ public  class SHR {
                     this.iDENTIFIER_TYPE = iDENTIFIER_TYPE;
                     this.aSSIGNING_AUTHORITY = aSSIGNING_AUTHORITY;
                     this.aSSIGNING_FACILITY = aSSIGNING_FACILITY;
+                }
+
+                @Override
+                public boolean equals(Object obj) {
+                    if (obj instanceof MOTHER_IDENTIFIER) {
+                        return ((MOTHER_IDENTIFIER) obj).iDENTIFIER_TYPE.equals(iDENTIFIER_TYPE);
+                    }
+                    return false;
+                }
+
+                @Override
+                public int hashCode() {
+                    int hash = 7;
+                    hash = 29 * hash + (this.iDENTIFIER_TYPE).hashCode();
+                    return hash;
                 }
             }
         }
@@ -641,6 +664,21 @@ public  class SHR {
                 return true;
             }
             return false;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof IMMUNIZATION) {
+                return ((IMMUNIZATION) obj).nAME.equals(nAME) && ((IMMUNIZATION) obj).dATE_ADMINISTERED.equals(dATE_ADMINISTERED);
+            }
+            return false;
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = 7;
+            hash = 29 * hash + (this.nAME + this.dATE_ADMINISTERED).hashCode();
+            return hash;
         }
     }
 

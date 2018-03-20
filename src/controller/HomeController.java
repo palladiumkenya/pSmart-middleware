@@ -467,16 +467,21 @@ public class HomeController  {
     @FXML
     void sendDataToEmr(ActionEvent event) {
         String purpose = "HTTP POST - Push SHR to EMR";
+        //String purpose = "HTTP POST - Push encrypted SHR to EMR";
+        String response = postData(shr, purpose);
+        SmartCardUtils.displayOut(txtProcessLogger, response);
+    }
+
+    public String postData(Object obj, String purpose) {
         String url = getURL(purpose);
+        String response;
         if(!url.isEmpty()){
-            String shrStr = SHRUtils.getJSON(shr);
-            System.out.println(shrStr);
-            String response = APIClient.postData(url, shrStr);
-            SmartCardUtils.displayOut(txtProcessLogger, "\nResponse from EMR\n "+response);
-            btnLoadFromEMR.setDisable(true);
+            String objStr = SHRUtils.getJSON(obj);
+            response = APIClient.postData(url, objStr);
         } else {
-            SmartCardUtils.displayOut(txtProcessLogger, "\nPlease specify the `"+purpose+"` endpoint url!");
+            response = "\nPlease specify the `"+purpose+"` endpoint url!";
         }
+        return response;
     }
 
     @FXML
@@ -580,6 +585,11 @@ public class HomeController  {
         //TODO: encrypt and compress SHR and send to EMR
         //byte[] compressedMessage = Compression.Compress(encryptedSHR);
 
+        String purpose = "HTTP POST - Push encrypted SHR to EMR";
+        //EncryptedSHR encryptedSHR = new EncryptedSHR(shrFromEMR, shrFromEMR.cARD_DETAILS)
+        String response = postData(shr, purpose);
+        SmartCardUtils.displayOut(txtProcessLogger, response);
+
         btnWriteToCard.setDisable(true);
         btnReadCard.setDisable(true);
         readerWriter = new MainSmartCardReadWrite(txtProcessLogger, cboDeviceReaderList);
@@ -588,6 +598,7 @@ public class HomeController  {
 
     }
 
+    //public EncryptedSHR getEncryptedSHR
     public void LoadEndpointConfig(ActionEvent event) throws ParseException{
         try {
             Stage stage = new Stage();
@@ -700,13 +711,17 @@ public class HomeController  {
                 }
 
                 shrFromEMR.hIV_TEST = getFinalHIVTests(shrFromEMR.hIV_TEST, shr.hIV_TEST).toArray(new SHR.HIV_TEST[0]);
-                //shrFromEMR.iMMUNIZATION = (SHR.IMMUNIZATION[])getFinalImmunizations(shrFromEMR.iMMUNIZATION, shr.iMMUNIZATION).toArray();
+                shrFromEMR.iMMUNIZATION = getFinalImmunizations(shrFromEMR.iMMUNIZATION, shr.iMMUNIZATION).toArray(new SHR.IMMUNIZATION[0]);
 
-                //shrFromEMR.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID = (SHR.PATIENT_IDENTIFICATION.INTERNAL_PATIENT_ID[])getFinalIdentifiers(
-                        //shrFromEMR.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID,
-                        //shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID).toArray();
+                shrFromEMR.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID = getFinalIdentifiers(
+                        shrFromEMR.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID,
+                        shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID).toArray(new SHR.PATIENT_IDENTIFICATION.INTERNAL_PATIENT_ID[0]);
+
+                shrFromEMR.pATIENT_IDENTIFICATION.mOTHER_DETAILS.mOTHER_IDENTIFIER = getFinalMotherIdentifiers(
+                        shrFromEMR.pATIENT_IDENTIFICATION.mOTHER_DETAILS.mOTHER_IDENTIFIER,
+                        shr.pATIENT_IDENTIFICATION.mOTHER_DETAILS.mOTHER_IDENTIFIER).toArray(new SHR.PATIENT_IDENTIFICATION.MOTHER_DETAILS.MOTHER_IDENTIFIER[0]);
             }
-            System.out.println("hiv tests: " +SHRUtils.getJSON(shrFromEMR.hIV_TEST));
+
             tpMainTabPane.getSelectionModel().select(0);
             btnWriteToCard.setDisable(false);
             btnLoadFromEMR.setDisable(true);
@@ -721,63 +736,32 @@ public class HomeController  {
         List<SHR.HIV_TEST> finalHIVTests = new ArrayList<>();
         finalHIVTests.addAll(Arrays.asList(EMRTests));
         finalHIVTests.addAll(Arrays.asList(cardTests));
-
         java.util.List<SHR.HIV_TEST> uniqueTests = finalHIVTests.stream().distinct().collect(Collectors.toList());
-
-        HashSet<SHR.HIV_TEST> hashSet = new HashSet(finalHIVTests);
-
-        List<SHR.HIV_TEST> list = new ArrayList<>(hashSet);
         return uniqueTests;
-        // convert set to array & return,
-        // use cast because you can't create generic arrays
-        // return (E[]) set.toArray();
-        /*
-        for (SHR.HIV_TEST hivTest : Arrays.asList(EMRTests)) {
-            boolean found = false;
-            finalHIVTests.add(hivTest);
-            for (SHR.HIV_TEST hivTest1: Arrays.asList(cardTests)) {
-                if(SHR.HIV_TEST.compare(hivTest, hivTest1)){
-                    continue;
-                }
-                if(found){
-                    finalHIVTests.add(hivTest);
-                }
-            }
-        }*/
-        //return finalHIVTests;
     }
 
     private List<SHR.PATIENT_IDENTIFICATION.INTERNAL_PATIENT_ID> getFinalIdentifiers(SHR.PATIENT_IDENTIFICATION.INTERNAL_PATIENT_ID []ids1, SHR.PATIENT_IDENTIFICATION.INTERNAL_PATIENT_ID []ids2) {
-        List<SHR.PATIENT_IDENTIFICATION.INTERNAL_PATIENT_ID> finalids = new ArrayList<>();
-        for (SHR.PATIENT_IDENTIFICATION.INTERNAL_PATIENT_ID id1 : Arrays.asList(ids1)) {
-            boolean found = false;
-            for (SHR.PATIENT_IDENTIFICATION.INTERNAL_PATIENT_ID id2: Arrays.asList(ids2)) {
-                if(SHR.PATIENT_IDENTIFICATION.INTERNAL_PATIENT_ID.compare(id1, id2)){
-                    found = true;
-                    break;
-                }
-            }
-            if(!found){
-                finalids.add(id1);
-            }
-        }
-        return finalids;
+        List<SHR.PATIENT_IDENTIFICATION.INTERNAL_PATIENT_ID> finalIdentifiers = new ArrayList<>();
+        finalIdentifiers.addAll(Arrays.asList(ids1));
+        finalIdentifiers.addAll(Arrays.asList(ids2));
+        java.util.List<SHR.PATIENT_IDENTIFICATION.INTERNAL_PATIENT_ID> uniqueIdentifiers = finalIdentifiers.stream().distinct().collect(Collectors.toList());
+        return uniqueIdentifiers;
+    }
+
+    private List<SHR.PATIENT_IDENTIFICATION.MOTHER_DETAILS.MOTHER_IDENTIFIER> getFinalMotherIdentifiers(
+            SHR.PATIENT_IDENTIFICATION.MOTHER_DETAILS.MOTHER_IDENTIFIER []ids1, SHR.PATIENT_IDENTIFICATION.MOTHER_DETAILS.MOTHER_IDENTIFIER []ids2) {
+        List<SHR.PATIENT_IDENTIFICATION.MOTHER_DETAILS.MOTHER_IDENTIFIER> finalIdentifiers = new ArrayList<>();
+        finalIdentifiers.addAll(Arrays.asList(ids1));
+        finalIdentifiers.addAll(Arrays.asList(ids2));
+        java.util.List<SHR.PATIENT_IDENTIFICATION.MOTHER_DETAILS.MOTHER_IDENTIFIER> uniqueIdentifiers = finalIdentifiers.stream().distinct().collect(Collectors.toList());
+        return uniqueIdentifiers;
     }
 
     private List<SHR.IMMUNIZATION> getFinalImmunizations(SHR.IMMUNIZATION []immunizations, SHR.IMMUNIZATION []immunizations1) {
         List<SHR.IMMUNIZATION> finalImmunization = new ArrayList<>();
-        for (SHR.IMMUNIZATION immunization : Arrays.asList(immunizations)) {
-            boolean found = false;
-            for (SHR.IMMUNIZATION immunization1: Arrays.asList(immunizations1)) {
-                if(SHR.IMMUNIZATION.compare(immunization, immunization1)){
-                    found = true;
-                    break;
-                }
-            }
-            if(!found){
-                finalImmunization.add(immunization);
-            }
-        }
-        return finalImmunization;
+        finalImmunization.addAll(Arrays.asList(immunizations));
+        finalImmunization.addAll(Arrays.asList(immunizations1));
+        java.util.List<SHR.IMMUNIZATION> uniqueImmunizations = finalImmunization.stream().distinct().collect(Collectors.toList());
+        return uniqueImmunizations;
     }
 }
