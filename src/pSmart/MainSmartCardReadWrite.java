@@ -2,6 +2,7 @@ package pSmart;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sun.istack.internal.Nullable;
 import jsonvalidator.mapper.SHR;
 import pSmart.userFiles.UserFile;
 import com.jfoenix.controls.JFXComboBox;
@@ -12,7 +13,10 @@ import javax.smartcardio.CardException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+
+import static java.lang.Integer.toHexString;
 
 
 public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler {
@@ -316,6 +320,41 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
             //exception.printStackTrace();
         }
         return readMsg;
+    }
+
+    public String getCardSerial() {
+        String cardSerialStr = "";
+        try {
+            byte[]  cardSerialBytes = acos3.getCardInfo(Acos3.CARD_INFO_TYPE.CARD_SERIAL);
+            cardSerialStr = bytearray2intarray(cardSerialBytes);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return cardSerialStr;
+    }
+
+    public static String toHexString(byte[] array) {
+        String bufferString = "";
+
+        if (array != null) {
+            for (int i = 0; i < array.length; i++) {
+                String hexChar = Integer.toHexString(array[i] & 0xFF);
+                if (hexChar.length() == 1) {
+                    hexChar = "0" + hexChar;
+                }
+                bufferString += hexChar.toUpperCase(Locale.US) + " ";
+            }
+        }
+        return bufferString;
+    }
+
+    public String bytearray2intarray(byte[] bytes) {
+        StringBuilder builder = new StringBuilder();
+        for (byte byt : bytes) {
+            //builder.append(iterative(toHexString(new byte[]{byt})));
+            builder.append((Integer.parseInt(toHexString(new byte[]{byt}).trim(), 16)));
+        }
+        return builder.toString();
     }
 
     /**

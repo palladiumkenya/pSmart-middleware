@@ -79,6 +79,17 @@
                             </image>
                         </ImageView>
                         <FontAwesomeIconView fill="WHITE" glyphName="MEDKIT" layoutX="175.0" layoutY="82.0" size="30.0" />
+                      <Label fx:id="lblUserId" alignment="CENTER_RIGHT" layoutX="662.0" layoutY="20.0" minWidth="-Infinity" prefHeight="37.0" prefWidth="297.0" text="Admin" textAlignment="JUSTIFY" textFill="#f8f5f5">
+                          <font>
+                              <Font name="Trebuchet MS Bold Italic" size="23.0" />
+                          </font>
+                          <padding>
+                              <Insets left="5.0" right="5.0" />
+                          </padding>
+                          <graphic>
+                              <FontAwesomeIconView fill="WHITE" glyphName="USER" size="20.0" />
+                          </graphic>
+                      </Label>
                     </children>
                 </Pane>
                 <TabPane fx:id="tpMainTabPane" layoutX="296.0" layoutY="330.0" prefHeight="299.0" prefWidth="669.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="70.0" AnchorPane.leftAnchor="296.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="330.0">
@@ -319,17 +330,6 @@
                         <Font size="14.0" />
                     </font>
                 </TextArea>
-                <Label fx:id="lblUserId" alignment="CENTER_RIGHT" layoutX="850.0" layoutY="27.0" minWidth="-Infinity" prefHeight="37.0" prefWidth="120.0" text="Admin" textAlignment="JUSTIFY" textFill="#f8f5f5" AnchorPane.bottomAnchor="900.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="27.0">
-                    <font>
-                        <Font name="Trebuchet MS Bold Italic" size="23.0" />
-                    </font>
-                    <padding>
-                        <Insets left="5.0" right="5.0" />
-                    </padding>
-                    <graphic>
-                        <FontAwesomeIconView fill="WHITE" glyphName="USER" size="20.0" />
-                    </graphic>
-                </Label>
                 <GridPane layoutX="301.0" layoutY="863.0" prefHeight="62.0" prefWidth="655.0" AnchorPane.bottomAnchor="36.0" AnchorPane.leftAnchor="301.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="863.0">
                     <columnConstraints>
                         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -351,6 +351,8 @@
                                         <Font name="System Bold" size="15.0" />
                                     </font>
                                 </Button>
+
+
                                 <Button fx:id="btnPushToEMR" contentDisplay="TOP" disable="true" layoutY="23.0" mnemonicParsing="false" onAction="#sendDataToEmr" prefHeight="56.0" prefWidth="148.0" text="Push To EMR" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="30.0">
                                     <graphic>
                                         <FontAwesomeIconView glyphName="EXTERNAL_LINK" size="20.0" />
@@ -369,6 +371,14 @@
                </graphic>
                <font>
                   <Font name="System Bold" size="16.0" />
+               </font>
+            </Button>
+            <Button fx:id="btnEjectCard" contentDisplay="TOP" disable="true" layoutX="623.0" layoutY="900.0" mnemonicParsing="false" onAction="#nextCard" prefHeight="56.0" prefWidth="158.0" text="Next Card">
+               <graphic>
+                  <FontAwesomeIconView glyphName="DATABASE" size="20.0" />
+               </graphic>
+               <font>
+                  <Font name="System Bold" size="15.0" />
                </font>
             </Button>
             </children>

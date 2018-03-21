@@ -1,7 +1,5 @@
 package controller;
 
-
-import dbConnection.DBConnection;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
@@ -16,6 +14,7 @@ import jsonvalidator.mapper.CardAssignment;
 import jsonvalidator.mapper.EligibleList;
 import jsonvalidator.mapper.EncryptedSHR;
 import jsonvalidator.mapper.SHR;
+import jsonvalidator.utils.Encryption;
 import jsonvalidator.utils.SHRUtils;
 import models.CardDetail;
 import models.HIVTest;
@@ -35,20 +34,29 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import view.Main;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static jsonvalidator.utils.EndpointUtils.getURL;
+
 
 public class HomeController  {
 
     private String message=null;
     MainSmartCardReadWrite readerWriter;
+
+    private String displayName;
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
 
     @FXML
     private Label lblpsmartTitle;
@@ -67,6 +75,9 @@ public class HomeController  {
 
     @FXML
     private Label lblSex;
+
+    @FXML
+    private Button btnEjectCard;
 
     @FXML
     private Label lblStatus;
@@ -290,6 +301,11 @@ public class HomeController  {
         GridMotherIdentifiers.setItems(FXCollections.observableArrayList(getMotherIdentifiers(shr)));
     }
 
+    @FXML
+    private void nextCard(ActionEvent ae) {
+        System.out.println("clear the UI");
+    }
+
     private final void loadElligibleList(){
         colPatientId.setCellValueFactory(new PropertyValueFactory<>("patientId"));
         colFirstName.setCellValueFactory(new PropertyValueFactory<>("firstName"));
@@ -319,7 +335,7 @@ public class HomeController  {
 					Optional<ButtonType> result = alert.showAndWait();
 					if (result.get() == buttonTypeYes){
 					    String url = getURL("HTTP POST - Push the card assignment details to EMR");
-					    CardAssignment cardAssignment = new CardAssignment(rowData.getPatientId(), UUID.randomUUID().toString());
+					    CardAssignment cardAssignment = new CardAssignment(rowData.getPatientId(), readerWriter.getCardSerial());
 					    String cardAssignmentStr = SHRUtils.getJSON(cardAssignment);
                         String response = APIClient.postData(url, cardAssignmentStr);
                         shrFromEMR = SHRUtils.getSHRObj(response);
@@ -346,12 +362,22 @@ public class HomeController  {
     private final ObservableList<Identifier> getIdentifiers(SHR shr){
         ObservableList<Identifier> identifiers = FXCollections.observableArrayList();
         for(int i=0; i < shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID.length;i++ ){
-            Identifier identifier = new Identifier(
-                    shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID[i].iD,
-                    shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID[i].iDENTIFIER_TYPE,
-                    shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID[i].aSSIGNING_AUTHORITY,
-                    shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID[i].aSSIGNING_FACILITY
-            );
+            Identifier identifier;
+            if(shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID[i].iDENTIFIER_TYPE.equals("CARD_SERIAL_NUMBER")) {
+                identifier = new Identifier(
+                        readerWriter.getCardSerial(),
+                        shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID[i].iDENTIFIER_TYPE,
+                        shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID[i].aSSIGNING_AUTHORITY,
+                        shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID[i].aSSIGNING_FACILITY
+                );
+            } else {
+                identifier = new Identifier(
+                        shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID[i].iD,
+                        shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID[i].iDENTIFIER_TYPE,
+                        shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID[i].aSSIGNING_AUTHORITY,
+                        shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID[i].aSSIGNING_FACILITY
+                );
+            }
             identifiers.add(identifier);
         }
         return identifiers;
@@ -431,6 +457,11 @@ public class HomeController  {
         lblMotherNames.setVisible(false);
     }
 
+    public void initVariable(String displayName){
+        this.displayName = displayName;
+        lblUserId.setText(displayName);
+    }
+
     @FXML
     public void initialiseCardReader(ActionEvent event) {
         try {
@@ -452,36 +483,11 @@ public class HomeController  {
             btnLoadFromEMR.setDisable(false);
     }
 
-    private String getURL(String purpose) {
-        String url = "";
-        for (Endpoint endpoint : getEndPoints()) {
-            if(endpoint.getEndpointPurpose().equals(purpose)){
-                if(!(endpoint.getEndpointUrl().isEmpty() || endpoint.getEndpointUrl() == null)) {
-                    url = endpoint.getEndpointUrl();
-                }
-            }
-        }
-        return url;
-    }
-
     @FXML
     void sendDataToEmr(ActionEvent event) {
         String purpose = "HTTP POST - Push SHR to EMR";
-        //String purpose = "HTTP POST - Push encrypted SHR to EMR";
-        String response = postData(shr, purpose);
+        String response = APIClient.postObject(shr, purpose);
         SmartCardUtils.displayOut(txtProcessLogger, response);
-    }
-
-    public String postData(Object obj, String purpose) {
-        String url = getURL(purpose);
-        String response;
-        if(!url.isEmpty()){
-            String objStr = SHRUtils.getJSON(obj);
-            response = APIClient.postData(url, objStr);
-        } else {
-            response = "\nPlease specify the `"+purpose+"` endpoint url!";
-        }
-        return response;
     }
 
     @FXML
@@ -493,26 +499,7 @@ public class HomeController  {
         btnPushToEMR.setDisable(true);
     }
 
-    public List<Endpoint> getEndPoints() {
-        Endpoint endpoint;
-        List<Endpoint> endpoints = new ArrayList<Endpoint>();
-        try {
-            Connection dbConn = DBConnection.connect();
-            String sql = "Select * from endpoints WHERE void=0";
-            ResultSet rs = dbConn.createStatement().executeQuery(sql);
-            while(rs.next()){
-                endpoint = new Endpoint();
-                endpoint.setEndpointPurpose(rs.getString("endpointPurpose"));
-                endpoint.setEndpointUrl(rs.getString("endpointUrl"));
-                endpoint.setEndpointUsername(rs.getString("username"));
-                endpoint.setEndpointPassword(rs.getString("password"));
-                endpoints.add(endpoint);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return endpoints;
-    }
+
 
 
     public List<String> getStringArr(SHR shr, String context){
@@ -582,13 +569,16 @@ public class HomeController  {
         readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_EXTERNAL_NAME), patientExternalIdentifiers, (byte)0x00);
         readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_ADDRESS_NAME), addressDetails, (byte)0x00);
         readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_MOTHER_DETAIL_NAME), motherDetails, (byte)0x00);
+
+        btnEjectCard.setDisable(false);
         //TODO: encrypt and compress SHR and send to EMR
         //byte[] compressedMessage = Compression.Compress(encryptedSHR);
 
         String purpose = "HTTP POST - Push encrypted SHR to EMR";
-        //EncryptedSHR encryptedSHR = new EncryptedSHR(shrFromEMR, shrFromEMR.cARD_DETAILS)
-        String response = postData(shr, purpose);
+        EncryptedSHR encSHR  = getEncryptedSHR(shrFromEMR);
+        String response = APIClient.postObject(encSHR, purpose);
         SmartCardUtils.displayOut(txtProcessLogger, response);
+        readerWriter.getCardSerial();
 
         btnWriteToCard.setDisable(true);
         btnReadCard.setDisable(true);
@@ -598,7 +588,14 @@ public class HomeController  {
 
     }
 
-    //public EncryptedSHR getEncryptedSHR
+    public EncryptedSHR getEncryptedSHR(SHR shr) {
+        EncryptedSHR.ADDENDUM addendum = new EncryptedSHR.ADDENDUM(shr.cARD_DETAILS, shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID);
+        String strShr = SHRUtils.getJSON(shr);
+        System.out.println("strShr: "+ SHRUtils.getJSON(strShr));
+        String encSHRStr = Encryption.encrypt(strShr);
+        EncryptedSHR encSHR = new EncryptedSHR(encSHRStr, addendum);
+        return encSHR;
+    }
     public void LoadEndpointConfig(ActionEvent event) throws ParseException{
         try {
             Stage stage = new Stage();
@@ -651,7 +648,6 @@ public class HomeController  {
         shrStr += ", \t\"NEXT_OF_KIN\": []";
         shrStr += ", \t\"VERSION\": \"1.0.0\"";
         shrStr += "\n}";
-        System.out.println(shrStr);
         shr = SHRUtils.getSHRObj(shrStr);
         loadImmunizations(shr);
         loadMotherIdentifiers(shr);

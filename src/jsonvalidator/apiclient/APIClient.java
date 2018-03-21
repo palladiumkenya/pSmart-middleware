@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package jsonvalidator.apiclient;
+import jsonvalidator.utils.SHRUtils;
 import sun.misc.BASE64Encoder;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -11,6 +12,8 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+
+import static jsonvalidator.utils.EndpointUtils.getURL;
 
 /**
  *
@@ -62,7 +65,19 @@ public class APIClient {
         }
         return SHRJsonStr;
     }
-    
+
+    public static String postObject(Object obj, String purpose) {
+        String url = getURL(purpose);
+        String response;
+        if(!url.isEmpty()){
+            String objStr = SHRUtils.getJSON(obj);
+            response = postData(url, objStr);
+        } else {
+            response = "\nPlease specify the `"+purpose+"` endpoint url!";
+        }
+        return response;
+    }
+
     public static String postData(String SHRURL, String SHRStr) {
         StringBuffer response = new StringBuffer();
         try {
@@ -88,16 +103,10 @@ public class APIClient {
                     (conn.getInputStream())));
 
             String output;
-            System.out.println("Output from Server .... \n");
             while ((output = br.readLine()) != null) {
                 response.append(output);
             }
             br.close();
-            if (conn.getResponseCode() != HttpURLConnection.HTTP_CREATED) {
-               response.append("Failed : HTTP error code : "
-                        + conn.getResponseCode());
-            }
-            System.out.println(response.toString());
             conn.disconnect();
         } catch (MalformedURLException e) {
             System.out.println(e.getMessage());

@@ -37,4 +37,5 @@ public class Endpoint {
     public void setEndpointPassword(String endpointPassword) {
         this.endpointPassword = endpointPassword;
     }
+
 }
