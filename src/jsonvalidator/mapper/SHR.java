@@ -583,7 +583,7 @@ public  class SHR {
         }
 
         public static boolean compare(HIV_TEST hivTest, HIV_TEST hivTest1) {
-            if(hivTest.dATE.equals(hivTest1.dATE) && hivTest.fACILITY.equals(hivTest1.fACILITY) && hivTest.tYPE.equals(hivTest1.tYPE)){
+            if(hivTest.dATE.equals(hivTest1.dATE) && hivTest.fACILITY.equals(hivTest1.fACILITY) && hivTest.tYPE.equals(hivTest1.tYPE) && hivTest.rESULT.equals(hivTest1.rESULT)){
                 return true;
             }
             return false;
@@ -592,7 +592,7 @@ public  class SHR {
         @Override
         public boolean equals(Object obj) {
             if (obj instanceof HIV_TEST) {
-                return ((HIV_TEST) obj).dATE.equals(dATE) && ((HIV_TEST) obj).fACILITY.equals(fACILITY) && ((HIV_TEST) obj).tYPE.equals(tYPE);
+                return ((HIV_TEST) obj).dATE.equals(dATE) && ((HIV_TEST) obj).fACILITY.equals(fACILITY) && ((HIV_TEST) obj).tYPE.equals(tYPE) && ((HIV_TEST) obj).rESULT.equals(rESULT) ;
             }
             return false;
         }

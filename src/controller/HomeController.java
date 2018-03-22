@@ -743,11 +743,7 @@ public class HomeController  {
             return;
         }
         String shrStr = "{\n";
-        shrStr += "\t\"CARD_DETAILS\": " +  readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.CARD_DETAILS_USER_FILE_NAME), (byte)0x00 );
-        shrStr += ", \t\"IMMUNIZATION\": [" + readerWriter.readArray(SmartCardUtils.getUserFile(SmartCardUtils.IMMUNIZATION_USER_FILE_NAME)) + "]";
-        shrStr += ",\t\"HIV_TEST\": [" + readerWriter.readArray(SmartCardUtils.getUserFile(SmartCardUtils.HIV_TEST_USER_FILE_NAME))+ "]";
-
-        shrStr += ", \t\"PATIENT_IDENTIFICATION\": {\n";
+        shrStr += "\t\"PATIENT_IDENTIFICATION\": {\n";
         shrStr += "  \t\"PATIENT_NAME\": " + readerWriter.readArray(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_DEMOGRAPHICS_NAME));
 
         shrStr += ", \t\"EXTERNAL_PATIENT_ID\": " + readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_EXTERNAL_NAME), (byte)0x00);
@@ -757,9 +753,13 @@ public class HomeController  {
         shrStr += ", \t\"MOTHER_IDENTIFIER\": [" + readerWriter.readArray(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_MOTHER_IDENTIFIER_NAME)) + "]";
         shrStr += "}\n}";
         shrStr += ", \t\"NEXT_OF_KIN\": []";
+        shrStr += ",\t\"HIV_TEST\": [" + readerWriter.readArray(SmartCardUtils.getUserFile(SmartCardUtils.HIV_TEST_USER_FILE_NAME))+ "]";
+        shrStr += ", \t\"IMMUNIZATION\": [" + readerWriter.readArray(SmartCardUtils.getUserFile(SmartCardUtils.IMMUNIZATION_USER_FILE_NAME)) + "]";
+        shrStr += ", \t\"CARD_DETAILS\": " +  readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.CARD_DETAILS_USER_FILE_NAME), (byte)0x00 );
         shrStr += ", \t\"VERSION\": \"1.0.0\"";
         shrStr += "\n}";
 
+        System.out.println(shrStr);
         shr = SHRUtils.getSHRObj(shrStr);
         loadImmunizations(shr);
         loadMotherIdentifiers(shr);
@@ -791,6 +791,7 @@ public class HomeController  {
         if(!url.isEmpty()){
             String cardSerialNo = readerWriter.getCardSerial();
             url += (url.endsWith("/")) ? cardSerialNo : "/" + cardSerialNo;
+            url = (url.endsWith("=")) ? url.concat(cardSerialNo) : url;
             System.out.println(url);
             String SHRStr = APIClient.fetchData(url);
             shrFromEMR = SHRUtils.getSHRObj(SHRStr);
