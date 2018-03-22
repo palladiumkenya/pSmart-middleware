@@ -1,7 +1,5 @@
 package controller;
 
-
-import dbConnection.DBConnection;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
@@ -16,11 +14,14 @@ import jsonvalidator.mapper.CardAssignment;
 import jsonvalidator.mapper.EligibleList;
 import jsonvalidator.mapper.EncryptedSHR;
 import jsonvalidator.mapper.SHR;
+import jsonvalidator.utils.Encryption;
 import jsonvalidator.utils.SHRUtils;
 import models.CardDetail;
 import models.HIVTest;
 import models.Identifier;
 import models.*;
+import org.apache.commons.lang3.builder.Diff;
+import org.apache.commons.lang3.builder.DiffResult;
 import pSmart.MainSmartCardReadWrite;
 import pSmart.SmartCardUtils;
 import com.jfoenix.controls.JFXComboBox;
@@ -31,25 +32,33 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
-import pSmart.userFiles.UserFile;
 import view.Main;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static jsonvalidator.utils.EndpointUtils.getURL;
 
 
 public class HomeController  {
 
     private String message=null;
     MainSmartCardReadWrite readerWriter;
+
+    private String displayName;
+
+    private String facility;
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
 
     @FXML
     private Label lblpsmartTitle;
@@ -70,13 +79,31 @@ public class HomeController  {
     private Label lblSex;
 
     @FXML
+    private Button btnFormatCard;
+
+    @FXML
+    private Button btnEjectCard;
+
+    @FXML
+    private Label lblStatus;
+
+    @FXML
+    private Label lblMotherNames;
+
+    @FXML
+    private Label lblLastUpdated;
+
+    @FXML
+    private Label lblLastUpdatedFacility;
+
+    @FXML
     private Label lblAge;
 
     @FXML
     private TextArea txtProcessLogger;
 
     @FXML
-    private TableColumn<CardDetail, String> colCardStatus;
+    private TableColumn<Immunization, String> colImmunizationName;
 
     @FXML
     private TableColumn<CardDetail, String> colReason;
@@ -85,10 +112,10 @@ public class HomeController  {
     private TableColumn<CardDetail, String> colLastUpdate;
 
     @FXML
-    private TableColumn<CardDetail, String> colFacilityLastUpdated;
+    private TableColumn<Immunization, String> colDateAdministered;
 
     @FXML
-    private TableView<CardDetail> GridCardSummary;
+    private TableView<Immunization> GridCardSummary;
 
     @FXML
     private TableView<HIVTest> GridClientLastENcounter;
@@ -110,6 +137,21 @@ public class HomeController  {
 
     @FXML
     private TableView<Identifier> GridClientIdentifiers;
+
+    @FXML
+    private TableView<Identifier> GridMotherIdentifiers;
+
+    @FXML
+    private TableColumn<Identifier, String> colMotherIdentifierId;
+
+    @FXML
+    private TableColumn<Identifier, String> colMotherIdentifierType;
+
+    @FXML
+    private TableColumn<Identifier, String> colMotherAssigningAuthority;
+
+    @FXML
+    private TableColumn<Identifier, String> colMotherAssigningFacility;
 
     @FXML
     private TableColumn<Identifier, String> colIdentifierId;
@@ -171,28 +213,41 @@ public class HomeController  {
     @FXML
     private JFXComboBox<String> cboDeviceReaderList;
 
-    private SHR shr;
+    private SHR shr = null;
+
+    private SHR shrFromEMR;
 
     private EncryptedSHR encryptedSHR;
 
     //Load Card Details
-    private final void loadCardDetails(){
-        colCardStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
-        colFacilityLastUpdated.setCellValueFactory(new PropertyValueFactory<>("lastUpdatedFacility"));
-        colLastUpdate.setCellValueFactory(new PropertyValueFactory<>("lastUpdated"));
-        colReason.setCellValueFactory(new PropertyValueFactory<CardDetail, String>("reason"));
-        GridCardSummary.setItems(FXCollections.observableArrayList(getCardDetails()));
+    private final void loadImmunizations(SHR shr){
+        colImmunizationName.setCellValueFactory(new PropertyValueFactory<>("name"));
+        colDateAdministered.setCellValueFactory(new PropertyValueFactory<>("dateAdministered"));
+        GridCardSummary.setItems(FXCollections.observableArrayList(getImmunizations(shr)));
+
     }
 
-    private final ObservableList<CardDetail> getCardDetails(){
-        CardDetail cardDetail = new CardDetail(
-                shr.cARD_DETAILS.sTATUS,
-                shr.cARD_DETAILS.rEASON,
-                shr.cARD_DETAILS.lAST_UPDATED,
-                shr.cARD_DETAILS.lAST_UPDATED_FACILITY
-        );
-        ObservableList<CardDetail> cardsDetails = FXCollections.observableArrayList(cardDetail);
-        return cardsDetails;
+    private final void showCardDetails(SHR shr) {
+        lblLastUpdatedFacility.setVisible(true);
+        lblLastUpdatedFacility.setText("Last Updated @: " + shr.cARD_DETAILS.lAST_UPDATED_FACILITY);
+
+        lblStatus.setVisible(true);
+        lblStatus.setText("Card Status: " + shr.cARD_DETAILS.sTATUS);
+
+        lblLastUpdated.setVisible(true);
+        lblLastUpdated.setText("Last Updated On: "+ shr.cARD_DETAILS.lAST_UPDATED);
+    }
+
+    private final ObservableList<Immunization> getImmunizations(SHR shr){
+        ObservableList<Immunization> immunizations = FXCollections.observableArrayList();
+        for(int i=0; i < shr.iMMUNIZATION.length;i++ ){
+            Immunization immunization = new Immunization(
+                    shr.iMMUNIZATION[i].nAME,
+                    shr.iMMUNIZATION[i].dATE_ADMINISTERED
+            );
+            immunizations.add(immunization);
+        }
+        return immunizations;
     }
 
     private static final int getMonthsDifference(Date date1, Date date2) {
@@ -201,10 +256,11 @@ public class HomeController  {
         return m2 - m1 + 1;
     }
 
-    private final void showCurrentClient() {
+    private final void showCurrentClient(SHR shr) {
         String patientName = shr.pATIENT_IDENTIFICATION.pATIENT_NAME.fIRST_NAME + " " + shr.pATIENT_IDENTIFICATION.pATIENT_NAME.mIDDLE_NAME + " " + shr.pATIENT_IDENTIFICATION.pATIENT_NAME.lAST_NAME;
         String patientDob = shr.pATIENT_IDENTIFICATION.dATE_OF_BIRTH;
         String patientSex = shr.pATIENT_IDENTIFICATION.sEX;
+        String patientMotherName = shr.pATIENT_IDENTIFICATION.mOTHER_DETAILS.mOTHER_NAME.fIRST_NAME + " " + shr.pATIENT_IDENTIFICATION.mOTHER_DETAILS.mOTHER_NAME.lAST_NAME;
         DateFormat formatter = new SimpleDateFormat("yyyyMMdd");
         if(!patientDob.equals("") && !patientDob.isEmpty()) {
             try {
@@ -230,18 +286,107 @@ public class HomeController  {
         lblCurrentPatient.setText(patientName);
         lblSex.setVisible(true);
         lblSex.setText("Sex: " + patientSex);
+        lblMotherNames.setVisible(true);
+        lblMotherNames.setText("Mother Name: "+ patientMotherName);
     }
     //Load Identifiers
-    private final void loadIdentifiers(){
+    private final void loadIdentifiers(SHR shr){
         colIdentifierId.setCellValueFactory(new PropertyValueFactory<>("identifier"));
         colIdentifierType.setCellValueFactory(new PropertyValueFactory<>("identifierType"));
         colAssigningAuthority.setCellValueFactory(new PropertyValueFactory<>("assigningAuthority"));
         colAssigningFacility.setCellValueFactory(new PropertyValueFactory<>("assigningFacility"));
-        GridClientIdentifiers.setItems(FXCollections.observableArrayList(getIdentifiers()));
+        GridClientIdentifiers.setItems(FXCollections.observableArrayList(getIdentifiers(shr)));
     }
 
-    //Load Identifiers
+    private final void loadMotherIdentifiers(SHR shr){
+        colMotherIdentifierId.setCellValueFactory(new PropertyValueFactory<>("identifier"));
+        colMotherIdentifierType.setCellValueFactory(new PropertyValueFactory<>("identifierType"));
+        colMotherAssigningAuthority.setCellValueFactory(new PropertyValueFactory<>("assigningAuthority"));
+        colMotherAssigningFacility.setCellValueFactory(new PropertyValueFactory<>("assigningFacility"));
+        GridMotherIdentifiers.setItems(FXCollections.observableArrayList(getMotherIdentifiers(shr)));
+    }
+
+    @FXML
+    private void nextCard(ActionEvent ae) {
+        GridMotherIdentifiers.getItems().clear();
+        GridClientLastENcounter.getItems().clear();
+        GridClientIdentifiers.getItems().clear();
+        GridCardSummary.getItems().clear();
+        GridEligibleList.getItems().clear();
+        txtProcessLogger.clear();
+
+        lblLastUpdatedFacility.setVisible(false);
+        lblLastUpdatedFacility.setText("");
+
+        lblStatus.setVisible(false);
+        lblStatus.setText("");
+
+        lblLastUpdated.setVisible(false);
+        lblLastUpdated.setText("");
+
+        lblAge.setVisible(false);
+        lblAge.setText("");
+
+        lblAge.setVisible(false);
+        lblAge.setText("");
+
+        lblCurrentPatient.setText("Insert a card to read it's contents.");
+        lblSex.setVisible(false);
+        lblSex.setText("");
+        lblMotherNames.setVisible(false);
+        lblMotherNames.setText("");
+
+        cboDeviceReaderList.getItems().clear();
+
+        btnWriteToCard.setDisable(true);
+        btnReadCard.setDisable(true);
+        btnFormatCard.setDisable(true);
+
+        readerWriter = new MainSmartCardReadWrite(txtProcessLogger, cboDeviceReaderList);
+        btnConnectReader.setDisable(true);
+        btnLoadEligibleList.setDisable(true);
+        lblSex.setVisible(false);
+        lblAge.setVisible(false);
+        lblStatus.setVisible(false);
+        lblLastUpdated.setVisible(false);
+        lblLastUpdatedFacility.setVisible(false);
+        lblMotherNames.setVisible(false);
+        btnLoadFromEMR.setDisable(true);
+        btnEjectCard.setDisable(true);
+        btnPushToEMR.setDisable(true);
+        tpMainTabPane.getSelectionModel().select(0);
+
+    }
+
     private final void loadElligibleList(){
+        lblLastUpdatedFacility.setVisible(false);
+        lblLastUpdatedFacility.setText("");
+
+        lblStatus.setVisible(false);
+        lblStatus.setText("");
+
+        lblLastUpdated.setVisible(false);
+        lblLastUpdated.setText("");
+
+        lblAge.setVisible(false);
+        lblAge.setText("");
+
+        lblAge.setVisible(false);
+        lblAge.setText("");
+
+        lblCurrentPatient.setText("Insert a card to read it's contents.");
+        lblSex.setVisible(false);
+        lblSex.setText("");
+        lblMotherNames.setVisible(false);
+        lblMotherNames.setText("");
+        lblSex.setVisible(false);
+        lblAge.setVisible(false);
+        lblStatus.setVisible(false);
+        lblLastUpdated.setVisible(false);
+        lblLastUpdatedFacility.setVisible(false);
+        lblMotherNames.setVisible(false);
+
+
         colPatientId.setCellValueFactory(new PropertyValueFactory<>("patientId"));
         colFirstName.setCellValueFactory(new PropertyValueFactory<>("firstName"));
         colMiddleName.setCellValueFactory(new PropertyValueFactory<>("middleName"));
@@ -249,6 +394,7 @@ public class HomeController  {
         colGender.setCellValueFactory(new PropertyValueFactory<>("gender"));
         colAge.setCellValueFactory(new PropertyValueFactory<>("age"));
         GridEligibleList.setItems(FXCollections.observableArrayList(getEligibilityList()));
+        SmartCardUtils.displayOut(txtProcessLogger,  "Successfully fetched eligible clients");
 
 		GridEligibleList.setRowFactory( tv -> {
 			TableRow<EligiblePerson> row = new TableRow<>();
@@ -270,17 +416,27 @@ public class HomeController  {
 					Optional<ButtonType> result = alert.showAndWait();
 					if (result.get() == buttonTypeYes){
 					    String url = getURL("HTTP POST - Push the card assignment details to EMR");
-					    CardAssignment cardAssignment = new CardAssignment(rowData.getPatientId(), "123456-hjkuyi-lo9087");
+					    CardAssignment cardAssignment = new CardAssignment(rowData.getPatientId(), readerWriter.getCardSerial());
 					    String cardAssignmentStr = SHRUtils.getJSON(cardAssignment);
                         String response = APIClient.postData(url, cardAssignmentStr);
-                        shr = SHRUtils.getSHRObj(response);
-                        loadCardDetails();
-						loadIdentifiers();
-						loadHIVTests();
-                        showCurrentClient();
+                        shrFromEMR = SHRUtils.getSHRObj(response);
+                        //add card serial and card details to SHR
+                        String pattern = "yyyyMMddhhmmss";
+                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+                        String date = simpleDateFormat.format(new Date());
+
+                        shrFromEMR.cARD_DETAILS.lAST_UPDATED_FACILITY = this.facility;
+                        shrFromEMR.cARD_DETAILS.lAST_UPDATED = date;
+                        System.out.println(SHRUtils.getJSON(shrFromEMR));
+                        loadImmunizations(shrFromEMR);
+                        loadMotherIdentifiers(shrFromEMR);
+						loadIdentifiers(shrFromEMR);
+						loadHIVTests(shrFromEMR);
+                        showCurrentClient(shrFromEMR);
+                        showCardDetails(shrFromEMR);
 						btnWriteToCard.setDisable(false);
 						tpMainTabPane.getSelectionModel().select(0);
-                        SmartCardUtils.displayOut(txtProcessLogger, "\n"+ response +"\n");
+                        SmartCardUtils.displayOut(txtProcessLogger,  "Successfully fetched client's Shared Health Record");
 					} else if (result.get() == buttonTypeNo) {
 
 					}
@@ -292,14 +448,38 @@ public class HomeController  {
 
     //private displayAlert
 
-    private final ObservableList<Identifier> getIdentifiers(){
+    private final ObservableList<Identifier> getIdentifiers(SHR shr){
         ObservableList<Identifier> identifiers = FXCollections.observableArrayList();
         for(int i=0; i < shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID.length;i++ ){
+            Identifier identifier;
+            if(shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID[i].iDENTIFIER_TYPE.equals("CARD_SERIAL_NUMBER")) {
+                identifier = new Identifier(
+                        readerWriter.getCardSerial(),
+                        shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID[i].iDENTIFIER_TYPE,
+                        shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID[i].aSSIGNING_AUTHORITY,
+                        shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID[i].aSSIGNING_FACILITY
+                );
+            } else {
+                identifier = new Identifier(
+                        shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID[i].iD,
+                        shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID[i].iDENTIFIER_TYPE,
+                        shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID[i].aSSIGNING_AUTHORITY,
+                        shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID[i].aSSIGNING_FACILITY
+                );
+            }
+            identifiers.add(identifier);
+        }
+        return identifiers;
+    }
+
+    private final ObservableList<Identifier> getMotherIdentifiers(SHR shr){
+        ObservableList<Identifier> identifiers = FXCollections.observableArrayList();
+        for(int i=0; i < shr.pATIENT_IDENTIFICATION.mOTHER_DETAILS.mOTHER_IDENTIFIER.length;i++ ){
             Identifier identifier = new Identifier(
-                    shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID[i].iD,
-                    shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID[i].iDENTIFIER_TYPE,
-                    shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID[i].aSSIGNING_AUTHORITY,
-                    shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID[i].aSSIGNING_FACILITY
+                    shr.pATIENT_IDENTIFICATION.mOTHER_DETAILS.mOTHER_IDENTIFIER[i].iD,
+                    shr.pATIENT_IDENTIFICATION.mOTHER_DETAILS.mOTHER_IDENTIFIER[i].iDENTIFIER_TYPE,
+                    shr.pATIENT_IDENTIFICATION.mOTHER_DETAILS.mOTHER_IDENTIFIER[i].aSSIGNING_AUTHORITY,
+                    shr.pATIENT_IDENTIFICATION.mOTHER_DETAILS.mOTHER_IDENTIFIER[i].aSSIGNING_FACILITY
             );
             identifiers.add(identifier);
         }
@@ -326,16 +506,16 @@ public class HomeController  {
     }
 
     //Load Identifiers
-    private final void loadHIVTests(){
-        colTestDate.setCellValueFactory(new PropertyValueFactory<HIVTest, String>("testDate"));
-        colResult.setCellValueFactory(new PropertyValueFactory<HIVTest, String>("result"));
-        colFacility.setCellValueFactory(new PropertyValueFactory<HIVTest, String>("facility"));
-        colStrategy.setCellValueFactory(new PropertyValueFactory<HIVTest, String>("strategy"));
-        colType.setCellValueFactory(new PropertyValueFactory<HIVTest, String>("type"));
-        GridClientLastENcounter.setItems(FXCollections.observableArrayList(getHIVTests()));
+    private final void loadHIVTests(SHR shr){
+        colTestDate.setCellValueFactory(new PropertyValueFactory<>("testDate"));
+        colResult.setCellValueFactory(new PropertyValueFactory<>("result"));
+        colFacility.setCellValueFactory(new PropertyValueFactory<>("facility"));
+        colStrategy.setCellValueFactory(new PropertyValueFactory<>("strategy"));
+        colType.setCellValueFactory(new PropertyValueFactory<>("type"));
+        GridClientLastENcounter.setItems(FXCollections.observableArrayList(getHIVTests(shr)));
     }
 
-    private final ObservableList<HIVTest> getHIVTests(){
+    private final ObservableList<HIVTest> getHIVTests(SHR shr){
         ObservableList<HIVTest> hivTests = FXCollections.observableArrayList();
         for(int i=0; i < shr.hIV_TEST.length;i++ ){
             HIVTest hivTest = new HIVTest(
@@ -354,11 +534,22 @@ public class HomeController  {
     void initialize() {
         btnWriteToCard.setDisable(true);
         btnReadCard.setDisable(true);
+
         readerWriter = new MainSmartCardReadWrite(txtProcessLogger, cboDeviceReaderList);
         btnConnectReader.setDisable(true);
         btnLoadEligibleList.setDisable(true);
         lblSex.setVisible(false);
         lblAge.setVisible(false);
+        lblStatus.setVisible(false);
+        lblLastUpdated.setVisible(false);
+        lblLastUpdatedFacility.setVisible(false);
+        lblMotherNames.setVisible(false);
+    }
+
+    public void initVariable(String displayName, String facility){
+        this.displayName = displayName;
+        this.facility = facility;
+        lblUserId.setText(displayName);
     }
 
     @FXML
@@ -380,65 +571,24 @@ public class HomeController  {
             btnReadCard.setDisable(false);
             btnLoadEligibleList.setDisable(false);
             btnLoadFromEMR.setDisable(false);
-    }
-
-    private String getURL(String purpose) {
-        String url = "";
-        for (Endpoint endpoint : getEndPoints()) {
-            if(endpoint.getEndpointPurpose().equals(purpose)){
-                if(!(endpoint.getEndpointUrl().isEmpty() || endpoint.getEndpointUrl() == null)) {
-                    url = endpoint.getEndpointUrl();
-                }
-            }
-        }
-        return url;
+            btnFormatCard.setDisable(false);
     }
 
     @FXML
     void sendDataToEmr(ActionEvent event) {
         String purpose = "HTTP POST - Push SHR to EMR";
-        String url = getURL(purpose);
-        if(!url.isEmpty()){
-            String shrStr = SHRUtils.getJSON(shr);
-            System.out.println(shrStr);
-            String response = APIClient.postData(url, shrStr);
-            SmartCardUtils.displayOut(txtProcessLogger, "\nResponse from EMR\n "+response);
-            btnLoadFromEMR.setDisable(true);
-        } else {
-            SmartCardUtils.displayOut(txtProcessLogger, "\nPlease specify the `"+purpose+"` endpoint url!");
-        }
+        String response = APIClient.postObject(shr, purpose);
+        SmartCardUtils.displayOut(txtProcessLogger, response);
     }
 
     @FXML
     void getEligibleList(ActionEvent actionEvent) {
-        tpMainTabPane.getSelectionModel().select(3);
+        tpMainTabPane.getSelectionModel().select(4);
         loadElligibleList();
         btnLoadEligibleList.setDisable(true);
         btnReadCard.setDisable(true);
         btnPushToEMR.setDisable(true);
     }
-
-    public List<Endpoint> getEndPoints() {
-        Endpoint endpoint;
-        List<Endpoint> endpoints = new ArrayList<Endpoint>();
-        try {
-            Connection dbConn = DBConnection.connect();
-            String sql = "Select * from endpoints WHERE void=0";
-            ResultSet rs = dbConn.createStatement().executeQuery(sql);
-            while(rs.next()){
-                endpoint = new Endpoint();
-                endpoint.setEndpointPurpose(rs.getString("endpointPurpose"));
-                endpoint.setEndpointUrl(rs.getString("endpointUrl"));
-                endpoint.setEndpointUsername(rs.getString("username"));
-                endpoint.setEndpointPassword(rs.getString("password"));
-                endpoints.add(endpoint);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return endpoints;
-    }
-
 
     public List<String> getStringArr(SHR shr, String context){
         List<String> stringArr = new ArrayList<>();
@@ -471,55 +621,89 @@ public class HomeController  {
     }
 
     public void writeToCard(ActionEvent event) throws ParseException {
-        SmartCardUtils.displayOut(txtProcessLogger, "\nWrite to card initiated. ");
-        readerWriter.formatCard();
-        List<String> demographics = new ArrayList<>();
+        String cardSerial = SHRUtils.getCardSerialNo(shrFromEMR);
+        System.out.println(cardSerial);
 
-        StringBuilder otherDemographics = new StringBuilder();
-        otherDemographics
-                .append("\"DATE_OF_BIRTH\": \"").append(shr.pATIENT_IDENTIFICATION.dATE_OF_BIRTH).append("\"")
-                .append(", \"DATE_OF_BIRTH_PRECISION\": \"").append(shr.pATIENT_IDENTIFICATION.dATE_OF_BIRTH_PRECISION).append("\"")
-                .append(", \"SEX\": \"").append(shr.pATIENT_IDENTIFICATION.sEX).append("\"")
-                .append(", \"DEATH_DATE\": \"").append(shr.pATIENT_IDENTIFICATION.dEATH_DATE).append("\"")
-                .append(", \"DEATH_INDICATOR\": \"").append(shr.pATIENT_IDENTIFICATION.dEATH_INDICATOR).append("\"")
-                .append(", \"PHONE_NUMBER\": \"").append(shr.pATIENT_IDENTIFICATION.pHONE_NUMBER).append("\"")
-                .append(", \"MARITAL_STATUS\": \"").append(shr.pATIENT_IDENTIFICATION.mARITAL_STATUS).append("\"");
-        String patientName = SHRUtils.getJSON(shr.pATIENT_IDENTIFICATION.pATIENT_NAME);
-        demographics.add(patientName);
-        demographics.add(otherDemographics.toString());
-        String patientExternalIdentifiers = SHRUtils.getJSON(shr.pATIENT_IDENTIFICATION.eXTERNAL_PATIENT_ID);
-        String cardDetails = SHRUtils.getJSON(shr.cARD_DETAILS);
-        String motherDetails = SHRUtils.getJSON(shr.pATIENT_IDENTIFICATION.mOTHER_DETAILS.mOTHER_NAME);
-        List<String> immunizationDetails = getStringArr(shr, "IMMUNIZATION");
-        List<String> hivTests = getStringArr(shr, "HIV_TEST");
-        List<String> internalIdentifiers = getStringArr(shr, "INTERNAL_PATIENT_ID");
-        List<String> motherIdentifiers = getStringArr(shr, "MOTHER_IDENTIFIER");
-        String addressDetails=SHRUtils.getJSON(shr.pATIENT_IDENTIFICATION.pATIENT_ADDRESS);
+        if(!cardSerial.equals(readerWriter.getCardSerial())){
+            SmartCardUtils.displayOut(txtProcessLogger, "This card does not belong to this client!");
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Wrong Card Assignment");
+            alert.setHeaderText("P-Smart Middleware");
+            alert.setContentText("This card does not belong to this client!");
 
-        //write arrays
-        readerWriter.writeArray(immunizationDetails, SmartCardUtils.getUserFile(SmartCardUtils.IMMUNIZATION_USER_FILE_NAME));
-        readerWriter.writeArray(hivTests, SmartCardUtils.getUserFile(SmartCardUtils.HIV_TEST_USER_FILE_NAME));
-        readerWriter.writeArray(internalIdentifiers, SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_INTERNAL_NAME));
-        readerWriter.writeArray(demographics, SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_DEMOGRAPHICS_NAME));
-        readerWriter.writeArray(motherIdentifiers, SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_MOTHER_IDENTIFIER_NAME));
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == ButtonType.OK){
 
-        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.CARD_DETAILS_USER_FILE_NAME), cardDetails, (byte)0x00 );
-        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_EXTERNAL_NAME), patientExternalIdentifiers, (byte)0x00);
-        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_ADDRESS_NAME), addressDetails, (byte)0x00);
-        readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_MOTHER_DETAIL_NAME), motherDetails, (byte)0x00);
-        //TODO: encrypt and compress SHR and send to EMR
-        //byte[] compressedMessage = Compression.Compress(encryptedSHR);
+            } else {
 
-        //prepare UI for next card
-        shr = null;
-        btnWriteToCard.setDisable(true);
-        btnReadCard.setDisable(true);
-        readerWriter = new MainSmartCardReadWrite(txtProcessLogger, cboDeviceReaderList);
-        btnConnectReader.setDisable(true);
-        btnLoadEligibleList.setDisable(true);
+            }
+        } else {
+            System.out.println("From EMR: "+SHRUtils.getJSON(shrFromEMR));
+            SmartCardUtils.displayOut(txtProcessLogger, "Writing to card ... ");
+            readerWriter.formatCard();
+            List<String> demographics = new ArrayList<>();
+            //shrFromEMR = shr;
+            StringBuilder otherDemographics = new StringBuilder();
+            otherDemographics
+                    .append("\"DATE_OF_BIRTH\": \"").append(shrFromEMR.pATIENT_IDENTIFICATION.dATE_OF_BIRTH).append("\"")
+                    .append(", \"DATE_OF_BIRTH_PRECISION\": \"").append(shrFromEMR.pATIENT_IDENTIFICATION.dATE_OF_BIRTH_PRECISION).append("\"")
+                    .append(", \"SEX\": \"").append(shrFromEMR.pATIENT_IDENTIFICATION.sEX).append("\"")
+                    .append(", \"DEATH_DATE\": \"").append(shrFromEMR.pATIENT_IDENTIFICATION.dEATH_DATE).append("\"")
+                    .append(", \"DEATH_INDICATOR\": \"").append(shrFromEMR.pATIENT_IDENTIFICATION.dEATH_INDICATOR).append("\"")
+                    .append(", \"PHONE_NUMBER\": \"").append(shrFromEMR.pATIENT_IDENTIFICATION.pHONE_NUMBER).append("\"")
+                    .append(", \"MARITAL_STATUS\": \"").append(shrFromEMR.pATIENT_IDENTIFICATION.mARITAL_STATUS).append("\"");
+            String patientName = SHRUtils.getJSON(shrFromEMR.pATIENT_IDENTIFICATION.pATIENT_NAME);
+            demographics.add(patientName);
+            demographics.add(otherDemographics.toString());
+            String patientExternalIdentifiers = SHRUtils.getJSON(shrFromEMR.pATIENT_IDENTIFICATION.eXTERNAL_PATIENT_ID);
+            String cardDetails = SHRUtils.getJSON(shrFromEMR.cARD_DETAILS);
+            String motherDetails = SHRUtils.getJSON(shrFromEMR.pATIENT_IDENTIFICATION.mOTHER_DETAILS.mOTHER_NAME);
+            List<String> immunizationDetails = getStringArr(shrFromEMR, "IMMUNIZATION");
+            List<String> hivTests = getStringArr(shrFromEMR, "HIV_TEST");
+            List<String> internalIdentifiers = getStringArr(shrFromEMR, "INTERNAL_PATIENT_ID");
+            List<String> motherIdentifiers = getStringArr(shrFromEMR, "MOTHER_IDENTIFIER");
+            String addressDetails=SHRUtils.getJSON(shrFromEMR.pATIENT_IDENTIFICATION.pATIENT_ADDRESS);
 
+            //write arrays
+            readerWriter.writeArray(immunizationDetails, SmartCardUtils.getUserFile(SmartCardUtils.IMMUNIZATION_USER_FILE_NAME));
+            readerWriter.writeArray(hivTests, SmartCardUtils.getUserFile(SmartCardUtils.HIV_TEST_USER_FILE_NAME));
+            readerWriter.writeArray(internalIdentifiers, SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_INTERNAL_NAME));
+            readerWriter.writeArray(demographics, SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_DEMOGRAPHICS_NAME));
+            readerWriter.writeArray(motherIdentifiers, SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_MOTHER_IDENTIFIER_NAME));
+
+            readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.CARD_DETAILS_USER_FILE_NAME), cardDetails, (byte)0x00 );
+            readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_EXTERNAL_NAME), patientExternalIdentifiers, (byte)0x00);
+            readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_ADDRESS_NAME), addressDetails, (byte)0x00);
+            readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_MOTHER_DETAIL_NAME), motherDetails, (byte)0x00);
+
+            SmartCardUtils.displayOut(txtProcessLogger, "Successfully written to card");
+            System.out.println("After writing: "+SHRUtils.getJSON(shrFromEMR));
+            btnEjectCard.setDisable(false);
+            //TODO: encrypt and compress SHR and send to EMR
+            //byte[] compressedMessage = Compression.Compress(encryptedSHR);
+
+            SmartCardUtils.displayOut(txtProcessLogger, "Sending encrypted SHR to PSMART Store");
+            String purpose = "HTTP POST - Push encrypted SHR to EMR";
+            EncryptedSHR encSHR  = getEncryptedSHR(shrFromEMR);
+            String response = APIClient.postObject(encSHR, purpose);
+            SmartCardUtils.displayOut(txtProcessLogger, response);
+            readerWriter.getCardSerial();
+
+            btnWriteToCard.setDisable(true);
+            btnReadCard.setDisable(true);
+            readerWriter = new MainSmartCardReadWrite(txtProcessLogger, cboDeviceReaderList);
+            btnConnectReader.setDisable(true);
+            btnLoadEligibleList.setDisable(true);
+        }
     }
 
+    public EncryptedSHR getEncryptedSHR(SHR shr) {
+        EncryptedSHR.ADDENDUM addendum = new EncryptedSHR.ADDENDUM(shr.cARD_DETAILS, shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID);
+        String strShr = SHRUtils.getJSON(shr);
+        String encSHRStr = Encryption.encrypt(strShr);
+        EncryptedSHR encSHR = new EncryptedSHR(encSHRStr, addendum);
+        return encSHR;
+    }
     public void LoadEndpointConfig(ActionEvent event) throws ParseException{
         try {
             Stage stage = new Stage();
@@ -530,8 +714,6 @@ public class HomeController  {
             stage.setMaximized(false);
             stage.setResizable(false);
             stage.initModality(Modality.APPLICATION_MODAL);
-            // stage.initOwner(
-            //       ((Node)event.getSource()).getScene().getWindow() );
             stage.show();
 
         }catch (Exception e){
@@ -555,6 +737,11 @@ public class HomeController  {
      *
      */
     public void readCardContent(ActionEvent event) throws ParseException {
+        String readTest = readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.CARD_DETAILS_USER_FILE_NAME), (byte)0x00 );
+        if(readTest.startsWith("ÿÿÿÿÿÿÿÿÿÿ")) {
+            SmartCardUtils.displayOut(txtProcessLogger, "This card is empty!");
+            return;
+        }
         String shrStr = "{\n";
         shrStr += "\t\"CARD_DETAILS\": " +  readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.CARD_DETAILS_USER_FILE_NAME), (byte)0x00 );
         shrStr += ", \t\"IMMUNIZATION\": [" + readerWriter.readArray(SmartCardUtils.getUserFile(SmartCardUtils.IMMUNIZATION_USER_FILE_NAME)) + "]";
@@ -572,22 +759,28 @@ public class HomeController  {
         shrStr += ", \t\"NEXT_OF_KIN\": []";
         shrStr += ", \t\"VERSION\": \"1.0.0\"";
         shrStr += "\n}";
+
         shr = SHRUtils.getSHRObj(shrStr);
-        loadCardDetails();
-        loadIdentifiers();
-        loadHIVTests();
-        showCurrentClient();
+        loadImmunizations(shr);
+        loadMotherIdentifiers(shr);
+        loadIdentifiers(shr);
+        loadHIVTests(shr);
+        showCurrentClient(shr);
+        showCardDetails(shr);
+        tpMainTabPane.getSelectionModel().select(0);
         btnWriteToCard.setDisable(false);
         btnLoadFromEMR.setDisable(false);
         btnPushToEMR.setDisable(false);
-        SmartCardUtils.displayOut(txtProcessLogger, "\nSuccessfully read the Shared Health Record from card\n");
+        btnEjectCard.setDisable(false);
+        SmartCardUtils.displayOut(txtProcessLogger, "Successfully read the Shared Health Record from card");
     }
 
 
     public void formatCard(ActionEvent event) {
         readerWriter.connectReader(btnConnectReader);
-        btnReadCard.setDisable(false);
-        //btnFormatCard.setDisable(false);
+        btnReadCard.setDisable(true);
+        btnFormatCard.setDisable(true);
+        readerWriter.formatCard();
     }
 
     public void getFromEMR(ActionEvent actionEvent){
@@ -596,21 +789,87 @@ public class HomeController  {
         String url = getURL(purpose);
 
         if(!url.isEmpty()){
-            //String cardSerialNo = SHRUtils.getCardSerialNo(shr);
-            //url += (url.endsWith("/")) ? cardSerialNo : "/" + cardSerialNo;
-            url += (url.endsWith("/")) ? "12345678-ADFGHJY-0987654-QWERTY" : "/" + "12345678-ADFGHJY-0987654-QWERTY";
+            String cardSerialNo = readerWriter.getCardSerial();
+            url += (url.endsWith("/")) ? cardSerialNo : "/" + cardSerialNo;
+            System.out.println(url);
             String SHRStr = APIClient.fetchData(url);
-            shr = SHRUtils.getSHRObj(SHRStr);
-            loadCardDetails();
-            loadIdentifiers();
-            loadHIVTests();
-            showCurrentClient();
+            shrFromEMR = SHRUtils.getSHRObj(SHRStr);
+            loadImmunizations(shrFromEMR);
+            loadIdentifiers(shrFromEMR);
+            loadHIVTests(shrFromEMR);
+            loadMotherIdentifiers(shrFromEMR);
+            showCurrentClient(shrFromEMR);
+            showCardDetails(shrFromEMR);
+
+            if(shr != null) {
+                DiffResult diffPID = shrFromEMR.pATIENT_IDENTIFICATION.diff(shr.pATIENT_IDENTIFICATION);
+                DiffResult diffCardDetails = shrFromEMR.cARD_DETAILS.diff(shr.cARD_DETAILS);
+
+                List<String> diffs = new ArrayList<>();
+                for(Diff<?> d: diffPID.getDiffs()) {
+                    diffs.add(d.getFieldName() + " FROM [" + d.getRight() + "] TO [" + d.getLeft() + "]");
+                }
+                for(Diff<?> d: diffCardDetails.getDiffs()) {
+                    diffs.add(d.getFieldName() + " FROM [" + d.getRight() + "] TO [" + d.getLeft() + "]");
+                }
+                if(diffs.size() > 0) {
+                    SmartCardUtils.displayOut(txtProcessLogger, "Changes from the EMR");
+                    for (String diff : diffs) {
+                        SmartCardUtils.displayOut(txtProcessLogger, "\t> "+diff);
+                    }
+                }
+
+                shrFromEMR.hIV_TEST = getFinalHIVTests(shrFromEMR.hIV_TEST, shr.hIV_TEST).toArray(new SHR.HIV_TEST[0]);
+                shrFromEMR.iMMUNIZATION = getFinalImmunizations(shrFromEMR.iMMUNIZATION, shr.iMMUNIZATION).toArray(new SHR.IMMUNIZATION[0]);
+
+                shrFromEMR.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID = getFinalIdentifiers(
+                        shrFromEMR.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID,
+                        shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID).toArray(new SHR.PATIENT_IDENTIFICATION.INTERNAL_PATIENT_ID[0]);
+
+                shrFromEMR.pATIENT_IDENTIFICATION.mOTHER_DETAILS.mOTHER_IDENTIFIER = getFinalMotherIdentifiers(
+                        shrFromEMR.pATIENT_IDENTIFICATION.mOTHER_DETAILS.mOTHER_IDENTIFIER,
+                        shr.pATIENT_IDENTIFICATION.mOTHER_DETAILS.mOTHER_IDENTIFIER).toArray(new SHR.PATIENT_IDENTIFICATION.MOTHER_DETAILS.MOTHER_IDENTIFIER[0]);
+            }
+            tpMainTabPane.getSelectionModel().select(0);
             btnWriteToCard.setDisable(false);
             btnLoadFromEMR.setDisable(true);
             btnPushToEMR.setDisable(true);
-            SmartCardUtils.displayOut(txtProcessLogger, "\nSuccessfully retrieved SHR from the EMR\n");
+            SmartCardUtils.displayOut(txtProcessLogger, "Successfully retrieved SHR from the EMR");
         } else {
-            SmartCardUtils.displayOut(txtProcessLogger, "\nPlease specify the `"+purpose+"` endpoint url!");
+            SmartCardUtils.displayOut(txtProcessLogger, "Please specify the `"+purpose+"` endpoint url!");
         }
+    }
+
+    private List<SHR.HIV_TEST> getFinalHIVTests(SHR.HIV_TEST []EMRTests, SHR.HIV_TEST []cardTests) {
+        List<SHR.HIV_TEST> finalHIVTests = new ArrayList<>();
+        finalHIVTests.addAll(Arrays.asList(EMRTests));
+        finalHIVTests.addAll(Arrays.asList(cardTests));
+        java.util.List<SHR.HIV_TEST> uniqueTests = finalHIVTests.stream().distinct().collect(Collectors.toList());
+        return uniqueTests;
+    }
+
+    private List<SHR.PATIENT_IDENTIFICATION.INTERNAL_PATIENT_ID> getFinalIdentifiers(SHR.PATIENT_IDENTIFICATION.INTERNAL_PATIENT_ID []ids1, SHR.PATIENT_IDENTIFICATION.INTERNAL_PATIENT_ID []ids2) {
+        List<SHR.PATIENT_IDENTIFICATION.INTERNAL_PATIENT_ID> finalIdentifiers = new ArrayList<>();
+        finalIdentifiers.addAll(Arrays.asList(ids1));
+        finalIdentifiers.addAll(Arrays.asList(ids2));
+        java.util.List<SHR.PATIENT_IDENTIFICATION.INTERNAL_PATIENT_ID> uniqueIdentifiers = finalIdentifiers.stream().distinct().collect(Collectors.toList());
+        return uniqueIdentifiers;
+    }
+
+    private List<SHR.PATIENT_IDENTIFICATION.MOTHER_DETAILS.MOTHER_IDENTIFIER> getFinalMotherIdentifiers(
+            SHR.PATIENT_IDENTIFICATION.MOTHER_DETAILS.MOTHER_IDENTIFIER []ids1, SHR.PATIENT_IDENTIFICATION.MOTHER_DETAILS.MOTHER_IDENTIFIER []ids2) {
+        List<SHR.PATIENT_IDENTIFICATION.MOTHER_DETAILS.MOTHER_IDENTIFIER> finalIdentifiers = new ArrayList<>();
+        finalIdentifiers.addAll(Arrays.asList(ids1));
+        finalIdentifiers.addAll(Arrays.asList(ids2));
+        java.util.List<SHR.PATIENT_IDENTIFICATION.MOTHER_DETAILS.MOTHER_IDENTIFIER> uniqueIdentifiers = finalIdentifiers.stream().distinct().collect(Collectors.toList());
+        return uniqueIdentifiers;
+    }
+
+    private List<SHR.IMMUNIZATION> getFinalImmunizations(SHR.IMMUNIZATION []immunizations, SHR.IMMUNIZATION []immunizations1) {
+        List<SHR.IMMUNIZATION> finalImmunization = new ArrayList<>();
+        finalImmunization.addAll(Arrays.asList(immunizations));
+        finalImmunization.addAll(Arrays.asList(immunizations1));
+        java.util.List<SHR.IMMUNIZATION> uniqueImmunizations = finalImmunization.stream().distinct().collect(Collectors.toList());
+        return uniqueImmunizations;
     }
 }

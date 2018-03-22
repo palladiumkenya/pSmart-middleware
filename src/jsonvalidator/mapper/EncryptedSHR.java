@@ -14,8 +14,8 @@ public final class EncryptedSHR {
     }
 
     public static final class ADDENDUM {
-        public final SHR.CARD_DETAILS cARD_DETAILS;
-        public final SHR.PATIENT_IDENTIFICATION.INTERNAL_PATIENT_ID iDENTIFIERS[];
+        public SHR.CARD_DETAILS cARD_DETAILS;
+        public SHR.PATIENT_IDENTIFICATION.INTERNAL_PATIENT_ID iDENTIFIERS[];
 
         @JsonCreator
         public ADDENDUM(@JsonProperty("cARD_DETAILS") SHR.CARD_DETAILS cARD_DETAILS, @JsonProperty("iDENTIFIERS") SHR.PATIENT_IDENTIFICATION.INTERNAL_PATIENT_ID[] iDENTIFIERS){

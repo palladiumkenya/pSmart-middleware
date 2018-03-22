@@ -7,19 +7,24 @@ package jsonvalidator.mapper;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.commons.lang3.builder.DiffBuilder;
+import org.apache.commons.lang3.builder.DiffResult;
+import org.apache.commons.lang3.builder.Diffable;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 /**
  *
  * @author tedb19
  */
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public final class SHR {
-    public final PATIENT_IDENTIFICATION pATIENT_IDENTIFICATION;
-    public final String VERSION;
-    public final NEXT_OF_KIN nEXT_OF_KIN[];
-    public final HIV_TEST hIV_TEST[];
-    public final IMMUNIZATION iMMUNIZATION[];
-    public final MERGE_PATIENT_INFORMATION mERGE_PATIENT_INFORMATION;
-    public final CARD_DETAILS cARD_DETAILS;
+public  class SHR {
+    public PATIENT_IDENTIFICATION pATIENT_IDENTIFICATION;
+    public String VERSION;
+    public NEXT_OF_KIN nEXT_OF_KIN[];
+    public HIV_TEST hIV_TEST[];
+    public IMMUNIZATION iMMUNIZATION[];
+    public MERGE_PATIENT_INFORMATION mERGE_PATIENT_INFORMATION;
+    public CARD_DETAILS cARD_DETAILS;
 
     @JsonProperty("PATIENT_IDENTIFICATION")
     public PATIENT_IDENTIFICATION getpATIENT_IDENTIFICATION() {
@@ -67,19 +72,19 @@ public final class SHR {
         this.cARD_DETAILS = cARD_DETAILS;
     }
 
-    public static final class PATIENT_IDENTIFICATION {
-        public final EXTERNAL_PATIENT_ID eXTERNAL_PATIENT_ID;
-        public final INTERNAL_PATIENT_ID iNTERNAL_PATIENT_ID[];
-        public final PATIENT_NAME pATIENT_NAME;
-        public final String dATE_OF_BIRTH;
-        public final String dATE_OF_BIRTH_PRECISION;
-        public final String sEX;
-        public final String dEATH_DATE;
-        public final String dEATH_INDICATOR;
-        public final PATIENT_ADDRESS pATIENT_ADDRESS;
-        public final String pHONE_NUMBER;
-        public final String mARITAL_STATUS;
-        public final MOTHER_DETAILS mOTHER_DETAILS;
+    public static  class PATIENT_IDENTIFICATION implements Diffable<PATIENT_IDENTIFICATION>{
+        public EXTERNAL_PATIENT_ID eXTERNAL_PATIENT_ID;
+        public  INTERNAL_PATIENT_ID iNTERNAL_PATIENT_ID[];
+        public  PATIENT_NAME pATIENT_NAME;
+        public String dATE_OF_BIRTH;
+        public  String dATE_OF_BIRTH_PRECISION;
+        public String sEX;
+        public  String dEATH_DATE;
+        public  String dEATH_INDICATOR;
+        public  PATIENT_ADDRESS pATIENT_ADDRESS;
+        public  String pHONE_NUMBER;
+        public  String mARITAL_STATUS;
+        public  MOTHER_DETAILS mOTHER_DETAILS;
 
         @JsonCreator
         public PATIENT_IDENTIFICATION(@JsonProperty("EXTERNAL_PATIENT_ID") EXTERNAL_PATIENT_ID eXTERNAL_PATIENT_ID, @JsonProperty("INTERNAL_PATIENT_ID") INTERNAL_PATIENT_ID[] iNTERNAL_PATIENT_ID, @JsonProperty("PATIENT_NAME") PATIENT_NAME pATIENT_NAME, @JsonProperty("DATE_OF_BIRTH") String dATE_OF_BIRTH, @JsonProperty("DATE_OF_BIRTH_PRECISION") String dATE_OF_BIRTH_PRECISION, @JsonProperty("SEX") String sEX, @JsonProperty("DEATH_DATE") String dEATH_DATE, @JsonProperty("DEATH_INDICATOR") String dEATH_INDICATOR, @JsonProperty("PATIENT_ADDRESS") PATIENT_ADDRESS pATIENT_ADDRESS, @JsonProperty("PHONE_NUMBER") String pHONE_NUMBER, @JsonProperty("MARITAL_STATUS") String mARITAL_STATUS, @JsonProperty("MOTHER_DETAILS") MOTHER_DETAILS mOTHER_DETAILS){
@@ -95,6 +100,10 @@ public final class SHR {
             this.pHONE_NUMBER = pHONE_NUMBER;
             this.mARITAL_STATUS = mARITAL_STATUS;
             this.mOTHER_DETAILS = mOTHER_DETAILS;
+        }
+
+        public void setiNTERNAL_PATIENT_ID(INTERNAL_PATIENT_ID[] iNTERNAL_PATIENT_ID) {
+            this.iNTERNAL_PATIENT_ID = iNTERNAL_PATIENT_ID;
         }
 
         @JsonProperty("EXTERNAL_PATIENT_ID")
@@ -156,11 +165,36 @@ public final class SHR {
             return mOTHER_DETAILS;
         }
 
-        public static final class EXTERNAL_PATIENT_ID {
-            public final String iD;
-            public final String iDENTIFIER_TYPE;
-            public final String aSSIGNING_AUTHORITY;
-            public final String aSSIGNING_FACILITY;
+        @Override
+        public DiffResult diff(PATIENT_IDENTIFICATION pid) {
+            return new DiffBuilder(this, pid, ToStringStyle.SHORT_PREFIX_STYLE)
+                    .append("First Name: ", this.pATIENT_NAME.fIRST_NAME, pid.pATIENT_NAME.fIRST_NAME)
+                    .append("Middle Name: ", this.pATIENT_NAME.mIDDLE_NAME, pid.pATIENT_NAME.mIDDLE_NAME)
+                    .append("Last Name: ", this.pATIENT_NAME.lAST_NAME, pid.pATIENT_NAME.lAST_NAME)
+                    .append("DOB: ", this.dATE_OF_BIRTH, pid.dATE_OF_BIRTH)
+                    .append("Sex: ", this.sEX, pid.sEX)
+                    .append("Phone Number: ", this.pHONE_NUMBER, pid.pHONE_NUMBER)
+                    .append("County: ", this.pATIENT_ADDRESS.pHYSICAL_ADDRESS.cOUNTY, pid.pATIENT_ADDRESS.pHYSICAL_ADDRESS.cOUNTY)
+                    .append("Sub county: ", this.pATIENT_ADDRESS.pHYSICAL_ADDRESS.sUB_COUNTY, pid.pATIENT_ADDRESS.pHYSICAL_ADDRESS.sUB_COUNTY)
+                    .append("Nearest Landmark: ", this.pATIENT_ADDRESS.pHYSICAL_ADDRESS.nEAREST_LANDMARK, pid.pATIENT_ADDRESS.pHYSICAL_ADDRESS.nEAREST_LANDMARK)
+                    .append("Village: ", this.pATIENT_ADDRESS.pHYSICAL_ADDRESS.vILLAGE, pid.pATIENT_ADDRESS.pHYSICAL_ADDRESS.vILLAGE)
+                    .append("Ward: ", this.pATIENT_ADDRESS.pHYSICAL_ADDRESS.wARD, pid.pATIENT_ADDRESS.pHYSICAL_ADDRESS.wARD)
+                    .append("Postal Address: ", this.pATIENT_ADDRESS.pOSTAL_ADDRESS, pid.pATIENT_ADDRESS.pOSTAL_ADDRESS)
+                    .append("Mother First Name: ", this.mOTHER_DETAILS.mOTHER_NAME.fIRST_NAME, pid.mOTHER_DETAILS.mOTHER_NAME.fIRST_NAME)
+                    .append("Mother Middle Name: ", this.mOTHER_DETAILS.mOTHER_NAME.mIDDLE_NAME, pid.mOTHER_DETAILS.mOTHER_NAME.mIDDLE_NAME)
+                    .append("Mother Last Name: ", this.mOTHER_DETAILS.mOTHER_NAME.lAST_NAME, pid.mOTHER_DETAILS.mOTHER_NAME.lAST_NAME)
+                    .append("Assigning Authority: ", this.eXTERNAL_PATIENT_ID.aSSIGNING_AUTHORITY, pid.eXTERNAL_PATIENT_ID.aSSIGNING_AUTHORITY)
+                    .append("Assigning Facility: ", this.eXTERNAL_PATIENT_ID.aSSIGNING_FACILITY, pid.eXTERNAL_PATIENT_ID.aSSIGNING_FACILITY)
+                    .append("ID: ", this.eXTERNAL_PATIENT_ID.iD, pid.eXTERNAL_PATIENT_ID.iD)
+                    .append("Identifier Type: ", this.eXTERNAL_PATIENT_ID.iDENTIFIER_TYPE, pid.eXTERNAL_PATIENT_ID.iDENTIFIER_TYPE)
+                    .build();
+        }
+
+        public static  class EXTERNAL_PATIENT_ID implements Diffable<EXTERNAL_PATIENT_ID> {
+            public  String iD;
+            public  String iDENTIFIER_TYPE;
+            public  String aSSIGNING_AUTHORITY;
+            public  String aSSIGNING_FACILITY;
 
             @JsonProperty("ID")
             public String getiD() {
@@ -189,13 +223,23 @@ public final class SHR {
                 this.aSSIGNING_AUTHORITY = aSSIGNING_AUTHORITY;
                 this.aSSIGNING_FACILITY = aSSIGNING_FACILITY;
             }
+
+            @Override
+            public DiffResult diff(EXTERNAL_PATIENT_ID ext) {
+                return new DiffBuilder(this, ext, ToStringStyle.SHORT_PREFIX_STYLE)
+                        .append("Assigning Authority: ", this.aSSIGNING_AUTHORITY, ext.aSSIGNING_AUTHORITY)
+                        .append("Assigning Facility: ", this.aSSIGNING_FACILITY, ext.aSSIGNING_FACILITY)
+                        .append("ID: ", this.iD, ext.iD)
+                        .append("Identifier Type: ", this.iDENTIFIER_TYPE, ext.iDENTIFIER_TYPE)
+                        .build();
+            }
         }
 
-        public static final class INTERNAL_PATIENT_ID {
-            public final String iD;
-            public final String iDENTIFIER_TYPE;
-            public final String aSSIGNING_AUTHORITY;
-            public final String aSSIGNING_FACILITY;
+        public static  class INTERNAL_PATIENT_ID {
+            public  String iD;
+            public  String iDENTIFIER_TYPE;
+            public  String aSSIGNING_AUTHORITY;
+            public  String aSSIGNING_FACILITY;
 
             @JsonProperty("ID")
             public String getiD() {
@@ -223,12 +267,27 @@ public final class SHR {
                 this.aSSIGNING_AUTHORITY = aSSIGNING_AUTHORITY;
                 this.aSSIGNING_FACILITY = aSSIGNING_FACILITY;
             }
+
+            @Override
+            public boolean equals(Object obj) {
+                if (obj instanceof INTERNAL_PATIENT_ID) {
+                    return ((INTERNAL_PATIENT_ID) obj).iDENTIFIER_TYPE.equals(iDENTIFIER_TYPE);
+                }
+                return false;
+            }
+
+            @Override
+            public int hashCode() {
+                int hash = 7;
+                hash = 29 * hash + (this.iDENTIFIER_TYPE).hashCode();
+                return hash;
+            }
         }
 
-        public static final class PATIENT_NAME {
-            public final String fIRST_NAME;
-            public final String mIDDLE_NAME;
-            public final String lAST_NAME;
+        public static  class PATIENT_NAME {
+            public  String fIRST_NAME;
+            public  String mIDDLE_NAME;
+            public  String lAST_NAME;
 
             @JsonProperty("FIRST_NAME")
             public String getfIRST_NAME() {
@@ -253,9 +312,9 @@ public final class SHR {
             }
         }
 
-        public static final class PATIENT_ADDRESS {
-            public final PHYSICAL_ADDRESS pHYSICAL_ADDRESS;
-            public final String pOSTAL_ADDRESS;
+        public static  class PATIENT_ADDRESS {
+            public  PHYSICAL_ADDRESS pHYSICAL_ADDRESS;
+            public  String pOSTAL_ADDRESS;
 
             @JsonProperty("PHYSICAL_ADDRESS")
             public PHYSICAL_ADDRESS getpHYSICAL_ADDRESS() {
@@ -272,13 +331,13 @@ public final class SHR {
                 this.pHYSICAL_ADDRESS = pHYSICAL_ADDRESS;
                 this.pOSTAL_ADDRESS = pOSTAL_ADDRESS;
             }
-    
-            public static final class PHYSICAL_ADDRESS {
-                public final String vILLAGE;
-                public final String wARD;
-                public final String sUB_COUNTY;
-                public final String cOUNTY;
-                public final String nEAREST_LANDMARK;
+
+            public static  class PHYSICAL_ADDRESS {
+                public  String vILLAGE;
+                public  String wARD;
+                public  String sUB_COUNTY;
+                public  String cOUNTY;
+                public  String nEAREST_LANDMARK;
 
                 @JsonProperty("VILLAGE")
                 public String getvILLAGE() {
@@ -316,9 +375,9 @@ public final class SHR {
             }
         }
 
-        public static final class MOTHER_DETAILS {
-            public final MOTHER_NAME mOTHER_NAME;
-            public final MOTHER_IDENTIFIER mOTHER_IDENTIFIER[];
+        public static  class MOTHER_DETAILS {
+            public  MOTHER_NAME mOTHER_NAME;
+            public  MOTHER_IDENTIFIER mOTHER_IDENTIFIER[];
 
             @JsonProperty("MOTHER_NAME")
             public MOTHER_NAME getmOTHER_NAME() {
@@ -335,11 +394,11 @@ public final class SHR {
                 this.mOTHER_NAME = mOTHER_NAME;
                 this.mOTHER_IDENTIFIER = mOTHER_IDENTIFIER;
             }
-    
-            public static final class MOTHER_NAME {
-                public final String fIRST_NAME;
-                public final String mIDDLE_NAME;
-                public final String lAST_NAME;
+
+            public static  class MOTHER_NAME {
+                public  String fIRST_NAME;
+                public  String mIDDLE_NAME;
+                public  String lAST_NAME;
 
                 @JsonProperty("FIRST_NAME")
                 public String getfIRST_NAME() {
@@ -361,12 +420,12 @@ public final class SHR {
                     this.lAST_NAME = lAST_NAME;
                 }
             }
-    
-            public static final class MOTHER_IDENTIFIER {
-                public final String iD;
-                public final String iDENTIFIER_TYPE;
-                public final String aSSIGNING_AUTHORITY;
-                public final String aSSIGNING_FACILITY;
+
+            public static  class MOTHER_IDENTIFIER {
+                public  String iD;
+                public  String iDENTIFIER_TYPE;
+                public  String aSSIGNING_AUTHORITY;
+                public  String aSSIGNING_FACILITY;
 
                 @JsonProperty("ID")
                 public String getiD() {
@@ -393,18 +452,33 @@ public final class SHR {
                     this.aSSIGNING_AUTHORITY = aSSIGNING_AUTHORITY;
                     this.aSSIGNING_FACILITY = aSSIGNING_FACILITY;
                 }
+
+                @Override
+                public boolean equals(Object obj) {
+                    if (obj instanceof MOTHER_IDENTIFIER) {
+                        return ((MOTHER_IDENTIFIER) obj).iDENTIFIER_TYPE.equals(iDENTIFIER_TYPE);
+                    }
+                    return false;
+                }
+
+                @Override
+                public int hashCode() {
+                    int hash = 7;
+                    hash = 29 * hash + (this.iDENTIFIER_TYPE).hashCode();
+                    return hash;
+                }
             }
         }
     }
 
-    public static final class NEXT_OF_KIN {
-        public final NOK_NAME nOK_NAME;
-        public final String rELATIONSHIP;
-        public final String aDDRESS;
-        public final String pHONE_NUMBER;
-        public final String sEX;
-        public final String dATE_OF_BIRTH;
-        public final String cONTACT_ROLE;
+    public static  class NEXT_OF_KIN {
+        public  NOK_NAME nOK_NAME;
+        public  String rELATIONSHIP;
+        public  String aDDRESS;
+        public  String pHONE_NUMBER;
+        public  String sEX;
+        public  String dATE_OF_BIRTH;
+        public  String cONTACT_ROLE;
 
         @JsonProperty("NOK_NAME")
         public NOK_NAME getnOK_NAME() {
@@ -446,10 +520,10 @@ public final class SHR {
             this.cONTACT_ROLE = cONTACT_ROLE;
         }
 
-        public static final class NOK_NAME {
-            public final String fIRST_NAME;
-            public final String mIDDLE_NAME;
-            public final String lAST_NAME;
+        public static  class NOK_NAME {
+            public  String fIRST_NAME;
+            public  String mIDDLE_NAME;
+            public  String lAST_NAME;
 
             @JsonProperty("FIRST_NAME")
             public String getfIRST_NAME() {
@@ -475,13 +549,13 @@ public final class SHR {
         }
     }
 
-    public static final class HIV_TEST {
-        public final String dATE;
-        public final String rESULT;
-        public final String tYPE;
-        public final String fACILITY;
-        public final String sTRATEGY;
-        public final PROVIDER_DETAILS pROVIDER_DETAILS;
+    public static  class HIV_TEST implements Diffable<HIV_TEST> {
+        public  String dATE;
+        public  String rESULT;
+        public  String tYPE;
+        public  String fACILITY;
+        public  String sTRATEGY;
+        public  PROVIDER_DETAILS pROVIDER_DETAILS;
 
         @JsonProperty("DATE")
         public String getdATE() {
@@ -508,6 +582,27 @@ public final class SHR {
             return pROVIDER_DETAILS;
         }
 
+        public static boolean compare(HIV_TEST hivTest, HIV_TEST hivTest1) {
+            if(hivTest.dATE.equals(hivTest1.dATE) && hivTest.fACILITY.equals(hivTest1.fACILITY) && hivTest.tYPE.equals(hivTest1.tYPE)){
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof HIV_TEST) {
+                return ((HIV_TEST) obj).dATE.equals(dATE) && ((HIV_TEST) obj).fACILITY.equals(fACILITY) && ((HIV_TEST) obj).tYPE.equals(tYPE);
+            }
+            return false;
+        }
+        @Override
+        public int hashCode() {
+            int hash = 7;
+            hash = 29 * hash + (this.tYPE + this.fACILITY + this.dATE).hashCode();
+            return hash;
+        }
+
         @JsonCreator
         public HIV_TEST(@JsonProperty("DATE") String dATE, @JsonProperty("RESULT") String rESULT, @JsonProperty("TYPE") String tYPE, @JsonProperty("FACILITY") String fACILITY, @JsonProperty("STRATEGY") String sTRATEGY, @JsonProperty("PROVIDER_DETAILS") PROVIDER_DETAILS pROVIDER_DETAILS){
             this.dATE = dATE;
@@ -518,9 +613,18 @@ public final class SHR {
             this.pROVIDER_DETAILS = pROVIDER_DETAILS;
         }
 
-        public static final class PROVIDER_DETAILS {
-            public final String nAME;
-            public final String iD;
+        @Override
+        public DiffResult diff(HIV_TEST hivTest) {
+            return new DiffBuilder(this, hivTest, ToStringStyle.SHORT_PREFIX_STYLE)
+                    .append("HIV Test Date: ", this.dATE, hivTest.dATE)
+                    .append("HIV Test Facility: ", this.fACILITY, hivTest.fACILITY)
+                    .append("HIV Test Type: ", this.tYPE, hivTest.tYPE)
+                    .build();
+        }
+
+        public static  class PROVIDER_DETAILS {
+            public  String nAME;
+            public  String iD;
 
             @JsonProperty("NAME")
             public String getnAME() {
@@ -540,9 +644,9 @@ public final class SHR {
         }
     }
 
-    public static final class IMMUNIZATION {
-        public final String nAME;
-        public final String dATE_ADMINISTERED;
+    public static  class IMMUNIZATION {
+        public  String nAME;
+        public  String dATE_ADMINISTERED;
 
         @JsonProperty("NAME")
         public String getnAME() {
@@ -558,10 +662,32 @@ public final class SHR {
             this.nAME = nAME;
             this.dATE_ADMINISTERED = dATE_ADMINISTERED;
         }
+
+        public static boolean compare(IMMUNIZATION immunization, IMMUNIZATION immunization1) {
+            if(immunization.dATE_ADMINISTERED.equals(immunization1.dATE_ADMINISTERED) && immunization.nAME.equals(immunization1.nAME)){
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof IMMUNIZATION) {
+                return ((IMMUNIZATION) obj).nAME.equals(nAME) && ((IMMUNIZATION) obj).dATE_ADMINISTERED.equals(dATE_ADMINISTERED);
+            }
+            return false;
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = 7;
+            hash = 29 * hash + (this.nAME + this.dATE_ADMINISTERED).hashCode();
+            return hash;
+        }
     }
 
-    public static final class MERGE_PATIENT_INFORMATION {
-        public final PRIOR_INTERNAL_IDENTIFIERS pRIOR_INTERNAL_IDENTIFIERS[];
+    public static  class MERGE_PATIENT_INFORMATION {
+        public  PRIOR_INTERNAL_IDENTIFIERS pRIOR_INTERNAL_IDENTIFIERS[];
 
         @JsonProperty("PRIOR_INTERNAL_IDENTIFIERS")
         public PRIOR_INTERNAL_IDENTIFIERS[] getpRIOR_INTERNAL_IDENTIFIERS() {
@@ -573,12 +699,12 @@ public final class SHR {
             this.pRIOR_INTERNAL_IDENTIFIERS = pRIOR_INTERNAL_IDENTIFIERS;
         }
 
-        public static final class PRIOR_INTERNAL_IDENTIFIERS {
-            public final String iD;
-            public final String iDENTIFIER_TYPE;
-            public final String aSSIGNING_AUTHORITY;
-            public final String aSSIGNING_FACILITY;
-            public final String rEPLACEMENT_REASON;
+        public static  class PRIOR_INTERNAL_IDENTIFIERS {
+            public  String iD;
+            public  String iDENTIFIER_TYPE;
+            public  String aSSIGNING_AUTHORITY;
+            public  String aSSIGNING_FACILITY;
+            public  String rEPLACEMENT_REASON;
 
             @JsonProperty("ID")
             public String getiD() {
@@ -613,11 +739,11 @@ public final class SHR {
         }
     }
 
-    public static final class CARD_DETAILS {
-        public final String sTATUS;
-        public final String rEASON;
-        public final String lAST_UPDATED;
-        public final String lAST_UPDATED_FACILITY;
+    public static class CARD_DETAILS implements Diffable<CARD_DETAILS> {
+        public String sTATUS;
+        public String rEASON;
+        public String lAST_UPDATED;
+        public String lAST_UPDATED_FACILITY;
 
         @JsonProperty("STATUS")
         public String getsTATUS() {
@@ -642,6 +768,16 @@ public final class SHR {
             this.rEASON = rEASON;
             this.lAST_UPDATED = lAST_UPDATED;
             this.lAST_UPDATED_FACILITY = lAST_UPDATED_FACILITY;
+        }
+
+        @Override
+        public DiffResult diff(CARD_DETAILS card_details) {
+            return new DiffBuilder(this, card_details, ToStringStyle.SHORT_PREFIX_STYLE)
+                    .append("Card Status: ", this.sTATUS, card_details.sTATUS)
+                    .append("Reason: ", this.rEASON, card_details.rEASON)
+                    .append("Last Updated: ", this.lAST_UPDATED, card_details.lAST_UPDATED)
+                    .append("Last Updated Facility: ", this.lAST_UPDATED_FACILITY, card_details.lAST_UPDATED_FACILITY)
+                    .build();
         }
     }
 }
