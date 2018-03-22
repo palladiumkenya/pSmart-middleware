@@ -27,8 +27,6 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
     private ReaderInterface readerInterface;
     ReaderInterface.CHIP_TYPE currentChipType = ReaderInterface.CHIP_TYPE.UNKNOWN;
     private boolean _isConnected = false;
-    private static final String DUMMY_MSG = "{\"PATIENT_IDENTIFICATION\":{\"EXTERNAL_PATIENT_ID\":{\"ID\":\"110ec58a-a0f2-4ac4-8393-c866d813b8d1\",\"IDENTIFIER_TYPE\":\"GODS_NUMBER\",\"ASSIGNING_AUTHORITY\":\"MPI\",\"ASSIGNING_FACILITY\":\"10829\"},\"INTERNAL_PATIENT_ID\":[{\"ID\":\"12345678-ADFGHJY-0987654-NHYI890\",\"IDENTIFIER_TYPE\":\"CARD_SERIAL_NUMBER\",\"ASSIGNING_AUTHORITY\":\"CARD_REGISTRY\",\"ASSIGNING_FACILITY\":\"10829\"},{\"ID\":\"12345678\",\"IDENTIFIER_TYPE\":\"HEI_NUMBER\",\"ASSIGNING_AUTHORITY\":\"MCH\",\"ASSIGNING_FACILITY\":\"10829\"},{\"ID\":\"12345678\",\"IDENTIFIER_TYPE\":\"CCC_NUMBER\",\"ASSIGNING_AUTHORITY\":\"CCC\",\"ASSIGNING_FACILITY\":\"10829\"},{\"ID\":\"001\",\"IDENTIFIER_TYPE\":\"HTS_NUMBER\",\"ASSIGNING_AUTHORITY\":\"HTS\",\"ASSIGNING_FACILITY\":\"10829\"},{\"ID\":\"ABC567\",\"IDENTIFIER_TYPE\":\"ANC_NUMBER\",\"ASSIGNING_AUTHORITY\":\"ANC\",\"ASSIGNING_FACILITY\":\"10829\"}],\"PATIENT_NAME\":{\"FIRST_NAME\":\"THERESA\",\"MIDDLE_NAME\":\"MAY\",\"LAST_NAME\":\"WAIRIMU\"},\"DATE_OF_BIRTH\":\"\",\"DATE_OF_BIRTH_PRECISION\":\"\",\"SEX\":\"F\",\"DEATH_DATE\":\"\",\"DEATH_INDICATOR\":\"N\",\"PATIENT_ADDRESS\":{\"PHYSICAL_ADDRESS\":{\"VILLAGE\":\"KWAKIMANI\",\"WARD\":\"KIMANINI\",\"SUB_COUNTY\":\"KIAMBU EAST\",\"COUNTY\":\"KIAMBU\",\"NEAREST_LANDMARK\":\"KIAMBU EAST\"},\"POSTAL_ADDRESS\":\"789 KIAMBU\"},\"PHONE_NUMBER\":\"254720278654\",\"MARITAL_STATUS\":\"\",\"MOTHER_DETAILS\":{\"MOTHER_NAME\":{\"FIRST_NAME\":\"WAMUYU\",\"MIDDLE_NAME\":\"MARY\",\"LAST_NAME\":\"WAITHERA\"},\"MOTHER_IDENTIFIER\":[{\"ID\":\"1234567\",\"IDENTIFIER_TYPE\":\"NATIONAL_ID\",\"ASSIGNING_AUTHORITY\":\"GOK\",\"ASSIGNING_FACILITY\":\"\"},{\"ID\":\"12345678\",\"IDENTIFIER_TYPE\":\"NHIF\",\"ASSIGNING_AUTHORITY\":\"NHIF\",\"ASSIGNING_FACILITY\":\"\"},{\"ID\":\"12345-67890\",\"IDENTIFIER_TYPE\":\"CCC_NUMBER\",\"ASSIGNING_AUTHORITY\":\"CCC\",\"ASSIGNING_FACILITY\":\"10829\"},{\"ID\":\"12345678\",\"IDENTIFIER_TYPE\":\"PMTCT_NUMBER\",\"ASSIGNING_AUTHORITY\":\"PMTCT\",\"ASSIGNING_FACILITY\":\"10829\"}]}},\"NEXT_OF_KIN\":[{\"NOK_NAME\":{\"FIRST_NAME\":\"WAIGURU\",\"MIDDLE_NAME\":\"KIMUTAI\",\"LAST_NAME\":\"WANJOKI\"},\"RELATIONSHIP\":\"\",\"ADDRESS\":\"4678 KIAMBU\",\"PHONE_NUMBER\":\"25489767899\",\"SEX\":\"F\",\"DATE_OF_BIRTH\":\"19871022\",\"CONTACT_ROLE\":\"T\"}],\"HIV_TEST\":[{\"DATE\":\"20180101\",\"RESULT\":\"POSITIVE\",\"TYPE\":\"SCREENING\",\"FACILITY\":\"10829\",\"STRATEGY\":\"HP\",\"PROVIDER_DETAILS\":{\"NAME\":\"MATTHEW NJOROGE, MD\",\"ID\":\"12345-67890-abcde\"}}],\"IMMUNIZATION\":[{\"NAME\":\"BCG\",\"DATE_ADMINISTERED\":\"20180101\"}],\"CARD_DETAILS\":{\"STATUS\":\"ACTIVE\",\"REASON\":\"\",\"LAST_UPDATED\":\"20180101\",\"LAST_UPDATED_FACILITY\":\"10829\"}}";
-
 
     public MainSmartCardReadWrite(TextArea loggerWidget, JFXComboBox readerList) {
         this.loggerWidget = loggerWidget;
@@ -144,30 +142,29 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
             acos3 = new Acos3(readerInterface);
 
             if (readerInterface._activeTerminal.isCardPresent()) {
-                SmartCardUtils.displayOut(loggerWidget,"Card Present on reader");
+                SmartCardUtils.displayOut(loggerWidget,"Card detected on reader");
             } else {
-                SmartCardUtils.displayOut(loggerWidget,"No Card on reader");
+                SmartCardUtils.displayOut(loggerWidget,"Please insert a card in reader!");
             }
-            SmartCardUtils.displayOut(loggerWidget, "\nSuccessful connection to " + rdrcon);
 
             //Check if card inserted is an ACOS Card
             if(!isAcos3()) {
                 return;
             }
             if(currentChipType == ReaderInterface.CHIP_TYPE.ACOS3COMBI) {
-                SmartCardUtils.displayOut(loggerWidget, "Chip Type: ACOS3 Combi");
+                //SmartCardUtils.displayOut(loggerWidget, "Chip Type: ACOS3 Combi");
             } else {
-                SmartCardUtils.displayOut(loggerWidget, "Chip Type: ACOS3");
+                //SmartCardUtils.displayOut(loggerWidget, "Chip Type: ACOS3");
             }
 
         }
         catch (CardException exception)
         {
-            SmartCardUtils.displayOut(loggerWidget, PcscProvider.GetScardErrMsg(exception) + "\r\n");
+            SmartCardUtils.displayOut(loggerWidget, PcscProvider.GetScardErrMsg(exception));
         }
         catch(Exception exception)
         {
-            SmartCardUtils.displayOut(loggerWidget, "There was an error connecting to card" + "\r\n");
+            SmartCardUtils.displayOut(loggerWidget, "There was an error connecting to card");
             exception.printStackTrace();
         }
     }
@@ -182,8 +179,6 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
             //Send IC Code
             //SmartCardUtils.displayOut(loggerWidget, "\nSubmit Code - IC");
             acos3.submitCode(Acos3.CODE_TYPE.IC, "ACOSTEST");
-
-            SmartCardUtils.displayOut(loggerWidget, "\nClear Card");
             acos3.clearCard();
             acos3.submitCode(Acos3.CODE_TYPE.IC, "ACOSTEST");
             //Select FF 02
@@ -196,7 +191,7 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
 		       Security Option registers defined, Personalization bit is not set */
             //SmartCardUtils.displayOut(loggerWidget, "\nWrite Record");
             acos3.writeRecord((byte)0x00, (byte)0x00, new byte[] {(byte)0x00, (byte)0x00, (byte)0x09, (byte)0x00});
-            SmartCardUtils.displayOut(loggerWidget, "FF 02 is updated\n");
+            //SmartCardUtils.displayOut(loggerWidget, "FF 02 is updated\n");
 
             // Select FF 04
             //SmartCardUtils.displayOut(loggerWidget, "Select File");
@@ -232,10 +227,10 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
             //Write record to Personalization File
             //Number of File = 3
             //Select Personalization File
-            SmartCardUtils.displayOut(loggerWidget, "Initializing 9 user files");
+            //SmartCardUtils.displayOut(loggerWidget, "Initializing 9 user files");
 
             acos3.configurePersonalizationFile(optionRegister, securityOptionRegister, (byte)0x09);
-            SmartCardUtils.displayOut(loggerWidget, "Successfully initialized 7 user files");
+            //SmartCardUtils.displayOut(loggerWidget, "Successfully initialized 7 user files");
 
             acos3.submitCode(Acos3.CODE_TYPE.IC, "ACOSTEST");
             acos3.selectFile(new byte[] { (byte)0xFF, (byte)0x04 });
@@ -243,53 +238,49 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
 			// Write to FF 04
 		    //   Write to first record of FF 04 (AA 00)
             acos3.writeRecord((byte)0x00, (byte)0x00, new byte[] { (byte)0xFF, (byte)0x0A, (byte)0x00, (byte)0x00, (byte)0xAA, (byte)0x00, (byte)0x00 });
-            SmartCardUtils.displayOut(loggerWidget, "User file for Card details defined");
+            //SmartCardUtils.displayOut(loggerWidget, "User file for Card details defined");
 
             // Write to second record of FF 04 (BB 22)
             acos3.writeRecord((byte)0x01, (byte)0x00, new byte[] { (byte)0xFF, (byte)0x20, (byte)0x00, (byte)0x00, (byte)0xBB, (byte)0x00, (byte)0x00 });
-            SmartCardUtils.displayOut(loggerWidget, "User file for Immunization defined");
+            //SmartCardUtils.displayOut(loggerWidget, "User file for Immunization defined");
 
             // write to third record of FF 04 (CC 33)
             acos3.writeRecord((byte)0x02, (byte)0x00, new byte[] { (byte)0xFF, (byte)0x0A, (byte)0x00, (byte)0x00, (byte)0xCC, (byte)0x00, (byte)0x00 });
-            SmartCardUtils.displayOut(loggerWidget, "User file for hiv tests defined");
+            //SmartCardUtils.displayOut(loggerWidget, "User file for hiv tests defined");
 
             // write to fourth record of FF 04 (DD 44)
             acos3.writeRecord((byte)0x03, (byte)0x00, new byte[] { (byte)0xFF, (byte)0x40, (byte)0x00, (byte)0x00, (byte)0xDD, (byte)0x00, (byte)0x00 });
-            SmartCardUtils.displayOut(loggerWidget, "User file for external identifiers defined");
+            //SmartCardUtils.displayOut(loggerWidget, "User file for external identifiers defined");
 
             // write to fifth record of FF 04 (DD 44)
             acos3.writeRecord((byte)0x04, (byte)0x00, new byte[] { (byte)0xFF, (byte)0x40, (byte)0x00, (byte)0x00, (byte)0xDD, (byte)0x11, (byte)0x00 });
-            SmartCardUtils.displayOut(loggerWidget, "User file for internal identifiers defined");
+            //SmartCardUtils.displayOut(loggerWidget, "User file for internal identifiers defined");
 
             // write to sixth record of FF 04 (DD 44)
             acos3.writeRecord((byte)0x05, (byte)0x00, new byte[] { (byte)0xFF, (byte)0x40, (byte)0x00, (byte)0x00, (byte)0xDD, (byte)0x22, (byte)0x00 });
-            SmartCardUtils.displayOut(loggerWidget, "User file for patient names defined");
+            //SmartCardUtils.displayOut(loggerWidget, "User file for patient names defined");
 
             // write to seventh record of FF 04 (DD 44)
             acos3.writeRecord((byte)0x06, (byte)0x00, new byte[] { (byte)0xFF, (byte)0x40, (byte)0x00, (byte)0x00, (byte)0xDD, (byte)0x33, (byte)0x00 });
-            SmartCardUtils.displayOut(loggerWidget, "User file for address defined");
+            //SmartCardUtils.displayOut(loggerWidget, "User file for address defined");
 
             // write to eighth record of FF 04 (EE 00)
             acos3.writeRecord((byte)0x07, (byte)0x00, new byte[] { (byte)0xFF, (byte)0x40, (byte)0x00, (byte)0x00, (byte)0xEE, (byte)0x00, (byte)0x00 });
-            SmartCardUtils.displayOut(loggerWidget, "User file for mother details defined");
+            //SmartCardUtils.displayOut(loggerWidget, "User file for mother details defined");
 
             // write to Nineth record of FF 04 (EE 11)
             acos3.writeRecord((byte)0x08, (byte)0x00, new byte[] { (byte)0xFF, (byte)0x40, (byte)0x00, (byte)0x00, (byte)0xEE, (byte)0x11, (byte)0x00 });
-            SmartCardUtils.displayOut(loggerWidget, "User file for mother identifiers defined");
+            //SmartCardUtils.displayOut(loggerWidget, "User file for mother identifiers defined");
 
-            SmartCardUtils.displayOut(loggerWidget, "All user files successfully defined");
-
-
-
-
+            SmartCardUtils.displayOut(loggerWidget, "Card formatted successfully");
         }
         catch (CardException exception)
         {
-            SmartCardUtils.displayOut(loggerWidget, PcscProvider.GetScardErrMsg(exception) + "\r\n");
+            SmartCardUtils.displayOut(loggerWidget, PcscProvider.GetScardErrMsg(exception));
         }
         catch(Exception exception)
         {
-            SmartCardUtils.displayOut(loggerWidget, exception.getMessage().toString() + "\r\n");
+            SmartCardUtils.displayOut(loggerWidget, exception.getMessage().toString());
         }
     }
     /**
@@ -316,8 +307,8 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
         }
         catch(Exception exception)
         {
-            SmartCardUtils.displayOut(loggerWidget, exception.getMessage().toString() + "\r\n");
-            //exception.printStackTrace();
+            //SmartCardUtils.displayOut(loggerWidget, exception.getMessage().toString());
+            exception.printStackTrace();
         }
         return readMsg;
     }
@@ -373,7 +364,7 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
             //Validate input
             if (textToWrite.equals("") || textToWrite.isEmpty())
             {
-                SmartCardUtils.displayOut(loggerWidget, "Data to be written not found." + "\r\n");
+                SmartCardUtils.displayOut(loggerWidget, "Data to be written not found.");
                 return;
             }
 
@@ -389,19 +380,19 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
             // Select user file
             //TODO:displayOut(0, 0, "\nSelect File");
             acos3.selectFile(fileId);
-            SmartCardUtils.displayOut(loggerWidget, "Binary file (DD 55) selected" + "\r\n");
+            SmartCardUtils.displayOut(loggerWidget, "Binary file (DD 55) selected");
             acos3.writeBinary((byte) hiByte, (byte) loByte, dataToWrite);
 
-            SmartCardUtils.displayOut(loggerWidget, "Patient data successfully written to binary card" + "\r\n");
+            SmartCardUtils.displayOut(loggerWidget, "Patient data successfully written to binary card");
 
         }
         catch (CardException exception)
         {
-            SmartCardUtils.displayOut(loggerWidget, PcscProvider.GetScardErrMsg(exception) + "\r\n");
+            SmartCardUtils.displayOut(loggerWidget, PcscProvider.GetScardErrMsg(exception));
         }
         catch(Exception exception)
         {
-            SmartCardUtils.displayOut(loggerWidget, "An error occured" + "\r\n");
+            SmartCardUtils.displayOut(loggerWidget, "An error occured");
             exception.printStackTrace();
         }
     }
@@ -423,7 +414,7 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
             //Validate input
             if (textToWrite.equals("") || textToWrite.isEmpty())
             {
-                SmartCardUtils.displayOut(loggerWidget, "Data to be written not found." + "\r\n");
+                SmartCardUtils.displayOut(loggerWidget, "Data to be written not found.");
                 return;
             }
 
@@ -450,7 +441,7 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
 
             acos3.writeRecord(recordNumber, (byte)0x00, tmpArray);
 
-            SmartCardUtils.displayOut(loggerWidget, userFile.getDescription() + " successfully written to card" + "\r\n");
+            //SmartCardUtils.displayOut(loggerWidget, userFile.getDescription() + " successfully written to card");
         }
         catch (CardException exception)
         {
@@ -479,12 +470,12 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
 
     @Override
     public void onSendCommand(ReaderEvents.TransmitApduEventArg event) {
-        SmartCardUtils.displayOut(loggerWidget, event.getAsString(true));
+        //SmartCardUtils.displayOut(loggerWidget, event.getAsString(true));
     }
 
     @Override
     public void onReceiveCommand(ReaderEvents.TransmitApduEventArg event) {
-        SmartCardUtils.displayOut(loggerWidget, event.getAsString(true) + "\r\n");
+        //SmartCardUtils.displayOut(loggerWidget, event.getAsString(true) + "\r\n");
     }
 
 

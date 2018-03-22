@@ -35,9 +35,9 @@ public class SmartCardUtils {
 
 
     public static void displayOut(TextArea logWidget, String printText) {
-
-            logWidget.appendText("<< " + printText + "\n");
-
+        logWidget.setStyle("-fx-text-inner-color: green;");
+        logWidget.appendText( printText + "\n");
+        logWidget.appendText("__________________________________________" + "\n");
     }
 
     public static UserFile getUserFile (String name) {

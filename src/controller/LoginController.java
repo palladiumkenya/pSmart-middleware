@@ -39,6 +39,15 @@ public class LoginController {
 
     private String displayName;
 
+    private String facility;
+
+    public String getFacility() {
+        return facility;
+    }
+
+    public void setFacility(String facility) {
+        this.facility = facility;
+    }
 
     public String getDisplayName() {
         return displayName;
@@ -61,7 +70,6 @@ public class LoginController {
             authRequest.put("USERNAME", username.getText());
             authRequest.put("PASSWORD", password.getText());
 
-            System.out.print(authRequest);
             String response = APIClient.postObject(authRequest, purpose);
 
             JSONParser parser = new JSONParser();
@@ -70,7 +78,7 @@ public class LoginController {
                 Object obj = parser.parse(response);
                 JSONObject obj2 = (JSONObject)obj;
                 displayName = obj2.get("DISPLAYNAME").toString();
-
+                facility = obj2.get("FACILITY").toString();
                 isAuthenticated = Boolean.valueOf(obj2.get("STATUS").toString());
             }catch(ParseException pe){
                 System.out.println("position: " + pe.getPosition());
@@ -96,7 +104,7 @@ public class LoginController {
             landingPageStage.setScene(landingPageScene);
             landingPageStage.setResizable(false);
             HomeController controller = root.<HomeController>getController();
-            controller.initVariable(this.displayName);
+            controller.initVariable(this.displayName, this.facility);
             //landingPageStage.setMaximized(true);
 
             // Get current screen of the stage

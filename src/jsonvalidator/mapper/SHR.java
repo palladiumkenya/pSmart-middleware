@@ -102,6 +102,10 @@ public  class SHR {
             this.mOTHER_DETAILS = mOTHER_DETAILS;
         }
 
+        public void setiNTERNAL_PATIENT_ID(INTERNAL_PATIENT_ID[] iNTERNAL_PATIENT_ID) {
+            this.iNTERNAL_PATIENT_ID = iNTERNAL_PATIENT_ID;
+        }
+
         @JsonProperty("EXTERNAL_PATIENT_ID")
         public EXTERNAL_PATIENT_ID geteXTERNAL_PATIENT_ID() {
             return eXTERNAL_PATIENT_ID;

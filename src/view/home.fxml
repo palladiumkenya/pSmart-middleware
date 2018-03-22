@@ -235,7 +235,7 @@
                     <font>
                         <Font name="System Bold" size="15.0" />
                     </font></Button>
-                <Button fx:id="btnLoadFromEMR" contentDisplay="TOP" disable="true" layoutX="23.0" layoutY="225.0" mnemonicParsing="false" onAction="#getFromEMR" prefHeight="62.0" prefWidth="265.0" text="Load From EMR">
+                <Button fx:id="btnLoadFromEMR" contentDisplay="TOP" disable="true" layoutX="23.0" layoutY="291.0" mnemonicParsing="false" onAction="#getFromEMR" prefHeight="62.0" prefWidth="265.0" text="Load From EMR">
                     <graphic>
                         <FontAwesomeIconView glyphName="CLONE" size="20.0" />
                     </graphic>
@@ -325,7 +325,7 @@
                         </GridPane>
                     </children>
                 </AnchorPane>
-                <TextArea fx:id="txtProcessLogger" layoutX="23.0" layoutY="376.0" prefHeight="569.0" prefWidth="265.0" promptText="logger" AnchorPane.bottomAnchor="9.0" AnchorPane.topAnchor="376.0">
+                <TextArea fx:id="txtProcessLogger" layoutX="23.0" layoutY="436.0" prefHeight="511.0" prefWidth="265.0" promptText="logger" wrapText="true" AnchorPane.bottomAnchor="9.0" AnchorPane.topAnchor="436.0">
                     <font>
                         <Font size="14.0" />
                     </font>
@@ -365,7 +365,7 @@
                         </AnchorPane>
                     </children>
                 </GridPane>
-            <Button fx:id="btnLoadEligibleList" contentDisplay="TOP" disable="true" layoutX="23.0" layoutY="296.0" mnemonicParsing="false" onAction="#getEligibleList" prefHeight="62.0" prefWidth="265.0" text="Load Eligible Clients">
+            <Button fx:id="btnLoadEligibleList" contentDisplay="TOP" disable="true" layoutX="23.0" layoutY="362.0" mnemonicParsing="false" onAction="#getEligibleList" prefHeight="62.0" prefWidth="265.0" text="Load Eligible Clients">
                <graphic>
                   <FontAwesomeIconView glyphName="USERS" size="20.0" text="" />
                </graphic>
@@ -376,6 +376,14 @@
             <Button fx:id="btnEjectCard" contentDisplay="TOP" disable="true" layoutX="623.0" layoutY="900.0" mnemonicParsing="false" onAction="#nextCard" prefHeight="56.0" prefWidth="158.0" text="Next Card">
                <graphic>
                   <FontAwesomeIconView glyphName="DATABASE" size="20.0" />
+               </graphic>
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </Button>
+            <Button fx:id="btnFormatCard" contentDisplay="TOP" disable="true" layoutX="23.0" layoutY="222.0" mnemonicParsing="false" onAction="#formatCard" prefHeight="56.0" prefWidth="265.0" text="Format Card">
+               <graphic>
+                  <FontAwesomeIconView glyphName="SERVER" size="20.0" />
                </graphic>
                <font>
                   <Font name="System Bold" size="15.0" />
