@@ -308,6 +308,7 @@ public class MainSmartCardReadWrite implements ReaderEvents.TransmitApduHandler 
         catch(Exception exception)
         {
             //SmartCardUtils.displayOut(loggerWidget, exception.getMessage().toString());
+            System.out.println("here it is...");
             exception.printStackTrace();
         }
         return readMsg;
