@@ -638,7 +638,7 @@ public class HomeController  {
 
             }
         } else {
-            System.out.println(SHRUtils.getJSON(shrFromEMR));
+            System.out.println("From EMR: "+SHRUtils.getJSON(shrFromEMR));
             SmartCardUtils.displayOut(txtProcessLogger, "Writing to card ... ");
             readerWriter.formatCard();
             List<String> demographics = new ArrayList<>();
@@ -677,6 +677,7 @@ public class HomeController  {
             readerWriter.writeCard(SmartCardUtils.getUserFile(SmartCardUtils.IDENTIFIERS_USER_FILE_MOTHER_DETAIL_NAME), motherDetails, (byte)0x00);
 
             SmartCardUtils.displayOut(txtProcessLogger, "Successfully written to card");
+            System.out.println("After writing: "+SHRUtils.getJSON(shrFromEMR));
             btnEjectCard.setDisable(false);
             //TODO: encrypt and compress SHR and send to EMR
             //byte[] compressedMessage = Compression.Compress(encryptedSHR);
@@ -736,6 +737,11 @@ public class HomeController  {
      *
      */
     public void readCardContent(ActionEvent event) throws ParseException {
+        String readTest = readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.CARD_DETAILS_USER_FILE_NAME), (byte)0x00 );
+        if(readTest.startsWith("ÿÿÿÿÿÿÿÿÿÿ")) {
+            SmartCardUtils.displayOut(txtProcessLogger, "This card is empty!");
+            return;
+        }
         String shrStr = "{\n";
         shrStr += "\t\"CARD_DETAILS\": " +  readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.CARD_DETAILS_USER_FILE_NAME), (byte)0x00 );
         shrStr += ", \t\"IMMUNIZATION\": [" + readerWriter.readArray(SmartCardUtils.getUserFile(SmartCardUtils.IMMUNIZATION_USER_FILE_NAME)) + "]";
@@ -753,6 +759,7 @@ public class HomeController  {
         shrStr += ", \t\"NEXT_OF_KIN\": []";
         shrStr += ", \t\"VERSION\": \"1.0.0\"";
         shrStr += "\n}";
+
         shr = SHRUtils.getSHRObj(shrStr);
         loadImmunizations(shr);
         loadMotherIdentifiers(shr);

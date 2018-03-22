@@ -55,9 +55,7 @@ public class APIClient {
             conn.disconnect();
 
         } catch (MalformedURLException e) {
-
             System.out.println("MalformedURLException: " + e.getMessage());
-
         } catch (IOException e) {
 
             System.out.println("IOException: " + e.getMessage());
@@ -109,9 +107,9 @@ public class APIClient {
             br.close();
             conn.disconnect();
         } catch (MalformedURLException e) {
-            System.out.println(e.getMessage());
+            response.append(e.getMessage());
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            response.append(e.getMessage());
         }
         return response.toString();
     }
