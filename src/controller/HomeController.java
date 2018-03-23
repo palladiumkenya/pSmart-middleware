@@ -738,7 +738,8 @@ public class HomeController  {
      */
     public void readCardContent(ActionEvent event) throws ParseException {
         String readTest = readerWriter.readCard(SmartCardUtils.getUserFile(SmartCardUtils.CARD_DETAILS_USER_FILE_NAME), (byte)0x00 );
-        if(readTest.startsWith("ÿÿÿÿÿÿÿÿÿÿ")) {
+
+        if(readTest.startsWith("ÿÿÿÿÿÿÿÿÿÿ") || readTest.equals("") || readTest.isEmpty() || readTest == null) {
             SmartCardUtils.displayOut(txtProcessLogger, "This card is empty!");
             return;
         }
@@ -790,8 +791,11 @@ public class HomeController  {
 
         if(!url.isEmpty()){
             String cardSerialNo = readerWriter.getCardSerial();
-            url += (url.endsWith("/")) ? cardSerialNo : "/" + cardSerialNo;
-            url = (url.endsWith("=")) ? url.concat(cardSerialNo) : url;
+            if(url.endsWith("=")){
+                url = (url.endsWith("=")) ? url.concat(cardSerialNo) : url;
+            } else {
+                url += (url.endsWith("/")) ? cardSerialNo : "/" + cardSerialNo;
+            }
             System.out.println(url);
             String SHRStr = APIClient.fetchData(url);
             shrFromEMR = SHRUtils.getSHRObj(SHRStr);
@@ -813,13 +817,14 @@ public class HomeController  {
                 for(Diff<?> d: diffCardDetails.getDiffs()) {
                     diffs.add(d.getFieldName() + " FROM [" + d.getRight() + "] TO [" + d.getLeft() + "]");
                 }
+                String formattedDiffs = "";
                 if(diffs.size() > 0) {
-                    SmartCardUtils.displayOut(txtProcessLogger, "Changes from the EMR");
+                    formattedDiffs.concat("Changes from the EMR:\n");
                     for (String diff : diffs) {
-                        SmartCardUtils.displayOut(txtProcessLogger, "\t> "+diff);
+                        formattedDiffs.concat("- ").concat(diff).concat("\n");
                     }
+                    SmartCardUtils.displayOut(txtProcessLogger, formattedDiffs);
                 }
-
                 shrFromEMR.hIV_TEST = getFinalHIVTests(shrFromEMR.hIV_TEST, shr.hIV_TEST).toArray(new SHR.HIV_TEST[0]);
                 shrFromEMR.iMMUNIZATION = getFinalImmunizations(shrFromEMR.iMMUNIZATION, shr.iMMUNIZATION).toArray(new SHR.IMMUNIZATION[0]);
 

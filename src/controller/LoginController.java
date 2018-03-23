@@ -59,6 +59,7 @@ public class LoginController {
 
     public void validateLogin(ActionEvent actionEvent) {
         Boolean isAuthenticated = false;
+        //goToLandingPage(null);
 
         if (username.getText().isEmpty() == true || password.getText().isEmpty() == true ) {
             lblMsg.setText("Please supply both the username and the password!");
