@@ -1,0 +1,9 @@
+[
+  {"endpointUrl":"http://192.168.1.45:8080/openmrs/ws/rest/v1/smartcard/authenticateuser","endpointPurpose":"HTTP POST - Push Authentication credentials to EMR, get back an auth token"},
+  {"endpointUrl":"http://192.168.1.45:8080/openmrs/ws/rest/v1/smartcard/getshrusingcardserial/","endpointPurpose":"HTTP GET - Fetch SHR from EMR. Takes Card serial as parameter"},
+  {"endpointUrl":"http://192.168.1.45:8080/openmrs/ws/rest/v1/smartcard/getsmartcardeligiblelist","endpointPurpose":"HTTP GET - Fetch eligible list from EMR"},
+  {"endpointUrl":"http://192.168.1.45:8080/openmrs/ws/rest/v1/smartcard/processshr","endpointPurpose":"HTTP POST - Push SHR to EMR"},
+  {"endpointUrl":"hjhvhgvhg","endpointPurpose":"HTTP GET - Fetch inactive cards from Registry"},
+  {"endpointUrl":"hbbhbhjb","endpointPurpose":"HTTP POST - Push encrypted SHR to EMR"},
+  {"endpointUrl":"hjbhhvhgvh","endpointPurpose":"HTTP POST - Push the card assignment details to EMR"}
+]
