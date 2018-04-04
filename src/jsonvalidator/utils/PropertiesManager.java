@@ -14,42 +14,7 @@ import java.util.Properties;
 public class PropertiesManager {
     public static final String FILE_SEPARATOR = File.separator;
     public static final String CONF_PATH = "conf" + FILE_SEPARATOR;
-    private static final String STATIC_PROPERTIES_FILE = "psmart.properties";
     private static final String JSON_FILE = ".endpoints.json";
-    private static Properties properties;
-
-    public static final String DB_PASSWORD = getProperties().getProperty("password");
-    public static final String DB_USERNAME = getProperties().getProperty("username");
-    public static final String DB_HOST = getProperties().getProperty("host");
-    public static final String DB_PORT = getProperties().getProperty("port");
-    public static final String DB_NAME = getProperties().getProperty("dbName");
-
-    /*
-     * Reads all the properties from the iqcarecompanion file,
-     * and stores them in memory.
-     * Hits the properties file only once
-     */
-    protected static synchronized Properties getProperties(){
-
-        if (properties != null) {
-            return properties;
-        }
-        String propFileLocation = CONF_PATH + STATIC_PROPERTIES_FILE;
-        try{
-            FileInputStream input = new FileInputStream(propFileLocation);
-            properties = new Properties();
-            properties.load(input);
-
-        } catch(IOException ex){
-            StringBuilder sb = new StringBuilder();
-            sb.append(" Oooops! The ")
-                    .append(STATIC_PROPERTIES_FILE)
-                    .append(" file could not be found at ")
-                    .append(CONF_PATH);
-            System.out.println(sb.toString());
-        }
-        return properties;
-    }
 
     public static List<Endpoint> readJSONFile(){
         List<Endpoint> endpoints = new ArrayList<>();
@@ -73,7 +38,6 @@ public class PropertiesManager {
 
     public static void writeFile(String content) {
         File file = new File(CONF_PATH + JSON_FILE);
-
         try (FileOutputStream fop = new FileOutputStream(file)) {
 
             if (!file.exists()) {
@@ -95,5 +59,4 @@ public class PropertiesManager {
             e.printStackTrace();
         }
     }
-
 }
