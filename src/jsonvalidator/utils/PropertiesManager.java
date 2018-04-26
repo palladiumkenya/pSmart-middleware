@@ -26,7 +26,40 @@ public class PropertiesManager {
                 endpoints = mapper.readValue(jsonData, new TypeReference<List<Endpoint>>() {});
             } else {
                 System.out.println("The json file does not exist. Attempting to create it... ");
-                String content = "[{\"endpointUrl\":\"\",\"endpointPurpose\":\"HTTP POST - Push Authentication credentials to EMR, get back an auth token\"},{\"endpointUrl\":\"\",\"endpointPurpose\":\"HTTP GET - Fetch SHR from EMR. Takes Card serial as parameter\"},{\"endpointUrl\":\"\",\"endpointPurpose\":\"HTTP GET - Fetch eligible list from EMR\"},{\"endpointUrl\":\"\",\"endpointPurpose\":\"HTTP POST - Push SHR to EMR\"},{\"endpointUrl\":\"\",\"endpointPurpose\":\"HTTP GET - Fetch inactive cards from Registry\"},{\"endpointUrl\":\"\",\"endpointPurpose\":\"HTTP POST - Push encrypted SHR to EMR\"},{\"endpointUrl\":\"\",\"endpointPurpose\":\"HTTP POST - Push the card assignment details to EMR\"}]";
+                String content = "[\n" +
+                        "  {\n" +
+                        "    \"endpointUrl\": \"\",\n" +
+                        "    \"endpointPurpose\": \"Facility Name\"\n" +
+                        "  },\n" +
+                        "  {\n" +
+                        "    \"endpointUrl\": \"http://localhost:1155/api/psmart/authentication/authenticate\",\n" +
+                        "    \"endpointPurpose\": \"HTTP POST - Push Authentication credentials to EMR, get back an auth token\"\n" +
+                        "  },\n" +
+                        "  {\n" +
+                        "    \"endpointUrl\": \"http://localhost:1155/api/psmart/CardSerial/LoadFromEmr?CARD_SERIAL_NO=\",\n" +
+                        "    \"endpointPurpose\": \"HTTP GET - Fetch SHR from EMR. Takes Card serial as parameter\"\n" +
+                        "  },\n" +
+                        "  {\n" +
+                        "    \"endpointUrl\": \"http://localhost:1155/api/psmart/PushToEmr/ClientEligibleList/\",\n" +
+                        "    \"endpointPurpose\": \"HTTP GET - Fetch eligible list from EMR\"\n" +
+                        "  },\n" +
+                        "  {\n" +
+                        "    \"endpointUrl\": \"http://localhost:1155/api/psmart/pushToemr/ReceiveSHR\",\n" +
+                        "    \"endpointPurpose\": \"HTTP POST - Push SHR to EMR\"\n" +
+                        "  },\n" +
+                        "  {\n" +
+                        "    \"endpointUrl\": \"werwerwer\",\n" +
+                        "    \"endpointPurpose\": \"HTTP GET - Fetch inactive cards from Registry\"\n" +
+                        "  },\n" +
+                        "  {\n" +
+                        "    \"endpointUrl\": \"http://localhost:1155/api/psmart/EncrypteShr\",\n" +
+                        "    \"endpointPurpose\": \"HTTP POST - Push encrypted SHR to EMR\"\n" +
+                        "  },\n" +
+                        "  {\n" +
+                        "    \"endpointUrl\": \"http://localhost:1155/api/psmart/CardSerial/ProcessCardSerialNumber\",\n" +
+                        "    \"endpointPurpose\": \"HTTP POST - Push the card assignment details to EMR\"\n" +
+                        "  }\n" +
+                        "]";
                 writeFile(content);
                 endpoints = mapper.readValue(content.getBytes(), new TypeReference<List<Endpoint>>(){});
             }

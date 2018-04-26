@@ -46,7 +46,7 @@ public class ApiEndpointController {
         assert endpointPurpose != null : "fx:id=\"endpointPurpose\" was not injected: check your FXML file 'ApiEndpoints.fxml'.";
 
         GridClientLastEncounter.getSelectionModel().setCellSelectionEnabled(true);
-        endpointUrl.setCellFactory(EditCell.<EndpointConfig, String> forTableColumn(new Converter()));
+        endpointUrl.setCellFactory(EditCell.<EndpointConfig, String> forTableColumn(new Converter(endpointPurpose.getText())));
 
         endpointUrl.setOnEditCommit(event -> {
         final String value = event.getNewValue() != null ? event.getNewValue() :

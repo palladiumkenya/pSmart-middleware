@@ -1,13 +1,6 @@
 package jsonvalidator.utils;
 
-import dbConnection.DBConnection;
 import models.Endpoint;
-
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class EndpointUtils {
     public static String getURL(String purpose) {
@@ -21,24 +14,4 @@ public class EndpointUtils {
         }
         return url;
     }
-
-    /*
-    public static List<Endpoint> getEndPoints() {
-        Endpoint endpoint;
-        List<Endpoint> endpoints = new ArrayList<Endpoint>();
-        try {
-            Connection dbConn = DBConnection.connect();
-            String sql = "Select * from endpoints WHERE void=0";
-            ResultSet rs = dbConn.createStatement().executeQuery(sql);
-            while(rs.next()){
-                endpoint = new Endpoint();
-                endpoint.setEndpointPurpose(rs.getString("endpointPurpose"));
-                endpoint.setEndpointUrl(rs.getString("endpointUrl"));
-                endpoints.add(endpoint);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return endpoints;
-    }*/
 }

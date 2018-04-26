@@ -5,7 +5,6 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.codec.binary.Base64;
 
 public class Encryption {
-
     public static final String SHR_KEY = "!A%D*F-JaNdRgUkX";
     private static final String intializationVector = "PdSgVkXp2s5v8y/B";
 

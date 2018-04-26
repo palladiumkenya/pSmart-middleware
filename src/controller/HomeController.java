@@ -2,6 +2,8 @@ package controller;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -14,6 +16,7 @@ import jsonvalidator.mapper.CardAssignment;
 import jsonvalidator.mapper.EligibleList;
 import jsonvalidator.mapper.EncryptedSHR;
 import jsonvalidator.mapper.SHR;
+import jsonvalidator.utils.DateFormater;
 import jsonvalidator.utils.Encryption;
 import jsonvalidator.utils.SHRUtils;
 import models.CardDetail;
@@ -67,6 +70,9 @@ public class HomeController  {
     private Label lblCurrentPatient;
 
     @FXML
+    private TextField txtSearch;
+
+    @FXML
     private TabPane tpMainTabPane;
 
     @FXML
@@ -77,9 +83,6 @@ public class HomeController  {
 
     @FXML
     private Label lblSex;
-
-    @FXML
-    private Button btnFormatCard;
 
     @FXML
     private Button btnEjectCard;
@@ -235,7 +238,7 @@ public class HomeController  {
         lblStatus.setText("Card Status: " + shr.cARD_DETAILS.sTATUS);
 
         lblLastUpdated.setVisible(true);
-        lblLastUpdated.setText("Last Updated On: "+ shr.cARD_DETAILS.lAST_UPDATED);
+        lblLastUpdated.setText("Last Updated On: "+ DateFormater.formatDate(shr.cARD_DETAILS.lAST_UPDATED));
     }
 
     private final ObservableList<Immunization> getImmunizations(SHR shr){
@@ -243,7 +246,7 @@ public class HomeController  {
         for(int i=0; i < shr.iMMUNIZATION.length;i++ ){
             Immunization immunization = new Immunization(
                     shr.iMMUNIZATION[i].nAME,
-                    shr.iMMUNIZATION[i].dATE_ADMINISTERED
+                    DateFormater.formatDate(shr.iMMUNIZATION[i].dATE_ADMINISTERED)
             );
             immunizations.add(immunization);
         }
@@ -308,11 +311,12 @@ public class HomeController  {
 
     @FXML
     private void nextCard(ActionEvent ae) {
+        ObservableList<EligiblePerson> eligiblePersons = FXCollections.observableArrayList();
+        GridEligibleList.setItems(eligiblePersons);
         GridMotherIdentifiers.getItems().clear();
         GridClientLastENcounter.getItems().clear();
         GridClientIdentifiers.getItems().clear();
         GridCardSummary.getItems().clear();
-        GridEligibleList.getItems().clear();
         txtProcessLogger.clear();
 
         lblLastUpdatedFacility.setVisible(false);
@@ -340,7 +344,6 @@ public class HomeController  {
 
         btnWriteToCard.setDisable(true);
         btnReadCard.setDisable(true);
-        btnFormatCard.setDisable(true);
 
         readerWriter = new MainSmartCardReadWrite(txtProcessLogger, cboDeviceReaderList);
         btnConnectReader.setDisable(true);
@@ -355,6 +358,7 @@ public class HomeController  {
         btnEjectCard.setDisable(true);
         btnPushToEMR.setDisable(true);
         tpMainTabPane.getSelectionModel().select(0);
+        //txtProcessLogger.setText("");
 
     }
 
@@ -387,13 +391,43 @@ public class HomeController  {
         lblMotherNames.setVisible(false);
 
 
-        colPatientId.setCellValueFactory(new PropertyValueFactory<>("patientId"));
-        colFirstName.setCellValueFactory(new PropertyValueFactory<>("firstName"));
-        colMiddleName.setCellValueFactory(new PropertyValueFactory<>("middleName"));
-        colLastName.setCellValueFactory(new PropertyValueFactory<>("lastName"));
-        colGender.setCellValueFactory(new PropertyValueFactory<>("gender"));
-        colAge.setCellValueFactory(new PropertyValueFactory<>("age"));
-        GridEligibleList.setItems(FXCollections.observableArrayList(getEligibilityList()));
+        colPatientId.setCellValueFactory(cellData -> cellData.getValue().patientIdProperty());
+        colFirstName.setCellValueFactory(cellData -> cellData.getValue().firstNameProperty());
+        colMiddleName.setCellValueFactory(cellData -> cellData.getValue().middleNameProperty());
+        colLastName.setCellValueFactory(cellData -> cellData.getValue().lastNameProperty());
+        colGender.setCellValueFactory(cellData -> cellData.getValue().genderProperty());
+        colAge.setCellValueFactory(cellData -> cellData.getValue().ageProperty());
+
+        FilteredList<EligiblePerson> filteredData = new FilteredList<>(getEligibilityList(), p -> true);
+
+        // 2. Set the filter Predicate whenever the filter changes.
+        txtSearch.textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredData.setPredicate(person -> {
+                // If filter text is empty, display all persons.
+                if (newValue == null || newValue.isEmpty()) {
+                    return true;
+                }
+
+                // Compare first name and last name of every person with filter text.
+                String lowerCaseFilter = newValue.toLowerCase();
+
+                if (person.toString().toLowerCase().contains(lowerCaseFilter)) {
+                    return true; // Filter matches first name.
+                }
+                return false; // Does not match.
+            });
+        });
+
+        // 3. Wrap the FilteredList in a SortedList.
+        SortedList<EligiblePerson> sortedData = new SortedList<>(filteredData);
+
+        // 4. Bind the SortedList comparator to the TableView comparator.
+        sortedData.comparatorProperty().bind(GridEligibleList.comparatorProperty());
+
+        // 5. Add sorted (and filtered) data to the table.
+        GridEligibleList.setItems(sortedData);
+
+        // GridEligibleList.setItems(FXCollections.observableArrayList(getEligibilityList()));
         SmartCardUtils.displayOut(txtProcessLogger,  "Successfully fetched eligible clients");
 
 		GridEligibleList.setRowFactory( tv -> {
@@ -526,7 +560,7 @@ public class HomeController  {
         ObservableList<HIVTest> hivTests = FXCollections.observableArrayList();
         for(int i=0; i < shr.hIV_TEST.length;i++ ){
             HIVTest hivTest = new HIVTest(
-                    shr.hIV_TEST[i].dATE,
+                    DateFormater.formatDate(shr.hIV_TEST[i].dATE),
                     shr.hIV_TEST[i].rESULT,
                     shr.hIV_TEST[i].tYPE,
                     shr.hIV_TEST[i].fACILITY,
@@ -551,6 +585,9 @@ public class HomeController  {
         lblLastUpdated.setVisible(false);
         lblLastUpdatedFacility.setVisible(false);
         lblMotherNames.setVisible(false);
+
+        String facilityName = getURL("Facility Name");
+        lblFacilityName.setText(facilityName);
     }
 
     public void initVariable(String displayName, String facility){
@@ -578,7 +615,6 @@ public class HomeController  {
             btnReadCard.setDisable(false);
             btnLoadEligibleList.setDisable(false);
             btnLoadFromEMR.setDisable(false);
-            btnFormatCard.setDisable(false);
     }
 
     @FXML
@@ -718,7 +754,7 @@ public class HomeController  {
             Parent root = FXMLLoader.load(
                     Main.class.getResource("ApiEndpoints.fxml"));
             stage.setScene(new Scene(root));
-            stage.setTitle("EndPoint Configuration");
+            stage.setTitle("Configuration");
             stage.setMaximized(false);
             stage.setResizable(false);
             stage.initModality(Modality.APPLICATION_MODAL);
@@ -788,7 +824,6 @@ public class HomeController  {
     public void formatCard(ActionEvent event) {
         readerWriter.connectReader(btnConnectReader);
         btnReadCard.setDisable(true);
-        btnFormatCard.setDisable(true);
         readerWriter.formatCard();
     }
 

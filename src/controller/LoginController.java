@@ -60,8 +60,8 @@ public class LoginController {
     }
 
     public void validateLogin(ActionEvent actionEvent) {
+        goToLandingPage(null);
         Boolean isAuthenticated = false;
-
         if (username.getText().isEmpty() == true || password.getText().isEmpty() == true ) {
             lblMsg.setText("Please supply both the username and the password!");
             lblMsg.setStyle("-fx-background-color: rgba(6,6,33,0.8); -fx-border-width: 3px;");

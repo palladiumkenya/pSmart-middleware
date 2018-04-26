@@ -15,7 +15,7 @@
    <children>
       <AnchorPane layoutX="14.0" layoutY="-6.0" prefHeight="79.0" prefWidth="730.0" style="-fx-background-color: #9c2827;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <Label layoutX="30.0" layoutY="31.0" text="Middleware Endpoint Configuration" textFill="WHITE" AnchorPane.leftAnchor="30.0">
+            <Label layoutX="30.0" layoutY="31.0" text="Middleware Configuration" textFill="WHITE" AnchorPane.leftAnchor="30.0">
                <font>
                   <Font name="System Bold" size="15.0" />
                </font>
@@ -27,15 +27,15 @@
       </AnchorPane>
       <TabPane layoutX="8.0" layoutY="83.0" prefHeight="386.0" prefWidth="876.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="83.0">
          <tabs>
-            <Tab text="EndPoint Configuration">
+            <Tab text="Configuration">
                <content>
                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="470.0" prefWidth="730.0">
                      <children>
                         <TableView fx:id="GridClientLastEncounter" prefHeight="113.0" prefWidth="543.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="20.0">
                            <columns>
-                              <TableColumn fx:id="endpointPurpose" editable="false" prefWidth="75.0" text="Endpoint Purpose" />
+                              <TableColumn fx:id="endpointPurpose" editable="false" prefWidth="75.0" text="Description" />
 
-                               <TableColumn fx:id="endpointUrl" prefWidth="75.0" text="Endpoint Url">
+                               <TableColumn fx:id="endpointUrl" prefWidth="75.0" text="Value">
                                    <cellValueFactory>
                                        <PropertyValueFactory property="endpointUrl" />
                                    </cellValueFactory>
