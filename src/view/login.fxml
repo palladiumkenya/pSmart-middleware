@@ -35,9 +35,9 @@
                   <Font size="44.0" />
                </font>
             </Label>
-            <Label id="lblMsg" fx:id="lblMsg" layoutX="27.0" layoutY="124.0" prefHeight="24.0" prefWidth="328.0" textFill="#cdb4b4">
+            <Label id="lblMsg" fx:id="lblMsg" layoutX="27.0" layoutY="124.0" prefHeight="24.0" prefWidth="328.0" textFill="#cdb4b4" wrapText="true">
                <font>
-                  <Font size="20.0" />
+                  <Font size="14.0" />
                </font>
             </Label>
          </children>
