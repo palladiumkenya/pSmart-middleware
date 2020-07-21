@@ -93,6 +93,6 @@ public class EligiblePerson {
 
     @Override
     public String toString() {
-        return this.getFirstName() + " " + this.getMiddleName() + " " + this.getLastName();
+        return this.getFirstName().concat(" ").concat(this.getMiddleName()).concat(" ").concat(this.getLastName()).concat(" ").concat(this.getPatientId());
     }
 }

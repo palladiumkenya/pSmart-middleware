@@ -12,6 +12,8 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import static jsonvalidator.utils.EndpointUtils.getURL;
 
@@ -22,7 +24,9 @@ import static jsonvalidator.utils.EndpointUtils.getURL;
 public class APIClient {
     private static final String USER_AGENT = "Mozilla/5.0";
 
-    public static String fetchData(String SHRURL) {
+    public static Map<String, String> fetchData(String SHRURL) {
+        Map<String, String> response = new HashMap<>();
+
         String SHRJsonStr = "";
         try {
             URL url = new URL(SHRURL);
@@ -38,30 +42,28 @@ public class APIClient {
             conn.setRequestProperty("Accept", "application/json");
 
             if (conn.getResponseCode() != 200) {
-                throw new RuntimeException("Failed : HTTP error code : "
-                        + conn.getResponseCode());
+                response.put("response", conn.getResponseMessage());
+                response.put("success", "false");
             }
 
             BufferedReader br = new BufferedReader(new InputStreamReader(
                     (conn.getInputStream())));
 
-            System.out.println("Output from Server .... \n");
             String output = "";
             while ((output = br.readLine()) != null) {
-                //System.out.println(SHRJsonStr);
                 SHRJsonStr += output;
             }
-
             conn.disconnect();
-
+            response.put("response", SHRJsonStr);
+            response.put("success", "true");
         } catch (MalformedURLException e) {
-            System.out.println("MalformedURLException: " + e.getMessage());
+            response.put("response", "MalformedURLException: "+ e.getMessage());
+            response.put("success", "false");
         } catch (IOException e) {
-
-            System.out.println("IOException: " + e.getMessage());
-
+            response.put("response", "IOException: " + e.getMessage());
+            response.put("success", "false");
         }
-        return SHRJsonStr;
+        return response;
     }
 
     public static String postObject(Object obj, String purpose) {

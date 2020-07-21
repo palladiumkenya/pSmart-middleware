@@ -13,6 +13,7 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.image.Image?>
@@ -25,13 +26,13 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefHeight="715.0" prefWidth="956.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.HomeController">
+<VBox minHeight="-Infinity" prefHeight="628.0" prefWidth="1042.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.HomeController">
     <children>
         <MenuBar VBox.vgrow="NEVER">
             <menus>
                 <Menu mnemonicParsing="false" text="Reader Configuration">
                     <items>
-                        <MenuItem fx:id="mnuEndpointConfig" mnemonicParsing="false" onAction="#LoadEndpointConfig" text="Endpoint Config">
+                        <MenuItem fx:id="mnuEndpointConfig" mnemonicParsing="false" onAction="#LoadEndpointConfig" text="Configuration">
                             <graphic>
                                 <FontAwesomeIconView glyphName="WRENCH" size="20.0" />
                             </graphic>
@@ -40,7 +41,7 @@
                             <graphic>
                                 <FontAwesomeIconView glyphName="POWER_OFF" size="20.0" />
                             </graphic>
-                  </MenuItem>
+                        </MenuItem>
                     </items>
                     <graphic>
                         <FontAwesomeIconView glyphName="COG" size="20.0" />
@@ -48,7 +49,7 @@
                 </Menu>
                 <Menu mnemonicParsing="false" text="Help">
                     <items>
-                        <MenuItem mnemonicParsing="false" text="About MyHelloApp" />
+                        <MenuItem mnemonicParsing="false" text="About Psmart" />
                     </items>
                     <graphic>
                         <FontAwesomeIconView glyphName="ARROW_CIRCLE_ALT_RIGHT" size="20.0" />
@@ -56,49 +57,49 @@
                 </Menu>
             </menus>
         </MenuBar>
-        <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefWidth="970.0" VBox.vgrow="ALWAYS">
+        <AnchorPane maxHeight="-1.0" maxWidth="-1.0" minHeight="-Infinity" prefHeight="771.0" prefWidth="1042.0" VBox.vgrow="ALWAYS">
             <children>
-                <Pane layoutX="47.0" layoutY="9.0" mouseTransparent="true" opacity="0.81" prefHeight="97.0" prefWidth="825.0" style="-fx-background-color: #9c2827;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="2.0">
+                <Pane layoutX="47.0" layoutY="-3.0" mouseTransparent="true" opacity="0.81" prefHeight="85.0" prefWidth="1042.0" style="-fx-background-color: #9c2827;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="-3.0">
                     <effect>
                         <DropShadow />
                     </effect>
                     <children>
-                        <Label fx:id="lblpsmartTitle" layoutX="116.0" layoutY="11.0" text="P-SMART MIDDLEWARE " textFill="#f8f5f5" underline="true">
+                        <Label fx:id="lblpsmartTitle" layoutX="95.0" layoutY="5.0" prefHeight="47.0" prefWidth="390.0" text="P-SMART MIDDLEWARE " textFill="#f8f5f5" underline="true">
                             <font>
-                                <Font name="System Bold" size="32.0" />
+                                <Font name="System Bold" size="26.0" />
                             </font>
                         </Label>
-                        <Label id="lblFacilityName" fx:id="lblFacilityName" layoutX="213.0" layoutY="60.0" prefHeight="19.0" prefWidth="238.0" text="Mbagathi County Hospital" textFill="#f8f5f5">
+                        <Label id="lblFacilityName" fx:id="lblFacilityName" layoutX="133.0" layoutY="45.0" prefHeight="19.0" prefWidth="238.0" text="" textFill="#f8f5f5">
                             <font>
                                 <Font name="Century Gothic Bold" size="15.0" />
                             </font>
                         </Label>
-                        <ImageView fitHeight="89.0" fitWidth="88.0" layoutX="14.0" layoutY="5.0" pickOnBounds="true" preserveRatio="true">
+                        <ImageView fitHeight="62.0" fitWidth="88.0" layoutX="14.0" layoutY="5.0" pickOnBounds="true" preserveRatio="true">
                             <image>
                                 <Image url="@images/gok.png" />
                             </image>
                         </ImageView>
-                        <FontAwesomeIconView fill="WHITE" glyphName="MEDKIT" layoutX="175.0" layoutY="82.0" size="30.0" />
-                      <Label fx:id="lblUserId" alignment="CENTER_RIGHT" layoutX="662.0" layoutY="20.0" minWidth="-Infinity" prefHeight="37.0" prefWidth="297.0" text="Admin" textAlignment="JUSTIFY" textFill="#f8f5f5">
-                          <font>
-                              <Font name="Trebuchet MS Bold Italic" size="23.0" />
-                          </font>
-                          <padding>
-                              <Insets left="5.0" right="5.0" />
-                          </padding>
-                          <graphic>
-                              <FontAwesomeIconView fill="WHITE" glyphName="USER" size="20.0" />
-                          </graphic>
-                      </Label>
+                        <FontAwesomeIconView fill="WHITE" glyphName="MEDKIT" layoutX="95.0" layoutY="67.0" size="30.0" />
+                        <Label fx:id="lblUserId" alignment="CENTER_RIGHT" layoutX="662.0" layoutY="20.0" minWidth="-Infinity" prefHeight="37.0" prefWidth="297.0" text="Admin" textAlignment="JUSTIFY" textFill="#f8f5f5">
+                            <font>
+                                <Font name="Trebuchet MS Bold Italic" size="23.0" />
+                            </font>
+                            <padding>
+                                <Insets left="5.0" right="5.0" />
+                            </padding>
+                            <graphic>
+                                <FontAwesomeIconView fill="WHITE" glyphName="USER" size="20.0" />
+                            </graphic>
+                        </Label>
                     </children>
                 </Pane>
-                <TabPane fx:id="tpMainTabPane" layoutX="296.0" layoutY="330.0" prefHeight="299.0" prefWidth="669.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="70.0" AnchorPane.leftAnchor="296.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="330.0">
+                <TabPane fx:id="tpMainTabPane" layoutX="218.0" layoutY="304.0" prefHeight="415.0" prefWidth="764.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="200.0" AnchorPane.leftAnchor="218.0" AnchorPane.rightAnchor="60.0" AnchorPane.topAnchor="304.0">
                     <tabs>
                         <Tab text="Client Identifiers">
                             <content>
-                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="382.0" prefWidth="791.0">
                                     <children>
-                                        <TableView fx:id="GridClientIdentifiers" layoutX="27.0" layoutY="-1.0" prefHeight="113.0" prefWidth="543.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="15.0">
+                                        <TableView fx:id="GridClientIdentifiers" layoutX="27.0" layoutY="-1.0" prefHeight="378.0" prefWidth="764.0" AnchorPane.bottomAnchor="-7.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="15.0">
                                             <columns>
                                                 <TableColumn fx:id="colIdentifierId" prefWidth="75.0" text="Identifier Id" />
                                                 <TableColumn fx:id="colIdentifierType" prefWidth="75.0" text="Identifier Type" />
@@ -112,14 +113,14 @@
                                     </children></AnchorPane>
                             </content>
                             <graphic>
-                                <FontAwesomeIconView glyphName="CLIPBOARD" size="20.0" />
+                                <FontAwesomeIconView glyphName="USER" size="20.0" />
                             </graphic>
                         </Tab>
                         <Tab text="Mother Identifiers">
                             <content>
                                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                     <children>
-                                        <TableView fx:id="GridMotherIdentifiers" layoutX="14.0" layoutY="14.0" prefHeight="113.0" prefWidth="543.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="15.0">
+                                        <TableView fx:id="GridMotherIdentifiers" layoutX="14.0" layoutY="14.0" prefHeight="379.0" prefWidth="741.0" AnchorPane.bottomAnchor="-6.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="15.0">
                                             <columns>
                                                 <TableColumn fx:id="colMotherIdentifierId" prefWidth="75.0" text="Identifier Id" />
                                                 <TableColumn fx:id="colMotherIdentifierType" prefWidth="75.0" text="Identifier Type" />
@@ -133,7 +134,7 @@
                                     </children></AnchorPane>
                             </content>
                             <graphic>
-                                <FontAwesomeIconView glyphName="CLONE" size="20.0" />
+                                <FontAwesomeIconView glyphName="FEMALE" size="20.0" />
                             </graphic>
                         </Tab>
                         <Tab text="HIV Tests">
@@ -155,7 +156,7 @@
                                     </children></AnchorPane>
                             </content>
                             <graphic>
-                                <FontAwesomeIconView glyphName="OBJECT_UNGROUP" size="20.0" />
+                                <FontAwesomeIconView glyphName="CLIPBOARD" size="20.0" />
                             </graphic>
                         </Tab>
                         <Tab text="Immunizations">
@@ -174,20 +175,20 @@
                                         </TableView>
                                     </children></AnchorPane>
                             </content>
-                     <graphic>
-                        <FontAwesomeIconView glyphName="CLONE" size="20.0" />
-                     </graphic>
+                            <graphic>
+                                <FontAwesomeIconView glyphName="CLONE" size="20.0" />
+                            </graphic>
                         </Tab>
                         <Tab text="Eligible List">
                             <content>
                                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                     <children>
                                         <Label prefHeight="19.0" prefWidth="500.0" text="Double click a patient record to initiate a card assignment" textFill="#3f8a44" wrapText="true">
-                                 <font>
-                                    <Font name="System Bold" size="12.0" />
-                                 </font>
+                                            <font>
+                                                <Font name="System Bold" size="12.0" />
+                                            </font>
                                         </Label>
-                                        <TableView fx:id="GridEligibleList" layoutX="27.0" layoutY="47.0" prefHeight="478.0" prefWidth="655.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="47.0">
+                                        <TableView fx:id="GridEligibleList" layoutX="27.0" layoutY="55.0" prefHeight="331.0" prefWidth="764.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="55.0">
                                             <columns>
                                                 <TableColumn fx:id="colPatientId" prefWidth="75.0" text="Patient Id" />
                                                 <TableColumn fx:id="colFirstName" prefWidth="75.0" text="First Name" />
@@ -200,15 +201,16 @@
                                                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                                             </columnResizePolicy>
                                         </TableView>
+                              <TextField fx:id="txtSearch" layoutY="22.0" prefHeight="25.0" prefWidth="329.0" promptText="Search by client name..." />
                                     </children></AnchorPane>
                             </content>
                             <graphic>
-                                <FontAwesomeIconView glyphName="OBJECT_UNGROUP" size="20.0" />
+                                <FontAwesomeIconView glyphName="USERS" size="20.0" />
                             </graphic>
                         </Tab>
                     </tabs>
                 </TabPane>
-                <ToolBar layoutX="-148.0" layoutY="99.0" opacity="0.82" prefHeight="47.0" prefWidth="951.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="102.0">
+                <ToolBar layoutX="-148.0" layoutY="80.0" opacity="0.82" prefHeight="37.0" prefWidth="1037.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="80.0">
                     <items>
                         <Label prefHeight="25.0" prefWidth="146.0" text="Select  Device :" wrapText="true">
                             <font>
@@ -218,42 +220,42 @@
                                 <Insets left="5.0" right="5.0" />
                             </padding>
                         </Label>
-                  <JFXComboBox fx:id="cboDeviceReaderList" prefHeight="25.0" prefWidth="373.0" promptText="---- Device List -------" unFocusColor="#9c2827" />
+                        <JFXComboBox fx:id="cboDeviceReaderList" prefHeight="25.0" prefWidth="373.0" promptText="---- Device List -------" unFocusColor="#9c2827" />
                     </items>
                 </ToolBar>
-                <Button fx:id="btnInitialiseReader" contentDisplay="TOP" defaultButton="true" layoutX="296.0" layoutY="156.0" mnemonicParsing="false" onAction="#initialiseCardReader" prefHeight="47.0" prefWidth="167.0" text="Initialize Reader" wrapText="true" AnchorPane.leftAnchor="296.0" AnchorPane.topAnchor="156.0">
+                <Button fx:id="btnInitialiseReader" contentDisplay="TOP" defaultButton="true" layoutX="218.0" layoutY="126.0" mnemonicParsing="false" onAction="#initialiseCardReader" prefHeight="56.0" prefWidth="140.0" text="Initialize Reader" wrapText="true" AnchorPane.leftAnchor="218.0" AnchorPane.topAnchor="126.0">
                     <graphic>
                         <FontAwesomeIconView glyphName="CROSSHAIRS" size="20.0" />
                     </graphic>
                     <font>
                         <Font name="System Bold" size="15.0" />
                     </font></Button>
-                <Button fx:id="btnConnectReader" contentDisplay="TOP" defaultButton="true" disable="true" layoutX="467.0" layoutY="156.0" mnemonicParsing="false" onAction="#connectReader" prefHeight="47.0" prefWidth="158.0" text="Connect Reader" AnchorPane.leftAnchor="467.0" AnchorPane.topAnchor="156.0">
+                <Button fx:id="btnConnectReader" contentDisplay="TOP" defaultButton="true" disable="true" layoutX="369.0" layoutY="126.0" mnemonicParsing="false" onAction="#connectReader" prefHeight="56.0" prefWidth="134.0" text="Connect Reader" AnchorPane.leftAnchor="369.0" AnchorPane.topAnchor="126.0">
                     <graphic>
                         <FontAwesomeIconView fontSmoothingType="LCD" glyphName="SITEMAP" size="20.0" wrappingWidth="27.000005155801773" />
                     </graphic>
                     <font>
                         <Font name="System Bold" size="15.0" />
                     </font></Button>
-                <Button fx:id="btnLoadFromEMR" contentDisplay="TOP" disable="true" layoutX="23.0" layoutY="291.0" mnemonicParsing="false" onAction="#getFromEMR" prefHeight="62.0" prefWidth="265.0" text="Load From EMR">
+                <Button fx:id="btnLoadFromEMR" contentDisplay="TOP" disable="true" layoutX="23.0" layoutY="191.0" mnemonicParsing="false" onAction="#getFromEMR" prefHeight="56.0" prefWidth="178.0" text="Load From EMR">
                     <graphic>
-                        <FontAwesomeIconView glyphName="CLONE" size="20.0" />
+                        <FontAwesomeIconView glyphName="ARCHIVE" size="20.0" />
                     </graphic>
                     <font>
                         <Font name="System Bold" size="16.0" />
                     </font>
                 </Button>
-                <Button fx:id="btnReadCard" contentDisplay="TOP" disable="true" layoutX="23.0" layoutY="157.0" mnemonicParsing="false" onAction="#readCardContent" prefHeight="56.0" prefWidth="265.0" text="Read Client Card" AnchorPane.leftAnchor="23.0" AnchorPane.topAnchor="157.0">
+                <Button fx:id="btnReadCard" contentDisplay="TOP" disable="true" layoutX="23.0" layoutY="126.0" mnemonicParsing="false" onAction="#readCardContent" prefHeight="56.0" prefWidth="178.0" text="Read Client Card" AnchorPane.leftAnchor="23.0" AnchorPane.topAnchor="126.0">
                     <graphic>
-                        <FontAwesomeIconView glyphName="SERVER" size="20.0" />
+                        <FontAwesomeIconView glyphName="BOOK" size="20.0" />
                     </graphic>
                     <font>
                         <Font name="System Bold" size="15.0" />
                     </font>
                 </Button>
-                <AnchorPane layoutX="296.0" layoutY="218.0" opacity="0.94" prefHeight="105.0" prefWidth="545.0" style="-fx-background-color: #9c2827;" AnchorPane.leftAnchor="294.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="222.0">
+                <AnchorPane layoutX="218.0" layoutY="191.0" opacity="0.94" prefHeight="110.0" prefWidth="764.0" style="-fx-background-color: #9c2827;" AnchorPane.leftAnchor="218.0" AnchorPane.rightAnchor="60.0" AnchorPane.topAnchor="191.0">
                     <children>
-                        <GridPane layoutX="14.0" layoutY="14.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="0.0">
+                        <GridPane layoutX="-76.0" layoutY="14.0" prefHeight="110.0" prefWidth="754.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="0.0">
                             <columnConstraints>
                                 <ColumnConstraints hgrow="SOMETIMES" maxWidth="325.0" minWidth="10.0" prefWidth="325.0" />
                                 <ColumnConstraints hgrow="SOMETIMES" maxWidth="421.0" minWidth="10.0" prefWidth="210.0" />
@@ -262,7 +264,7 @@
                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        <RowConstraints />
+                                <RowConstraints />
                             </rowConstraints>
                             <children>
                                 <Label fx:id="lblCurrentPatient" text="Insert a card to read it's contents." textFill="WHITE">
@@ -297,14 +299,14 @@
                                         <Font size="14.0" />
                                     </font>
                                 </Label>
-                        <Label fx:id="lblStatus" alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="1000.0" layoutY="27.0" text="Card Status: ACTIVE" textAlignment="RIGHT" textFill="WHITE" GridPane.columnIndex="1" GridPane.columnSpan="2147483647">
-                           <font>
-                              <Font size="16.0" />
-                           </font>
-                           <GridPane.margin>
-                              <Insets left="200.0" />
-                           </GridPane.margin>
-                        </Label>
+                                <Label fx:id="lblStatus" alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="1000.0" layoutY="27.0" text="Card Status: ACTIVE" textAlignment="RIGHT" textFill="WHITE" GridPane.columnIndex="1" GridPane.columnSpan="2147483647">
+                                    <font>
+                                        <Font size="16.0" />
+                                    </font>
+                                    <GridPane.margin>
+                                        <Insets left="200.0" />
+                                    </GridPane.margin>
+                                </Label>
                                 <Label fx:id="lblLastUpdated" alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="1000.0" layoutY="27.0" text="Last Updated: 12 May 2012" textAlignment="RIGHT" textFill="WHITE" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.rowIndex="1">
                                     <font>
                                         <Font size="16.0" />
@@ -325,7 +327,7 @@
                         </GridPane>
                     </children>
                 </AnchorPane>
-                <TextArea fx:id="txtProcessLogger" layoutX="23.0" layoutY="436.0" prefHeight="511.0" prefWidth="265.0" promptText="logger" wrapText="true" AnchorPane.bottomAnchor="9.0" AnchorPane.topAnchor="436.0">
+                <TextArea fx:id="txtProcessLogger" layoutX="23.0" layoutY="331.0" prefHeight="242.0" prefWidth="178.0" promptText="logger" wrapText="true" AnchorPane.bottomAnchor="198.0" AnchorPane.topAnchor="331.0">
                     <font>
                         <Font size="14.0" />
                     </font>
@@ -340,57 +342,42 @@
                         <RowConstraints maxHeight="48.0" minHeight="0.0" prefHeight="24.0" vgrow="SOMETIMES" />
                         <RowConstraints maxHeight="46.0" minHeight="10.0" prefHeight="36.0" vgrow="SOMETIMES" />
                     </rowConstraints>
-                    <children>
-                        <AnchorPane prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="2">
-                            <children>
-                                <Button fx:id="btnWriteToCard" contentDisplay="TOP" disable="true" layoutX="156.0" layoutY="24.0" mnemonicParsing="false" onAction="#writeToCard" prefHeight="56.0" prefWidth="158.0" text="Write To Card" AnchorPane.leftAnchor="156.0" AnchorPane.topAnchor="30.0">
-                                    <graphic>
-                                        <FontAwesomeIconView glyphName="DATABASE" size="20.0" />
-                                    </graphic>
-                                    <font>
-                                        <Font name="System Bold" size="15.0" />
-                                    </font>
-                                </Button>
-
-
-                                <Button fx:id="btnPushToEMR" contentDisplay="TOP" disable="true" layoutY="23.0" mnemonicParsing="false" onAction="#sendDataToEmr" prefHeight="56.0" prefWidth="148.0" text="Push To EMR" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="30.0">
-                                    <graphic>
-                                        <FontAwesomeIconView glyphName="EXTERNAL_LINK" size="20.0" />
-                                    </graphic>
-                                    <font>
-                                        <Font name="System Bold" size="15.0" />
-                                    </font>
-                                </Button>
-                            </children>
-                        </AnchorPane>
-                    </children>
                 </GridPane>
-            <Button fx:id="btnLoadEligibleList" contentDisplay="TOP" disable="true" layoutX="23.0" layoutY="362.0" mnemonicParsing="false" onAction="#getEligibleList" prefHeight="62.0" prefWidth="265.0" text="Load Eligible Clients">
-               <graphic>
-                  <FontAwesomeIconView glyphName="USERS" size="20.0" text="" />
-               </graphic>
-               <font>
-                  <Font name="System Bold" size="16.0" />
-               </font>
-            </Button>
-            <Button fx:id="btnEjectCard" contentDisplay="TOP" disable="true" layoutX="623.0" layoutY="900.0" mnemonicParsing="false" onAction="#nextCard" prefHeight="56.0" prefWidth="158.0" text="Next Card">
-               <graphic>
-                  <FontAwesomeIconView glyphName="DATABASE" size="20.0" />
-               </graphic>
-               <font>
-                  <Font name="System Bold" size="15.0" />
-               </font>
-            </Button>
-            <Button fx:id="btnFormatCard" contentDisplay="TOP" disable="true" layoutX="23.0" layoutY="222.0" mnemonicParsing="false" onAction="#formatCard" prefHeight="56.0" prefWidth="265.0" text="Format Card">
-               <graphic>
-                  <FontAwesomeIconView glyphName="SERVER" size="20.0" />
-               </graphic>
-               <font>
-                  <Font name="System Bold" size="15.0" />
-               </font>
-            </Button>
+                <Button fx:id="btnLoadEligibleList" contentDisplay="TOP" disable="true" layoutX="23.0" layoutY="260.0" mnemonicParsing="false" onAction="#getEligibleList" prefHeight="56.0" prefWidth="178.0" text="Load Eligible Clients">
+                    <graphic>
+                        <FontAwesomeIconView glyphName="USERS" size="20.0" />
+                    </graphic>
+                    <font>
+                        <Font name="System Bold" size="16.0" />
+                    </font>
+                </Button>
+                <Button fx:id="btnEjectCard" contentDisplay="TOP" disable="true" layoutX="871.0" layoutY="126.0" mnemonicParsing="false" onAction="#nextCard" prefHeight="56.0" prefWidth="115.0" text="Next Card">
+                    <graphic>
+                        <FontAwesomeIconView glyphName="FORWARD" size="20.0" />
+                    </graphic>
+                    <font>
+                        <Font name="System Bold" size="15.0" />
+                    </font>
+                </Button>
+
+
+                    <Button fx:id="btnPushToEMR" contentDisplay="TOP" disable="true" layoutX="614.0" layoutY="126.0" mnemonicParsing="false" onAction="#sendDataToEmr" prefHeight="56.0" prefWidth="115.0" text="Push To EMR" AnchorPane.leftAnchor="614.0" AnchorPane.topAnchor="126.0">
+                        <graphic>
+                            <FontAwesomeIconView glyphName="EXTERNAL_LINK" size="20.0" />
+                        </graphic>
+                        <font>
+                            <Font name="System Bold" size="15.0" />
+                        </font>
+                    </Button>
+                    <Button fx:id="btnWriteToCard" contentDisplay="TOP" disable="true" layoutX="740.0" layoutY="126.0" mnemonicParsing="false" onAction="#writeToCard" prefHeight="56.0" prefWidth="122.0" text="Write To Card" AnchorPane.leftAnchor="740.0" AnchorPane.topAnchor="126.0">
+                        <graphic>
+                            <FontAwesomeIconView glyphName="PENCIL" size="20.0" />
+                        </graphic>
+                        <font>
+                            <Font name="System Bold" size="15.0" />
+                        </font>
+                    </Button>
             </children>
         </AnchorPane>
-        <ToolBar prefHeight="35.0" prefWidth="923.0" />
     </children>
 </VBox>
