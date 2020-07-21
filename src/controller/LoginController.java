@@ -22,9 +22,11 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import view.Main;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URL;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 public class LoginController {
@@ -59,7 +61,6 @@ public class LoginController {
 
     public void validateLogin(ActionEvent actionEvent) {
         Boolean isAuthenticated = false;
-        //goToLandingPage(null);
 
         if (username.getText().isEmpty() == true || password.getText().isEmpty() == true ) {
             lblMsg.setText("Please supply both the username and the password!");
