@@ -489,19 +489,26 @@ public class HomeController  {
     private final ObservableList<EligiblePerson> getEligibilityList(){
         ObservableList<EligiblePerson> eligiblePersons = FXCollections.observableArrayList();
         String eligibleListUrl = getURL("HTTP GET - Fetch eligible list from EMR");
-        String eligibleListStr = APIClient.fetchData(eligibleListUrl);
-        List<EligibleList> eligibleList = SHRUtils.getEligibleList(eligibleListStr);
-        for(int i=0; i < eligibleList.size(); i++) {
-            EligiblePerson eligiblePerson = new EligiblePerson(
-                    eligibleList.get(i).getPatientId(),
-                    eligibleList.get(i).getFirstName(),
-                    eligibleList.get(i).getMiddleName(),
-                    eligibleList.get(i).getLastName(),
-                    eligibleList.get(i).getGender(),
-                    eligibleList.get(i).getAge()
-            );
-            eligiblePersons.add(eligiblePerson);
+        Map<String, String> responseMap = APIClient.fetchData(eligibleListUrl);
+        String response = responseMap.get("response");
+        String success = responseMap.get("success");
+        if(success.equals("true")) {
+            List<EligibleList> eligibleList = SHRUtils.getEligibleList(response);
+            for(int i=0; i < eligibleList.size(); i++) {
+                EligiblePerson eligiblePerson = new EligiblePerson(
+                        eligibleList.get(i).getPatientId(),
+                        eligibleList.get(i).getFirstName(),
+                        eligibleList.get(i).getMiddleName(),
+                        eligibleList.get(i).getLastName(),
+                        eligibleList.get(i).getGender(),
+                        eligibleList.get(i).getAge()
+                );
+                eligiblePersons.add(eligiblePerson);
+            }
+        } else {
+            SmartCardUtils.displayOut(txtProcessLogger, response);
         }
+
         return eligiblePersons;
     }
 
@@ -704,6 +711,7 @@ public class HomeController  {
         EncryptedSHR encSHR = new EncryptedSHR(encSHRStr, addendum);
         return encSHR;
     }
+
     public void LoadEndpointConfig(ActionEvent event) throws ParseException{
         try {
             Stage stage = new Stage();
@@ -797,50 +805,56 @@ public class HomeController  {
                 url += (url.endsWith("/")) ? cardSerialNo : "/" + cardSerialNo;
             }
             System.out.println(url);
-            String SHRStr = APIClient.fetchData(url);
-            shrFromEMR = SHRUtils.getSHRObj(SHRStr);
-            loadImmunizations(shrFromEMR);
-            loadIdentifiers(shrFromEMR);
-            loadHIVTests(shrFromEMR);
-            loadMotherIdentifiers(shrFromEMR);
-            showCurrentClient(shrFromEMR);
-            showCardDetails(shrFromEMR);
+            Map<String, String> responseMap = APIClient.fetchData(url);
+            String response = responseMap.get("response");
+            String success = responseMap.get("success");
+            if(success.equals("true")) {
+                shrFromEMR = SHRUtils.getSHRObj(response);
+                loadImmunizations(shrFromEMR);
+                loadIdentifiers(shrFromEMR);
+                loadHIVTests(shrFromEMR);
+                loadMotherIdentifiers(shrFromEMR);
+                showCurrentClient(shrFromEMR);
+                showCardDetails(shrFromEMR);
 
-            if(shr != null) {
-                DiffResult diffPID = shrFromEMR.pATIENT_IDENTIFICATION.diff(shr.pATIENT_IDENTIFICATION);
-                DiffResult diffCardDetails = shrFromEMR.cARD_DETAILS.diff(shr.cARD_DETAILS);
+                if(shr != null) {
+                    DiffResult diffPID = shrFromEMR.pATIENT_IDENTIFICATION.diff(shr.pATIENT_IDENTIFICATION);
+                    DiffResult diffCardDetails = shrFromEMR.cARD_DETAILS.diff(shr.cARD_DETAILS);
 
-                List<String> diffs = new ArrayList<>();
-                for(Diff<?> d: diffPID.getDiffs()) {
-                    diffs.add(d.getFieldName() + " FROM [" + d.getRight() + "] TO [" + d.getLeft() + "]");
-                }
-                for(Diff<?> d: diffCardDetails.getDiffs()) {
-                    diffs.add(d.getFieldName() + " FROM [" + d.getRight() + "] TO [" + d.getLeft() + "]");
-                }
-                String formattedDiffs = "";
-                if(diffs.size() > 0) {
-                    formattedDiffs.concat("Changes from the EMR:\n");
-                    for (String diff : diffs) {
-                        formattedDiffs.concat("- ").concat(diff).concat("\n");
+                    List<String> diffs = new ArrayList<>();
+                    for(Diff<?> d: diffPID.getDiffs()) {
+                        diffs.add(d.getFieldName() + " FROM [" + d.getRight() + "] TO [" + d.getLeft() + "]");
                     }
-                    SmartCardUtils.displayOut(txtProcessLogger, formattedDiffs);
+                    for(Diff<?> d: diffCardDetails.getDiffs()) {
+                        diffs.add(d.getFieldName() + " FROM [" + d.getRight() + "] TO [" + d.getLeft() + "]");
+                    }
+                    String formattedDiffs = "";
+                    if(diffs.size() > 0) {
+                        formattedDiffs.concat("Changes from the EMR:\n");
+                        for (String diff : diffs) {
+                            formattedDiffs.concat("- ").concat(diff).concat("\n");
+                        }
+                        SmartCardUtils.displayOut(txtProcessLogger, formattedDiffs);
+                    }
+                    shrFromEMR.hIV_TEST = getFinalHIVTests(shrFromEMR.hIV_TEST, shr.hIV_TEST).toArray(new SHR.HIV_TEST[0]);
+                    shrFromEMR.iMMUNIZATION = getFinalImmunizations(shrFromEMR.iMMUNIZATION, shr.iMMUNIZATION).toArray(new SHR.IMMUNIZATION[0]);
+
+                    shrFromEMR.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID = getFinalIdentifiers(
+                            shrFromEMR.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID,
+                            shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID).toArray(new SHR.PATIENT_IDENTIFICATION.INTERNAL_PATIENT_ID[0]);
+
+                    shrFromEMR.pATIENT_IDENTIFICATION.mOTHER_DETAILS.mOTHER_IDENTIFIER = getFinalMotherIdentifiers(
+                            shrFromEMR.pATIENT_IDENTIFICATION.mOTHER_DETAILS.mOTHER_IDENTIFIER,
+                            shr.pATIENT_IDENTIFICATION.mOTHER_DETAILS.mOTHER_IDENTIFIER).toArray(new SHR.PATIENT_IDENTIFICATION.MOTHER_DETAILS.MOTHER_IDENTIFIER[0]);
                 }
-                shrFromEMR.hIV_TEST = getFinalHIVTests(shrFromEMR.hIV_TEST, shr.hIV_TEST).toArray(new SHR.HIV_TEST[0]);
-                shrFromEMR.iMMUNIZATION = getFinalImmunizations(shrFromEMR.iMMUNIZATION, shr.iMMUNIZATION).toArray(new SHR.IMMUNIZATION[0]);
-
-                shrFromEMR.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID = getFinalIdentifiers(
-                        shrFromEMR.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID,
-                        shr.pATIENT_IDENTIFICATION.iNTERNAL_PATIENT_ID).toArray(new SHR.PATIENT_IDENTIFICATION.INTERNAL_PATIENT_ID[0]);
-
-                shrFromEMR.pATIENT_IDENTIFICATION.mOTHER_DETAILS.mOTHER_IDENTIFIER = getFinalMotherIdentifiers(
-                        shrFromEMR.pATIENT_IDENTIFICATION.mOTHER_DETAILS.mOTHER_IDENTIFIER,
-                        shr.pATIENT_IDENTIFICATION.mOTHER_DETAILS.mOTHER_IDENTIFIER).toArray(new SHR.PATIENT_IDENTIFICATION.MOTHER_DETAILS.MOTHER_IDENTIFIER[0]);
+                tpMainTabPane.getSelectionModel().select(0);
+                btnWriteToCard.setDisable(false);
+                btnLoadFromEMR.setDisable(true);
+                btnPushToEMR.setDisable(true);
+                SmartCardUtils.displayOut(txtProcessLogger, "Successfully retrieved SHR from the EMR");
+            } else {
+                SmartCardUtils.displayOut(txtProcessLogger, responseMap.get("response"));
             }
-            tpMainTabPane.getSelectionModel().select(0);
-            btnWriteToCard.setDisable(false);
-            btnLoadFromEMR.setDisable(true);
-            btnPushToEMR.setDisable(true);
-            SmartCardUtils.displayOut(txtProcessLogger, "Successfully retrieved SHR from the EMR");
         } else {
             SmartCardUtils.displayOut(txtProcessLogger, "Please specify the `"+purpose+"` endpoint url!");
         }
